@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://ce0ko35wk4p05"]
+
+[ext_resource type="PackedScene" uid="uid://ddxrwrqy8acq4" path="res://dungeon/assets/wall_soil.glb" id="1_86mo4"]
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_socol"]
+
+[resource]
+script = ExtResource("1_socol")
+model = ExtResource("1_86mo4")
+price = 10
+metadata/_custom_type_script = "uid://b4i7dfy6u3e8w"

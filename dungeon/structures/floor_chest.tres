@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://cv05b0880ryqb"]
+
+[ext_resource type="PackedScene" uid="uid://bq00k0dpw454p" path="res://dungeon/assets/floor_chest.glb" id="1_726ij"]
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_n0itn"]
+
+[resource]
+script = ExtResource("1_n0itn")
+model = ExtResource("1_726ij")
+price = 10
+metadata/_custom_type_script = "uid://b4i7dfy6u3e8w"
