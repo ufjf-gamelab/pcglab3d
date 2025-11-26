@@ -8,9 +8,9 @@
 | <kbd>F</kbd> | Camera to center |
 | <kbd>Middle mouse button</kbd> | Hold to rotate camera |
 | <kbd>Scroll wheel</kbd> | Zoom |
-| <kbd>Left mouse button</kbd> | Place building |
-| <kbd>DEL</kbd> | Remove building |
-| <kbd>Right mouse button</kbd> | Rotate building |
-| <kbd>Q</kbd> <kbd>E</kbd>  | Toggle between buildings |
+| <kbd>Left mouse button</kbd> | Place structure |
+| <kbd>DEL</kbd> | Remove structure |
+| <kbd>Right mouse button</kbd> | Rotate structure |
+| <kbd>Q</kbd> <kbd>E</kbd>  | Toggle between structures |
 | <kbd>F1</kbd> | Save |
 | <kbd>F2</kbd> | Load |
