@@ -1,6 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://vgwrcfy1qawf"]
+[gd_scene load_steps=23 format=3 uid="uid://vgwrcfy1qawf"]
 
 [ext_resource type="Script" uid="uid://76g8ejmdibal" path="res://scripts/builder.gd" id="1_jybm7"]
+[ext_resource type="Script" uid="uid://jatc8o6cw38x" path="res://scenes/main.gd" id="1_yc10j"]
 [ext_resource type="Environment" uid="uid://jbptgqvstei3" path="res://scenes/main-environment.tres" id="1_yndf3"]
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="2_eb6dy"]
 [ext_resource type="Resource" uid="uid://dkj23sxu68lq2" path="res://dungeon/structures/wall.tres" id="3_dp3eg"]
@@ -27,10 +28,11 @@ font_size = 24
 shadow_color = Color(0, 0, 0, 0.392157)
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_yc10j")
 
 [node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
 script = ExtResource("1_jybm7")
-structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("3_trceg"), ExtResource("4_a8y0u"), ExtResource("5_jkv2x"), ExtResource("6_a8y0u"), ExtResource("7_jkv2x"), ExtResource("10_gqmmt"), ExtResource("11_yc10j"), ExtResource("12_gqmmt"), ExtResource("13_yc10j")])
+structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("3_trceg"), ExtResource("4_a8y0u"), ExtResource("5_jkv2x"), ExtResource("6_a8y0u"), ExtResource("7_jkv2x"), ExtResource("10_gqmmt"), ExtResource("11_yc10j"), ExtResource("13_yc10j")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/Camera")
