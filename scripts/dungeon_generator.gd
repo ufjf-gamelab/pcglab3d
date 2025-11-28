@@ -4,6 +4,8 @@ extends Node
 const WALL_ID = 0
 const SOLID_ID = 1
 const FLOOR_ID = 2
+const COIN_ID = 3
+const NPC_ID = 4
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
@@ -39,6 +41,9 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: 
 		if is_shape_valid(candidate_shape, existing_rects, map_size):
 			# Cria a sala
 			create_shape(target_grid_map, candidate_shape)
+			
+			# Adiciona Moeda e NPC nesta sala recém criada
+			spawn_room_objects(target_grid_map, candidate_shape)
 			
 			# Adiciona sala no Array de salas existentes
 			existing_rects.append_array(candidate_shape)
@@ -143,6 +148,7 @@ func add_room_walls(grid: GridMap, size: int):
 				if is_touching_floor(grid, x, z):
 					grid.set_cell_item(pos, WALL_ID)
 
+# Verifica se tem chão na vizinhança
 func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 	# Percorre de x-1 até x+1 e z-1 até z+1
 	for offset_x in [-1, 0, 1]:
@@ -160,3 +166,27 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 				return true
 				
 	return false
+	
+# Posiciona 1 Moeda e 1 NPC em posições aleatórias dentro da sala
+func spawn_room_objects(grid: GridMap, shape: Array[Rect2i]):
+	var available_spots: Array[Vector3i] = []
+	
+	# Coleta todos os blocos de chão disponíveis na forma da sala
+	for rect in shape:
+		for x in range(rect.position.x, rect.end.x):
+			for z in range(rect.position.y, rect.end.y):
+				var pos = Vector3i(x, 0, z)
+				# Evita duplicatas
+				if not pos in available_spots:
+					available_spots.append(pos)
+	
+	# Embaralha os locais disponíveis
+	available_spots.shuffle()
+	
+	# Posiciona a moeda no primeiro slot disponível
+	if available_spots.size() > 0:
+		grid.set_cell_item(available_spots.pop_front(), COIN_ID)
+		
+	# Posiciona o NPC no próximo slot disponível
+	if available_spots.size() > 0:
+		grid.set_cell_item(available_spots.pop_front(), NPC_ID)
