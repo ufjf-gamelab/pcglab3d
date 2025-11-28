@@ -6,6 +6,7 @@ const SOLID_ID = 1
 const FLOOR_ID = 2
 const COIN_ID = 3
 const NPC_ID = 4
+const PORTAL_ID = 5
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
@@ -162,7 +163,7 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 			var neighbor_id = grid.get_cell_item(neighbor_pos)
 			
 			# Se algum vizinho for chão, retorna verdadeiro
-			if neighbor_id == FLOOR_ID:
+			if neighbor_id == FLOOR_ID or neighbor_id == COIN_ID or neighbor_id == PORTAL_ID or neighbor_id == NPC_ID:
 				return true
 				
 	return false
@@ -179,6 +180,31 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i]):
 				# Evita duplicatas
 				if not pos in available_spots:
 					available_spots.append(pos)
+	
+	var portal1_pos = Vector3i()
+	var portal2_pos = Vector3i()
+	var max_dist_sq = -1.0
+	
+	# Compara todos os pontos com todos os pontos para achar a maior distância
+	if available_spots.size() >= 2:
+		for i in range(available_spots.size()):
+			for j in range(i + 1, available_spots.size()):
+				var p1 = available_spots[i]
+				var p2 = available_spots[j]
+				var dist = Vector3(p1).distance_squared_to(Vector3(p2))
+				
+				if dist > max_dist_sq:
+					max_dist_sq = dist
+					portal1_pos = p1
+					portal2_pos = p2
+		
+		# Posiciona os portais
+		grid.set_cell_item(portal1_pos, PORTAL_ID)
+		grid.set_cell_item(portal2_pos, PORTAL_ID)
+		
+		# Remove as posições usadas pelos portais
+		available_spots.erase(portal1_pos)
+		available_spots.erase(portal2_pos)
 	
 	# Embaralha os locais disponíveis
 	available_spots.shuffle()
