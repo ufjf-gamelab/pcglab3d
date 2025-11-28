@@ -32,7 +32,7 @@ script = ExtResource("1_yc10j")
 
 [node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
 script = ExtResource("1_jybm7")
-structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("7_jkv2x"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
+structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/Camera")

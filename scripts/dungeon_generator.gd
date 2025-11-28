@@ -7,6 +7,7 @@ const FLOOR_ID = 2
 const COIN_ID = 3
 const NPC_ID = 4
 const PORTAL_ID = 5
+const PLAYER_SPAWN_ID = 6
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
@@ -43,8 +44,12 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: 
 			# Cria a sala
 			create_shape(target_grid_map, candidate_shape)
 			
-			# Adiciona Moeda e NPC nesta sala recém criada
-			spawn_room_objects(target_grid_map, candidate_shape)
+	
+			# Verifica se esta é a primeira sala criada
+			var is_player_room = true if rooms_created == 0 else false
+			
+			# Adiciona objetos nesta sala recém criada
+			spawn_room_objects(target_grid_map, candidate_shape, is_player_room)
 			
 			# Adiciona sala no Array de salas existentes
 			existing_rects.append_array(candidate_shape)
@@ -163,13 +168,13 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 			var neighbor_id = grid.get_cell_item(neighbor_pos)
 			
 			# Se algum vizinho for chão, retorna verdadeiro
-			if neighbor_id == FLOOR_ID or neighbor_id == COIN_ID or neighbor_id == PORTAL_ID or neighbor_id == NPC_ID:
+			if neighbor_id == FLOOR_ID or neighbor_id == COIN_ID or neighbor_id == PORTAL_ID or neighbor_id == NPC_ID or neighbor_id == PLAYER_SPAWN_ID:
 				return true
 				
 	return false
 	
-# Posiciona 1 Moeda e 1 NPC em posições aleatórias dentro da sala
-func spawn_room_objects(grid: GridMap, shape: Array[Rect2i]):
+# Posiciona 'objetos' na sala
+func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool = false):
 	var available_spots: Array[Vector3i] = []
 	
 	# Coleta todos os blocos de chão disponíveis na forma da sala
@@ -208,6 +213,10 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i]):
 	
 	# Embaralha os locais disponíveis
 	available_spots.shuffle()
+	
+	# Posiciona o spawn do player se for nesta sala
+	if spawn_player and available_spots.size() > 0:
+		grid.set_cell_item(available_spots.pop_front(), PLAYER_SPAWN_ID)
 	
 	# Posiciona a moeda no primeiro slot disponível
 	if available_spots.size() > 0:
