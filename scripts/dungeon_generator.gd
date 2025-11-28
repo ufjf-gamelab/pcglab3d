@@ -11,9 +11,33 @@ const PLAYER_SPAWN_ID = 6
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
+const MAP_SIZE = 50 # Tamanho do mapa
+const ROOM_COUNT = 8 # Número de salas
+
+# Sala retangular
+const RECT_MIN_WIDTH = 6
+const RECT_MAX_WIDTH = 12
+const RECT_MIN_HEIGHT = 6
+const RECT_MAX_HEIGHT = 12
+
+# Sala em cruz
+const CROSS_MIN_LENGTH = 10
+const CROSS_MAX_LENGTH = 14
+const CROSS_MIN_THICKNESS = 4
+const CROSS_MAX_THICKNESS = 6
+
+# Sala em T
+const T_TOP_RECT_MIN_WIDTH = 10
+const T_TOP_RECT_MAX_WIDTH = 14
+const T_TOP_RECT_MIN_HEIGHT = 4
+const T_TOP_RECT_MAX_HEIGHT = 6
+const T_CENTRAL_RECT_MIN_WIDTH = 4
+const T_CENTRAL_RECT_MAX_WIDTH = 6
+const T_CENTRAL_RECT_MIN_HEIGHT = 6
+const T_CENTRAL_RECT_MAX_HEIGHT = 10
 
 # Gera N salas da dungeon
-func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: int = 8):
+func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_count: int = ROOM_COUNT):
 	print("Gerando Dungeon...")
 	
 	# Limpa todo o GridMap
@@ -44,7 +68,6 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: 
 			# Cria a sala
 			create_shape(target_grid_map, candidate_shape)
 			
-	
 			# Verifica se esta é a primeira sala criada
 			var is_player_room = true if rooms_created == 0 else false
 			
@@ -60,15 +83,15 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: 
 	if rooms_created < room_count:
 		print("Aviso: ", rooms_created, " salas foram criadas em ", ATTEMPTS, " tentativas.")
 	else:
-		print("Todas as ", room_count, " foram criadas.")
+		print("Todas as ", room_count, " salas foram criadas.")
 
 	# Cria paredes 'internas'
 	add_room_walls(target_grid_map, map_size)
 
 # Cria sala retangular
 func create_rect_room(map_size: int) -> Array[Rect2i]:
-	var w = randi_range(6, 12)
-	var h = randi_range(6, 12)
+	var w = randi_range(RECT_MIN_WIDTH, RECT_MAX_WIDTH)
+	var h = randi_range(RECT_MIN_HEIGHT, RECT_MAX_HEIGHT)
 	var x = randi_range(BORDER_MARGIN, map_size - w - BORDER_MARGIN)
 	var y = randi_range(BORDER_MARGIN, map_size - h - BORDER_MARGIN)
 	
@@ -77,41 +100,41 @@ func create_rect_room(map_size: int) -> Array[Rect2i]:
 # Cria sala em cruz
 func create_cross_room(map_size: int) -> Array[Rect2i]:
 	# Define largura e comprimento
-	var long_side = randi_range(10, 14)
-	var thickness = randi_range(4, 6)
+	var length = randi_range(CROSS_MIN_LENGTH, CROSS_MAX_LENGTH)
+	var thickness = randi_range(CROSS_MIN_THICKNESS, CROSS_MAX_THICKNESS)
 	
 	# Ponto central
-	var cx = randi_range(6, map_size - 6)
-	var cy = randi_range(6, map_size - 6)
+	var cx = randi_range(int(CROSS_MAX_LENGTH/2.0), map_size - int(CROSS_MAX_LENGTH/2.0))
+	var cy = randi_range(int(CROSS_MAX_LENGTH/2.0), map_size - int(CROSS_MAX_LENGTH/2.0))
 	
 	# Retângulo horizontal
-	var rect_h = Rect2i(cx - int(long_side/2.0), cy - int(thickness/2.0), long_side, thickness)
+	var rect_h = Rect2i(cx - int(length/2.0), cy - int(thickness/2.0), length, thickness)
 	
 	# Retângulo vertical
-	var rect_v = Rect2i(cx - int(thickness/2.0), cy - int(long_side/2.0), thickness, long_side)
+	var rect_v = Rect2i(cx - int(thickness/2.0), cy - int(length/2.0), thickness, length)
 	
 	return [rect_h, rect_v]
 
 # Cria sala em T
 func create_t_room(map_size: int) -> Array[Rect2i]:
-	var top_w = randi_range(10, 14) # Largura do retangulo superior
-	var top_h = randi_range(4, 6)   # Altura do retangulo superior
-	var stem_w = randi_range(4, 6)  # Largura do retangulo central
-	var stem_h = randi_range(6, 10) # Altura do retangulo central
+	var top_w = randi_range(T_TOP_RECT_MIN_WIDTH, T_TOP_RECT_MAX_WIDTH) # Largura do retangulo superior
+	var top_h = randi_range(T_TOP_RECT_MIN_HEIGHT, T_TOP_RECT_MAX_HEIGHT)   # Altura do retangulo superior
+	var central_w = randi_range(T_CENTRAL_RECT_MIN_WIDTH, T_CENTRAL_RECT_MAX_WIDTH)  # Largura do retangulo central
+	var central_h = randi_range(T_CENTRAL_RECT_MIN_HEIGHT, T_CENTRAL_RECT_MAX_HEIGHT) # Altura do retangulo central
 	
 	# Ponto superior esquerdo do retangulo superior
-	var tx = randi_range(4, map_size - top_w - 4)
-	var ty = randi_range(4, map_size - (top_h + stem_h) - 4)
+	var tx = randi_range(BORDER_MARGIN, map_size - top_w - BORDER_MARGIN)
+	var ty = randi_range(BORDER_MARGIN, map_size - (top_h + central_h) - BORDER_MARGIN)
 	
 	var rect_top = Rect2i(tx, ty, top_w, top_h)
 	
 	# Ponto do meio do retangulo superior
-	var stem_x = tx + int(top_w / 2.0) - int(stem_w / 2.0)
-	var stem_y = ty + int(top_h / 2.0)
+	var central_x = tx + int(top_w / 2.0) - int(central_w / 2.0)
+	var central_y = ty + int(top_h / 2.0)
 	
-	var rect_stem = Rect2i(stem_x, stem_y, stem_w, stem_h)
+	var rect_central = Rect2i(central_x, central_y, central_w, central_h)
 	
-	return [rect_top, rect_stem]
+	return [rect_top, rect_central]
 
 # Verifica se o formato/posição é válido
 func is_shape_valid(new_shape: Array[Rect2i], existing_shapes: Array[Rect2i], map_size: int) -> bool:
