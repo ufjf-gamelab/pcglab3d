@@ -5,74 +5,158 @@ const WALL_ID = 0
 const SOLID_ID = 1
 const FLOOR_ID = 2
 
+const BORDER_MARGIN = 1 # Borda mínima do tile de chão
+const ATTEMPTS = 1000 # Número de tentativas de geração de salas
+
 # Gera N salas da dungeon
-func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: int = 5):
+func generate_dungeon(target_grid_map: GridMap, map_size: int = 40, room_count: int = 8):
 	print("Gerando Dungeon...")
 	
 	# Limpa todo o GridMap
 	target_grid_map.clear()
 	
 	# Preenche o mapa todo com paredes de solo
-	fill_map_with_soil_wall(target_grid_map, map_size)
+	fill_map_with_solids(target_grid_map, map_size)
 	
-	# Lista para guardar o retângulo das salas inseridas
-	var existing_rooms: Array[Rect2i] = []
+	# Lista para guardar as partes de salas já criadas
+	var existing_rects: Array[Rect2i] = []
 	
 	var rooms_created = 0
 	var attempts = 0
-	var max_attempts = 100 
 	
 	# Tenta criar as N salas
-	while rooms_created < room_count and attempts < max_attempts:
-		var w = randi_range(6, 12)
-		var h = randi_range(6, 12)
-		var x = randi_range(2, map_size - w - 2)
-		var y = randi_range(2, map_size - h - 2)
+	while rooms_created < room_count and attempts < ATTEMPTS:
+		# Escolhe aleatoriamente um tipo de sala
+		var room_type = randi() % 3
+		var candidate_shape: Array[Rect2i] = []
 		
-		var new_room_rect = Rect2i(x, y, w, h)
+		match room_type:
+			0: candidate_shape = create_rect_room(map_size)
+			1: candidate_shape = create_cross_room(map_size)
+			2: candidate_shape = create_t_room(map_size)
 		
-		#  Verifica 'colisão' entre salas
-		var has_collision = false
-		for other_room in existing_rooms:
-			# Verifica se as salas têm pelo menos uma parede de solo entre si
-			if new_room_rect.grow(1).intersects(other_room):
-				has_collision = true
-				break
-		
-		if has_collision:
+		# Verifica 'colisão' entre salas e limites do mapa
+		if is_shape_valid(candidate_shape, existing_rects, map_size):
+			# Cria a sala
+			create_shape(target_grid_map, candidate_shape)
+			
+			# Adiciona sala no Array de salas existentes
+			existing_rects.append_array(candidate_shape)
+			rooms_created += 1
+		else:
 			attempts += 1
-			continue 
-		
-		# Cria a sala
-		create_room(target_grid_map, new_room_rect)
-		
-		# Adiciona sala no Array de salas existentes
-		existing_rooms.append(new_room_rect)
-		rooms_created += 1
-	
+			
 	if rooms_created < room_count:
-		print("Aviso: ", rooms_created, " salas foram criadas em ", max_attempts, " tentativas.")
+		print("Aviso: ", rooms_created, " salas foram criadas em ", ATTEMPTS, " tentativas.")
 	else:
 		print("Todas as ", room_count, " foram criadas.")
 
-# Preenche o mapa com paredes de solo
-func fill_map_with_soil_wall(grid: GridMap, size: int):
+	# Cria paredes 'internas'
+	add_room_walls(target_grid_map, map_size)
+
+# Cria sala retangular
+func create_rect_room(map_size: int) -> Array[Rect2i]:
+	var w = randi_range(6, 12)
+	var h = randi_range(6, 12)
+	var x = randi_range(BORDER_MARGIN, map_size - w - BORDER_MARGIN)
+	var y = randi_range(BORDER_MARGIN, map_size - h - BORDER_MARGIN)
+	
+	return [Rect2i(x, y, w, h)]
+
+# Cria sala em cruz
+func create_cross_room(map_size: int) -> Array[Rect2i]:
+	# Define largura e comprimento
+	var long_side = randi_range(10, 14)
+	var thickness = randi_range(4, 6)
+	
+	# Ponto central
+	var cx = randi_range(6, map_size - 6)
+	var cy = randi_range(6, map_size - 6)
+	
+	# Retângulo horizontal
+	var rect_h = Rect2i(cx - int(long_side/2.0), cy - int(thickness/2.0), long_side, thickness)
+	
+	# Retângulo vertical
+	var rect_v = Rect2i(cx - int(thickness/2.0), cy - int(long_side/2.0), thickness, long_side)
+	
+	return [rect_h, rect_v]
+
+# Cria sala em T
+func create_t_room(map_size: int) -> Array[Rect2i]:
+	var top_w = randi_range(10, 14) # Largura do retangulo superior
+	var top_h = randi_range(4, 6)   # Altura do retangulo superior
+	var stem_w = randi_range(4, 6)  # Largura do retangulo central
+	var stem_h = randi_range(6, 10) # Altura do retangulo central
+	
+	# Ponto superior esquerdo do retangulo superior
+	var tx = randi_range(4, map_size - top_w - 4)
+	var ty = randi_range(4, map_size - (top_h + stem_h) - 4)
+	
+	var rect_top = Rect2i(tx, ty, top_w, top_h)
+	
+	# Ponto do meio do retangulo superior
+	var stem_x = tx + int(top_w / 2.0) - int(stem_w / 2.0)
+	var stem_y = ty + int(top_h / 2.0)
+	
+	var rect_stem = Rect2i(stem_x, stem_y, stem_w, stem_h)
+	
+	return [rect_top, rect_stem]
+
+# Verifica se o formato/posição é válido
+func is_shape_valid(new_shape: Array[Rect2i], existing_shapes: Array[Rect2i], map_size: int) -> bool:
+	for part in new_shape:
+		# Verifica se está nos limites do mapa
+		if part.position.x < BORDER_MARGIN or part.position.y < BORDER_MARGIN:
+			return false
+		if part.end.x > map_size - BORDER_MARGIN or part.end.y > map_size - BORDER_MARGIN:
+			return false
+			
+		# Verifica colisão com outras salas
+		for other in existing_shapes:
+			# Garante pelo menos 2 blocos de parede entre o chão de salas diferentes
+			if part.grow(2).intersects(other):
+				return false
+	return true
+
+# Cria sala no GridMap
+func create_shape(grid: GridMap, shape: Array[Rect2i]):
+	for rect in shape:
+		# Preenche com chão
+		for x in range(rect.position.x, rect.end.x):
+			for z in range(rect.position.y, rect.end.y):
+				grid.set_cell_item(Vector3i(x, 0, z), FLOOR_ID)
+
+func fill_map_with_solids(grid: GridMap, size: int):
 	for x in range(size):
 		for z in range(size):
 			grid.set_cell_item(Vector3i(x, 0, z), SOLID_ID)
 
-# Cria sala no GridMap
-func create_room(grid: GridMap, rect: Rect2i):
-	for x in range(rect.position.x, rect.end.x):
-		for z in range(rect.position.y, rect.end.y):
+# Adiciona paredes internas
+func add_room_walls(grid: GridMap, size: int):
+	for x in range(size):
+		for z in range(size):
 			var pos = Vector3i(x, 0, z)
+			var id = grid.get_cell_item(pos)
 			
-			var is_left = (x == rect.position.x)
-			var is_right = (x == rect.end.x - 1)
-			var is_top = (z == rect.position.y)
-			var is_bottom = (z == rect.end.y - 1)
+			# Se é um bloco preto e tem chão em volta, vira parede
+			if id == SOLID_ID:
+				if is_touching_floor(grid, x, z):
+					grid.set_cell_item(pos, WALL_ID)
+
+func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
+	# Percorre de x-1 até x+1 e z-1 até z+1
+	for offset_x in [-1, 0, 1]:
+		for offset_z in [-1, 0, 1]:
 			
-			if is_left or is_right or is_top or is_bottom:
-				grid.set_cell_item(pos, WALL_ID)
-			else:
-				grid.set_cell_item(pos, FLOOR_ID)
+			# Pula a checagem do próprio bloco central (0,0)
+			if offset_x == 0 and offset_z == 0:
+				continue
+			
+			var neighbor_pos = Vector3i(x + offset_x, 0, z + offset_z)
+			var neighbor_id = grid.get_cell_item(neighbor_pos)
+			
+			# Se algum vizinho for chão, retorna verdadeiro
+			if neighbor_id == FLOOR_ID:
+				return true
+				
+	return false
