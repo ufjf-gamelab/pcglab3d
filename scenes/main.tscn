@@ -1,7 +1,7 @@
 [gd_scene load_steps=23 format=3 uid="uid://vgwrcfy1qawf"]
 
 [ext_resource type="Script" uid="uid://76g8ejmdibal" path="res://scripts/builder.gd" id="1_jybm7"]
-[ext_resource type="Script" uid="uid://jatc8o6cw38x" path="res://scenes/main.gd" id="1_yc10j"]
+[ext_resource type="Script" uid="uid://jatc8o6cw38x" path="res://scripts/main.gd" id="1_yc10j"]
 [ext_resource type="Environment" uid="uid://jbptgqvstei3" path="res://scenes/main-environment.tres" id="1_yndf3"]
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="2_eb6dy"]
 [ext_resource type="Resource" uid="uid://dkj23sxu68lq2" path="res://dungeon/structures/wall.tres" id="3_dp3eg"]
