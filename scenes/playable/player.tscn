@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://7hle3fst5g4v"]
+
+[ext_resource type="Script" uid="uid://5r3nrjvr1s5" path="res://scripts/playable/player.gd" id="1_3oet1"]
+[ext_resource type="PackedScene" uid="uid://b78ce543wflfl" path="res://dungeon/assets/character-human.glb" id="1_ta21k"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ta21k"]
+height = 0.7635498
+radius = 0.41503906
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_3oet1")
+
+[node name="Model" parent="." instance=ExtResource("1_ta21k")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38909912, 0)
+shape = SubResource("CylinderShape3D_ta21k")

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bu6kscocwsybd"]
+
+[ext_resource type="PackedScene" uid="uid://dh2faxf12q56t" path="res://dungeon/assets/coin.glb" id="1_2io0e"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_2io0e"]
+height = 0.2057743
+radius = 0.22949219
+
+[node name="Coin" type="Area3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_2io0e")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, -4.856469e-11, 0.0011110306)
+shape = SubResource("CylinderShape3D_2io0e")
