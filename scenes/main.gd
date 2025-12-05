@@ -51,23 +51,23 @@ func spawn_play_objects_from_gridmap():
 		# Instacia paredes
 		if id == 0 or id == 1:
 			var wall = tile_to_scene[id].instantiate()
-			wall.global_position = world_pos
 			world.add_child(wall)
+			wall.global_position = world_pos
 			continue
 
 		# Instancia chao
 		if id in needs_floor:
 			var floor_obj = tile_to_scene[2].instantiate()
-			floor_obj.global_position = world_pos
 			world.add_child(floor_obj)
+			floor_obj.global_position = world_pos
 
 		# Instacia objetos
 		if tile_to_scene.has(id) and id != 2:
 			var obj = tile_to_scene[id].instantiate()
 			if id == 6:
 				obj.name = "Player"
-			obj.global_position = world_pos
 			world.add_child(obj)
+			obj.global_position = world_pos
 
 func _ready():
 	enter_creation_mode()
