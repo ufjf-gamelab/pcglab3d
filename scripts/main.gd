@@ -28,9 +28,6 @@ func _process(delta):
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
 	var tile_to_scene = {
-		0: preload("res://scenes/playable/wall.tscn"),
-		1: preload("res://scenes/playable/wall_soil.tscn"),
-		2: preload("res://scenes/playable/floor.tscn"),
 		3: preload("res://scenes/playable/coin.tscn"),
 		4: preload("res://scenes/playable/enemy.tscn"),
 		5: preload("res://scenes/playable/portal.tscn"),
@@ -38,7 +35,7 @@ func spawn_play_objects_from_gridmap():
 	}
 
 	# IDs que precisam ter chão
-	var needs_floor = [2, 3, 4, 5, 6]
+	var needs_floor = [3, 4, 5, 6]
 
 	for cell in gridmap.get_used_cells():
 		# Captura ID da MeshLibrary naquele tile
@@ -48,21 +45,8 @@ func spawn_play_objects_from_gridmap():
 		var local_pos = gridmap.map_to_local(cell)
 		var world_pos = gridmap.to_global(local_pos)
 
-		# Instacia paredes
-		if id == 0 or id == 1:
-			var wall = tile_to_scene[id].instantiate()
-			world.add_child(wall)
-			wall.global_position = world_pos
-			continue
-
-		# Instancia chao
-		if id in needs_floor:
-			var floor_obj = tile_to_scene[2].instantiate()
-			world.add_child(floor_obj)
-			floor_obj.global_position = world_pos
-
 		# Instacia objetos
-		if tile_to_scene.has(id) and id != 2:
+		if tile_to_scene.has(id):
 			var obj = tile_to_scene[id].instantiate()
 			if id == 6:
 				obj.name = "Player"
@@ -102,7 +86,7 @@ func enter_play_mode():
 	builder.set_process(false)
 	spawn_play_objects_from_gridmap()
 
-	gridmap.visible = false
+	gridmap.visible = true
 
 	edit_camera.current = false
 	player_camera.current = true
