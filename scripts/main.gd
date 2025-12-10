@@ -25,6 +25,8 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 
+var backup_cells = {}
+
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
 	var tile_to_scene = {
@@ -34,24 +36,28 @@ func spawn_play_objects_from_gridmap():
 		6: preload("res://scenes/playable/player.tscn"),
 	}
 
-	# IDs que precisam ter chão
-	var needs_floor = [3, 4, 5, 6]
-
 	for cell in gridmap.get_used_cells():
 		# Captura ID da MeshLibrary naquele tile
 		var id = gridmap.get_cell_item(cell)
 
-		# Captura posicao local e converte para global
-		var local_pos = gridmap.map_to_local(cell)
-		var world_pos = gridmap.to_global(local_pos)
-
-		# Instacia objetos
+		# Verifica se é um tile que necessita de instância
 		if tile_to_scene.has(id):
+			# Captura posicao local e converte para global
+			var local_pos = gridmap.map_to_local(cell)
+			var world_pos = gridmap.to_global(local_pos)
+			
+			# Instacia objetos
 			var obj = tile_to_scene[id].instantiate()
-			if id == 6:
-				obj.name = "Player"
+			match id:
+				3: obj.name = "Coin" 
+				4: obj.name = "Enemy"
+				5: obj.name = "Portal"
+				6: obj.name = "Player"
 			world.add_child(obj)
 			obj.global_position = world_pos
+			
+			backup_cells[cell] = id
+			gridmap.set_cell_item(cell, 2)
 
 func _ready():
 	enter_creation_mode()
@@ -62,6 +68,11 @@ func toggle_mode():
 	else:
 		enter_creation_mode()
 
+func recover_gridmap():
+	for pos in backup_cells.keys():
+		gridmap.set_cell_item(pos, backup_cells[pos])
+	backup_cells = {}
+
 func enter_creation_mode():
 	mode = Mode.CREATION
 
@@ -69,8 +80,8 @@ func enter_creation_mode():
 	
 	for child in world.get_children():
 		child.queue_free()
-
-	gridmap.visible = true
+		
+	recover_gridmap()
 	
 	edit_camera.current = true
 	player_camera.current = false
@@ -85,8 +96,6 @@ func enter_play_mode():
 
 	builder.set_process(false)
 	spawn_play_objects_from_gridmap()
-
-	gridmap.visible = true
 
 	edit_camera.current = false
 	player_camera.current = true
