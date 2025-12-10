@@ -71,7 +71,25 @@ func toggle_mode() -> void:
 func get_cell_pos(entity):
 	var world_pos = entity.global_position
 	var local_pos = gridmap.to_local(world_pos)
-	var cell_pos = gridmap.local_to_map(local_pos)
+	
+	#var cell_pos = gridmap.local_to_map(local_pos)
+	var cell_pos = Vector3i(0, 0, 0)
+	
+	if local_pos.x - int(local_pos.x) >= 0.5:
+		cell_pos.x = ceil(local_pos.x)
+	else:
+		cell_pos.x = floor(local_pos.x)
+		
+	if local_pos.z - int(local_pos.z) >= 0.5:
+		cell_pos.z = ceil(local_pos.z)
+	else:
+		cell_pos.z = floor(local_pos.z)
+
+	if entity.name == "Player":
+		print("World Position: " + str(world_pos))
+		print("Local Position: " + str(local_pos))
+		print("Cell Position: " + str(cell_pos))
+		print("")
 	return cell_pos
 
 func recover_gridmap():
