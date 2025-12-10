@@ -25,11 +25,9 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 
-var backup_cells = {}
-
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
-	var tile_to_scene = {
+	var tile_id_to_scene = {
 		3: preload("res://scenes/playable/coin.tscn"),
 		4: preload("res://scenes/playable/enemy.tscn"),
 		5: preload("res://scenes/playable/portal.tscn"),
@@ -41,48 +39,73 @@ func spawn_play_objects_from_gridmap():
 		var id = gridmap.get_cell_item(cell)
 
 		# Verifica se é um tile que necessita de instância
-		if tile_to_scene.has(id):
+		if tile_id_to_scene.has(id):
 			# Captura posicao local e converte para global
 			var local_pos = gridmap.map_to_local(cell)
 			var world_pos = gridmap.to_global(local_pos)
 			
 			# Instacia objetos
-			var obj = tile_to_scene[id].instantiate()
+			var obj = tile_id_to_scene[id].instantiate()
+			
 			match id:
-				3: obj.name = "Coin" 
-				4: obj.name = "Enemy"
-				5: obj.name = "Portal"
-				6: obj.name = "Player"
+				3: obj.add_to_group("Coins") 
+				4: obj.add_to_group("Enemies")
+				5: obj.add_to_group("Portals")
+				6: 
+					obj.add_to_group("Players")
+					obj.name = "Player"
 			world.add_child(obj)
 			obj.global_position = world_pos
 			
-			backup_cells[cell] = id
 			gridmap.set_cell_item(cell, 2)
 
 func _ready():
 	enter_creation_mode()
 
-func toggle_mode():
+func toggle_mode() -> void:
 	if mode == Mode.CREATION:
 		enter_play_mode()
 	else:
 		enter_creation_mode()
 
+func get_cell_pos(entity):
+	var world_pos = entity.global_position
+	var local_pos = gridmap.to_local(world_pos)
+	var cell_pos = gridmap.local_to_map(local_pos)
+	return cell_pos
+
 func recover_gridmap():
-	for pos in backup_cells.keys():
-		gridmap.set_cell_item(pos, backup_cells[pos])
-	backup_cells = {}
+	var coins = get_tree().get_nodes_in_group("Coins")
+	var enemies = get_tree().get_nodes_in_group("Enemies")
+	var portals = get_tree().get_nodes_in_group("Portals")
+	var players = get_tree().get_nodes_in_group("Players")
+	
+	for coin in coins:
+		var cell_pos = get_cell_pos(coin)
+		gridmap.set_cell_item(cell_pos, 3)
+		
+	for enemy in enemies:
+		var cell_pos = get_cell_pos(enemy)
+		gridmap.set_cell_item(cell_pos, 4)
+		
+	for portal in portals:
+		var cell_pos = get_cell_pos(portal)
+		gridmap.set_cell_item(cell_pos, 5)
+	
+	for player in players:
+		var cell_pos = get_cell_pos(player)
+		gridmap.set_cell_item(cell_pos, 6)
 
 func enter_creation_mode():
 	mode = Mode.CREATION
 
 	builder.set_process(true)
 	
+	recover_gridmap()
+	
 	for child in world.get_children():
 		child.queue_free()
 		
-	recover_gridmap()
-	
 	edit_camera.current = true
 	player_camera.current = false
 
