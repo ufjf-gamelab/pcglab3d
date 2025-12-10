@@ -85,11 +85,6 @@ func get_cell_pos(entity):
 	else:
 		cell_pos.z = floor(local_pos.z)
 
-	if entity.name == "Player":
-		print("World Position: " + str(world_pos))
-		print("Local Position: " + str(local_pos))
-		print("Cell Position: " + str(cell_pos))
-		print("")
 	return cell_pos
 
 func recover_gridmap():
