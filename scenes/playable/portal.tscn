@@ -3,12 +3,24 @@
 [ext_resource type="PackedScene" uid="uid://6jsliuegj2oh" path="res://dungeon/assets/wood-structure.glb" id="1_4mexn"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pp13s"]
-size = Vector3(1, 1.0249023, 1)
+size = Vector3(0.14697266, 1.0042572, 0.14941406)
 
 [node name="Portal" type="StaticBody3D"]
 
 [node name="Model" parent="." instance=ExtResource("1_4mexn")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50957453, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42651367, 0.5002667, 0.42529297)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4256001, 0.5040902, -0.42344546)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42180556, 0.5031697, -0.4249664)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4246992, 0.5033417, 0.4255079)
 shape = SubResource("BoxShape3D_pp13s")
