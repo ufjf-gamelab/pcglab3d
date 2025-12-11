@@ -2,13 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://bq3oalkvr3ppm" path="res://dungeon/assets/character-orc.glb" id="1_rsqi7"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_rsqi7"]
-radius = 0.43602282
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rsqi7"]
+radius = 0.24902344
+height = 0.8041687
 
 [node name="Enemy" type="CharacterBody3D"]
 
 [node name="Model" parent="." instance=ExtResource("1_rsqi7")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36741567, 0)
-shape = SubResource("SphereShape3D_rsqi7")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37986755, 0)
+shape = SubResource("CapsuleShape3D_rsqi7")

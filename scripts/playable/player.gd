@@ -30,7 +30,7 @@ func _physics_process(_delta):
 		if anim.current_animation != "walk":
 			anim.play("walk")
 
-		look_at(global_transform.origin + Vector3(dir.x, 0, dir.z), Vector3.UP)
+		look_at(global_transform.origin + Vector3(-dir.x, 0, -dir.z), Vector3.UP)
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)

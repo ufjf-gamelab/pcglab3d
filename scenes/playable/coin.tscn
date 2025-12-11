@@ -1,12 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://bu6kscocwsybd"]
+[gd_scene load_steps=4 format=3 uid="uid://bu6kscocwsybd"]
 
 [ext_resource type="PackedScene" uid="uid://dh2faxf12q56t" path="res://dungeon/assets/coin.glb" id="1_2io0e"]
+[ext_resource type="Script" uid="uid://dbaxsv1apgro0" path="res://scripts/coin.gd" id="1_pmjqu"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_2io0e"]
 height = 0.2057743
 radius = 0.24169922
 
 [node name="Coin" type="Area3D"]
+script = ExtResource("1_pmjqu")
 
 [node name="Model" parent="." instance=ExtResource("1_2io0e")]
 
