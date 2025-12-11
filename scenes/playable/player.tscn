@@ -8,6 +8,7 @@ height = 0.7635498
 radius = 0.41503906
 
 [node name="Player" type="CharacterBody3D"]
+motion_mode = 1
 script = ExtResource("1_3oet1")
 
 [node name="Model" parent="." instance=ExtResource("1_ta21k")]
