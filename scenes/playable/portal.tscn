@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://bl4n50j8duvcn"]
+[gd_scene load_steps=4 format=3 uid="uid://bl4n50j8duvcn"]
 
 [ext_resource type="PackedScene" uid="uid://6jsliuegj2oh" path="res://dungeon/assets/wood-structure.glb" id="1_4mexn"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pp13s"]
 size = Vector3(0.14697266, 1.0042572, 0.14941406)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4mexn"]
+size = Vector3(0.09257507, 0.91192627, 0.07460213)
 
 [node name="Portal" type="StaticBody3D"]
 
@@ -24,3 +27,9 @@ shape = SubResource("BoxShape3D_pp13s")
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4246992, 0.5033417, 0.4255079)
 shape = SubResource("BoxShape3D_pp13s")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49246314, 0)
+shape = SubResource("BoxShape3D_4mexn")

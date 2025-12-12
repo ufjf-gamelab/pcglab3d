@@ -5,6 +5,7 @@ extends CharacterBody3D
 @export var jump_force := 4.0
 
 var anim: AnimationPlayer
+var portal_cooldown := false
 
 func _ready():
 	anim = $Model/AnimationPlayer
@@ -39,3 +40,10 @@ func _physics_process(_delta):
 			anim.play("idle")
 
 	move_and_slide()
+	
+func teleport_to(pos: Vector3):
+	portal_cooldown = true
+	set_deferred("global_position", pos)
+	velocity = Vector3.ZERO
+	await get_tree().create_timer(0.2).timeout
+	portal_cooldown = false

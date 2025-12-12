@@ -25,6 +25,12 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 
+func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
+	if body.name == "Player":
+		var arrival = Gen.portal_links[portal_pos]
+		if !body.portal_cooldown and arrival:
+			body.teleport_to(arrival)
+
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
 	var tile_id_to_scene = {
@@ -50,13 +56,17 @@ func spawn_play_objects_from_gridmap():
 			match id:
 				3: obj.add_to_group("Coins") 
 				4: obj.add_to_group("Enemies")
-				5: obj.add_to_group("Portals")
+				5: 
+					obj.add_to_group("Portals")
+					obj.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
 				6: 
 					obj.add_to_group("Players")
 					obj.name = "Player"
+					
 			world.add_child(obj)
 			obj.global_position = world_pos
 			
+			# Coloca apenas chão naquele local  do gridmap
 			gridmap.set_cell_item(cell, 2)
 
 func _ready():
