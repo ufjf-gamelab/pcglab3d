@@ -36,9 +36,14 @@ const T_CENTRAL_RECT_MAX_WIDTH = 6
 const T_CENTRAL_RECT_MIN_HEIGHT = 6
 const T_CENTRAL_RECT_MAX_HEIGHT = 10
 
+var portal_links: Dictionary = {}
+var firstPortal: Vector3i
+var lastPortal: Vector3i
+
 # Gera N salas da dungeon
 func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_count: int = ROOM_COUNT):
 	print("Gerando Dungeon...")
+	portal_links = {}
 	
 	# Limpa todo o GridMap
 	target_grid_map.clear()
@@ -79,6 +84,10 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_c
 			rooms_created += 1
 		else:
 			attempts += 1
+	
+	# Linka os dois últimos portais
+	portal_links[lastPortal] = firstPortal
+	portal_links[firstPortal] = lastPortal
 			
 	if rooms_created < room_count:
 		print("Aviso: ", rooms_created, " salas foram criadas em ", ATTEMPTS, " tentativas.")
@@ -195,7 +204,7 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 				return true
 				
 	return false
-	
+
 # Posiciona 'objetos' na sala
 func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool = false):
 	var available_spots: Array[Vector3i] = []
@@ -229,6 +238,17 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool 
 		# Posiciona os portais
 		grid.set_cell_item(portal1_pos, PORTAL_ID)
 		grid.set_cell_item(portal2_pos, PORTAL_ID)
+		
+		var curr_portal_keys = portal_links.keys()
+		if len(curr_portal_keys) == 0:
+			firstPortal = portal1_pos
+			lastPortal = portal2_pos
+			portal_links[portal1_pos] = null
+			portal_links[portal2_pos] = null
+		else:
+			portal_links[lastPortal] = portal1_pos
+			portal_links[portal1_pos] = lastPortal
+			lastPortal = portal2_pos
 		
 		# Remove as posições usadas pelos portais
 		available_spots.erase(portal1_pos)
