@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://spwcbjyxsldx"]
+[gd_scene load_steps=4 format=3 uid="uid://spwcbjyxsldx"]
 
+[ext_resource type="Script" uid="uid://bv3oehmoeiqet" path="res://scripts/playable/enemy.gd" id="1_c20yv"]
 [ext_resource type="PackedScene" uid="uid://bq3oalkvr3ppm" path="res://dungeon/assets/character-orc.glb" id="1_rsqi7"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rsqi7"]
@@ -7,6 +8,9 @@ radius = 0.24902344
 height = 0.8041687
 
 [node name="Enemy" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 9
+script = ExtResource("1_c20yv")
 
 [node name="Model" parent="." instance=ExtResource("1_rsqi7")]
 

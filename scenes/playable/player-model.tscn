@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3dwghdshaaty"]
+
+[ext_resource type="PackedScene" uid="uid://b78ce543wflfl" path="res://dungeon/assets/character-human.glb" id="1_20mvo"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_20mvo"]
+size = Vector3(0.2574358, 0.18417358, 0.16305684)
+
+[node name="player-model" instance=ExtResource("1_20mvo")]
+
+[node name="Skeleton3D" parent="character-human" index="0"]
+bones/4/rotation = Quaternion(0, 0, -0.38268346, 0.9238795)
+bones/5/rotation = Quaternion(0, 0, 0.3826835, 0.92387956)
+
+[node name="RightHand" type="BoneAttachment3D" parent="character-human/Skeleton3D" index="2"]
+transform = Transform3D(0.7071067, -0.70710677, 0, 0.70710677, 0.7071067, 0, 0, 0, 1, -0.09989677, 0.28775, -0.01225)
+bone_name = "arm-right"
+bone_idx = 5
+
+[node name="AttackArea" type="Area3D" parent="character-human/Skeleton3D/RightHand" index="0"]
+transform = Transform3D(0.99764925, 0.002350688, 0.06848565, 0.002350688, 0.99764925, -0.068485655, -0.06848565, 0.068485655, 0.9952987, 0, 0, 0)
+collision_layer = 4
+collision_mask = 2
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="character-human/Skeleton3D/RightHand/AttackArea" index="0"]
+transform = Transform3D(0.9721882, 0.027810508, 0.23254406, 0.027810236, 0.9721884, -0.23254372, -0.23254357, 0.23254311, 0.9443724, -0.16783717, -0.00011995435, 0.021111833)
+shape = SubResource("BoxShape3D_20mvo")
