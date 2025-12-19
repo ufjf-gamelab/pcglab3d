@@ -48,7 +48,7 @@ func _ready():
 				
 			# Caso seja uma cena com colisão, a mesh fica dentro do glb
 			elif child is Node3D:
-				# Procura a mesh dentro do"res://scenes/playable/wall_soil.tscn" nó
+				# Procura a mesh dentro do Model do .tscn
 				for grandchild in child.get_children():
 					if grandchild is MeshInstance3D:
 						mesh_library.set_item_mesh(id, grandchild.mesh)
