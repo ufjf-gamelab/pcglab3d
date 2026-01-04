@@ -30,6 +30,9 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		var arrival = Gen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
+			
+func _on_banner_player_entered(portal_pos: Vector3i):
+	print("Entrou")
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
@@ -38,6 +41,7 @@ func spawn_play_objects_from_gridmap():
 		4: preload("res://scenes/playable/enemy.tscn"),
 		5: preload("res://scenes/playable/portal.tscn"),
 		6: preload("res://scenes/playable/player.tscn"),
+		7: preload("res://scenes/playable/banner.tscn")
 	}
 
 	for cell in gridmap.get_used_cells():
@@ -62,6 +66,9 @@ func spawn_play_objects_from_gridmap():
 				6: 
 					obj.add_to_group("Players")
 					obj.name = "Player"
+				7:
+					obj.add_to_group("Banners")
+					obj.player_entered_banner_area.connect(_on_banner_player_entered.bind(cell))
 					
 			world.add_child(obj)
 			obj.global_position = world_pos
@@ -102,6 +109,7 @@ func recover_gridmap():
 	var enemies = get_tree().get_nodes_in_group("Enemies")
 	var portals = get_tree().get_nodes_in_group("Portals")
 	var players = get_tree().get_nodes_in_group("Players")
+	var banners = get_tree().get_nodes_in_group("Banners")
 	
 	for coin in coins:
 		var cell_pos = get_cell_pos(coin)
@@ -118,6 +126,10 @@ func recover_gridmap():
 	for player in players:
 		var cell_pos = get_cell_pos(player)
 		gridmap.set_cell_item(cell_pos, 6)
+		
+	for banner in banners:
+		var cell_pos = get_cell_pos(banner)
+		gridmap.set_cell_item(cell_pos, 7)
 
 func enter_creation_mode():
 	mode = Mode.CREATION

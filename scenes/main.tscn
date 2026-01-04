@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://vgwrcfy1qawf"]
+[gd_scene load_steps=24 format=3 uid="uid://vgwrcfy1qawf"]
 
 [ext_resource type="Script" uid="uid://76g8ejmdibal" path="res://scripts/builder.gd" id="1_jybm7"]
 [ext_resource type="Script" uid="uid://jatc8o6cw38x" path="res://scripts/main.gd" id="1_yc10j"]
@@ -17,6 +17,7 @@
 [ext_resource type="Resource" uid="uid://caeruhpql1m5n" path="res://dungeon/structures/floor_trap.tres" id="11_yc10j"]
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://dungeon/structures/floor.tres" id="12_gqmmt"]
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
+[ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="16_vlub6"]
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="17_cjamx"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
@@ -32,7 +33,7 @@ script = ExtResource("1_yc10j")
 
 [node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
 script = ExtResource("1_jybm7")
-structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
+structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("15_jscy8"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/EditCamera")

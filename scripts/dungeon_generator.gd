@@ -8,6 +8,7 @@ const COIN_ID = 3
 const NPC_ID = 4
 const PORTAL_ID = 5
 const PLAYER_SPAWN_ID = 6
+const BANNER_ID = 7
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
@@ -200,7 +201,8 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 			var neighbor_id = grid.get_cell_item(neighbor_pos)
 			
 			# Se algum vizinho for chão, retorna verdadeiro
-			if neighbor_id == FLOOR_ID or neighbor_id == COIN_ID or neighbor_id == PORTAL_ID or neighbor_id == NPC_ID or neighbor_id == PLAYER_SPAWN_ID:
+			if (neighbor_id == FLOOR_ID or neighbor_id == COIN_ID or neighbor_id == PORTAL_ID 
+			or neighbor_id == NPC_ID or neighbor_id == PLAYER_SPAWN_ID or neighbor_id == BANNER_ID):
 				return true
 				
 	return false
@@ -268,3 +270,7 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool 
 	# Posiciona o NPC no próximo slot disponível
 	if available_spots.size() > 0:
 		grid.set_cell_item(available_spots.pop_front(), NPC_ID)
+		
+	# Posiciona o estandarte no próximo slot disponível
+	if available_spots.size() > 0:
+		grid.set_cell_item(available_spots.pop_front(), BANNER_ID)
