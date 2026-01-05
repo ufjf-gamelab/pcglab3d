@@ -9,8 +9,39 @@ extends Node3D
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
 
+@export var max_life_time := 30.0
+var life_time := max_life_time
+var life_active := false
+
+var used_banners := []
+
 enum Mode { CREATION, PLAY }
 var mode = Mode.CREATION
+
+func _process(delta):
+	if mode == Mode.PLAY:
+		update_player_camera(delta)
+		update_life_timer(delta)
+
+func update_life_timer(delta):
+	if mode != Mode.PLAY:
+		return
+		
+	if not life_active:
+		return
+		
+	life_time -= delta
+	life_time = max(life_time, 0.0)
+	
+	# print("Life:", life_time)
+
+	if life_time <= 0:
+		life_active = false
+		on_player_dead()
+	
+func on_player_dead():
+	life_active = false
+	enter_creation_mode()
 
 func update_player_camera(delta):
 	var player = world.get_node_or_null("Player")
@@ -21,18 +52,15 @@ func update_player_camera(delta):
 	var target_pos = player.global_position + Vector3(0, 3, -5)
 	player_camera.global_position = player_camera.global_position.lerp(target_pos, delta * 5)
 
-func _process(delta):
-	if mode == Mode.PLAY:
-		update_player_camera(delta)
-
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 	if body.name == "Player":
 		var arrival = Gen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
 			
-func _on_banner_player_entered(portal_pos: Vector3i):
-	print("Entrou")
+func _on_banner_player_entered(banner_pos: Vector3i):
+	used_banners.append(banner_pos)
+	life_time = max_life_time
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
@@ -69,11 +97,13 @@ func spawn_play_objects_from_gridmap():
 				7:
 					obj.add_to_group("Banners")
 					obj.player_entered_banner_area.connect(_on_banner_player_entered.bind(cell))
-					
+					if cell in used_banners:
+						obj.active = false
+						
 			world.add_child(obj)
 			obj.global_position = world_pos
 			
-			# Coloca apenas chão naquele local  do gridmap
+			# Coloca apenas chão naquele local do gridmap
 			gridmap.set_cell_item(cell, 2)
 
 func _ready():
@@ -89,7 +119,7 @@ func get_cell_pos(entity):
 	var world_pos = entity.global_position
 	var local_pos = gridmap.to_local(world_pos)
 	
-	#var cell_pos = gridmap.local_to_map(local_pos)
+	# var cell_pos = gridmap.local_to_map(local_pos)
 	var cell_pos = Vector3i(0, 0, 0)
 	
 	if local_pos.x - int(local_pos.x) >= 0.5:
@@ -167,6 +197,8 @@ func enter_play_mode():
 	if player:
 		player_camera.global_position = player.global_position + Vector3(0, 3, -5)
 		player_camera.look_at(player.global_position)
+		
+		life_active = true
 
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon e chama Autoload Gen
