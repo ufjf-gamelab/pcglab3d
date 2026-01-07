@@ -198,6 +198,8 @@ func enter_play_mode():
 		player_camera.global_position = player.global_position + Vector3(0, 3, -5)
 		player_camera.look_at(player.global_position)
 		
+		if life_time <= 0:
+			life_time = max_life_time
 		life_active = true
 
 func _unhandled_input(event):

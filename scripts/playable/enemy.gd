@@ -5,8 +5,11 @@ var life := max_life
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 
+var die := false
+
 func _process(_delta: float) -> void:
-	anim.play("idle")
+	if not die:
+		anim.play("idle")
 
 # Recebe dano
 func take_damage(amount):
@@ -14,10 +17,11 @@ func take_damage(amount):
 	print("Vida:", life)
 
 	if life <= 0:
-		die()
+		die = true
+		on_die()
 
 # Faz a animação de morte e remove do mapa
-func die():
+func on_die():
 	anim.play("die")
 	await anim.animation_finished
 	queue_free()
