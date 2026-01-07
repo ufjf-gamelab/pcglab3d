@@ -13,6 +13,8 @@ var portal_cooldown := false
 var attacking := false
 var enemies_hit := []
 
+var dying := false
+
 func _ready():
 	anim.play("idle")
 	
@@ -70,7 +72,7 @@ func teleport_to(pos: Vector3):
 
 
 func _physics_process(_delta):
-	if attacking:
+	if attacking or dying:
 		return
 	
 	var dir = Vector3.ZERO

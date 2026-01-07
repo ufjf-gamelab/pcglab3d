@@ -9,7 +9,7 @@ extends Node3D
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
 
-@export var max_life_time := 30.0
+@export var max_life_time := 10.0
 var life_time := max_life_time
 var life_active := false
 
@@ -36,12 +36,21 @@ func update_life_timer(delta):
 	# print("Life:", life_time)
 
 	if life_time <= 0:
-		life_active = false
+		
 		on_player_dead()
 	
 func on_player_dead():
+	var player = world.get_node_or_null("Player")
 	life_active = false
-	enter_creation_mode()
+	
+	if player:
+		player.dying = true
+		var anim_player = player.get_node("Model/AnimationPlayer")
+		anim_player.play("die")
+		await anim_player.animation_finished
+		await get_tree().create_timer(1.0).timeout
+	
+	toggle_mode()
 
 func update_player_camera(delta):
 	var player = world.get_node_or_null("Player")
