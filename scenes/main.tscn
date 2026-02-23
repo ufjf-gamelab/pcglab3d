@@ -131,3 +131,7 @@ offset_bottom = 40.0
 stream = ExtResource("24_y6deb")
 volume_db = -30.0
 autoplay = true
+
+[node name="HeatmapVisualizer" type="Node3D" parent="."]
+
+[node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer"]

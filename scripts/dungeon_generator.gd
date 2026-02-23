@@ -41,10 +41,63 @@ var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
 
+var heatmaps = {
+	"enemies": [],
+	"coins": [],
+	"banners": []
+}
+
+const DIRECTIONS := [
+	Vector3i(1, 0, 0),
+	Vector3i(1, 0, -1),
+	Vector3i(1, 0, 1),
+	Vector3i(-1, 0, 0),
+	Vector3i(-1, 0, 1),
+	Vector3i(-1, 0, -1),
+	Vector3i(0, 0, 1),
+	Vector3i(0, 0, -1)
+]
+
+func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_infuence: bool):
+	# Estruturas para o BFS
+	var queue: Array[Vector3i] = [start_cell]
+	#var visited = { start_cell: true }
+	
+	# Define o mapa de influência com célula inicial
+	var heatmap = { start_cell: 0 }
+	
+	# Loop da Busca em Largura
+	while queue.size() > 0:
+		# Remove o primeiro da fila
+		var current = queue.pop_front()
+		
+		# Verificar vizinhos
+		for direction in DIRECTIONS:
+			var neighbor = current + direction
+			
+			# Se já visitamos, pula
+			if heatmap.has(neighbor):
+				continue
+			
+			# Captura ID do vizinho
+			var neighbor_id = gridmap.get_cell_item(neighbor)
+			
+			# Verifica se o vizinho não é parede
+			if neighbor_id != WALL_ID and neighbor_id != SOLID_ID:
+				# Adiciona vizinho chão no mapa de calor
+				heatmap[neighbor] = heatmap[current] - 1 if positive_infuence else heatmap[current] + 1
+				#visited[neighbor] = true
+				queue.append(neighbor)
+				
+	return heatmap
+
 # Gera N salas da dungeon
 func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_count: int = ROOM_COUNT):
 	print("Gerando Dungeon...")
 	portal_links = {}
+	heatmaps["enemies"] = []
+	heatmaps["coins"] = []
+	heatmaps["banners"] = []
 	
 	# Limpa todo o GridMap
 	target_grid_map.clear()
@@ -97,7 +150,7 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_c
 
 	# Cria paredes 'internas'
 	add_room_walls(target_grid_map, map_size)
-
+	
 # Cria sala retangular
 func create_rect_room(map_size: int) -> Array[Rect2i]:
 	var w = randi_range(RECT_MIN_WIDTH, RECT_MAX_WIDTH)
@@ -208,7 +261,7 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 	return false
 
 # Posiciona 'objetos' na sala
-func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool = false):
+func spawn_room_objects(gridmap: GridMap, shape: Array[Rect2i], spawn_player: bool = false):
 	var available_spots: Array[Vector3i] = []
 	
 	# Coleta todos os blocos de chão disponíveis na forma da sala
@@ -238,8 +291,8 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool 
 					portal2_pos = p2
 		
 		# Posiciona os portais
-		grid.set_cell_item(portal1_pos, PORTAL_ID)
-		grid.set_cell_item(portal2_pos, PORTAL_ID)
+		gridmap.set_cell_item(portal1_pos, PORTAL_ID)
+		gridmap.set_cell_item(portal2_pos, PORTAL_ID)
 		
 		var curr_portal_keys = portal_links.keys()
 		if len(curr_portal_keys) == 0:
@@ -259,18 +312,33 @@ func spawn_room_objects(grid: GridMap, shape: Array[Rect2i], spawn_player: bool 
 	# Embaralha os locais disponíveis
 	available_spots.shuffle()
 	
-	# Posiciona o spawn do player se for nesta sala
-	if spawn_player and available_spots.size() > 0:
-		grid.set_cell_item(available_spots.pop_front(), PLAYER_SPAWN_ID)
-	
-	# Posiciona a moeda no primeiro slot disponível
-	if available_spots.size() > 0:
-		grid.set_cell_item(available_spots.pop_front(), COIN_ID)
-		
 	# Posiciona o NPC no próximo slot disponível
 	if available_spots.size() > 0:
-		grid.set_cell_item(available_spots.pop_front(), NPC_ID)
+		var npc_pos = available_spots.pop_front()
+		gridmap.set_cell_item(npc_pos, NPC_ID)
+		# Cria heatmap do inimigo
+		var heat = create_heatmap_bfs(gridmap, npc_pos, false)
+		# Adiciona na lista de heatmaps de inimigos
+		heatmaps["enemies"].append(heat)
+		
+	# Posiciona a moeda no primeiro slot disponível
+	if available_spots.size() > 0:
+		var coin_pos = available_spots.pop_front()
+		gridmap.set_cell_item(coin_pos, COIN_ID)
+		# Cria heatmap da moeda
+		var heat = create_heatmap_bfs(gridmap, coin_pos, true)
+		# Adiciona na lista de heatmaps de moedas
+		heatmaps["coins"].append(heat)
 		
 	# Posiciona o estandarte no próximo slot disponível
 	if available_spots.size() > 0:
-		grid.set_cell_item(available_spots.pop_front(), BANNER_ID)
+		var banner_pos = available_spots.pop_front()
+		gridmap.set_cell_item(banner_pos, BANNER_ID)
+		# Cria heatmap do estandarte
+		var heat = create_heatmap_bfs(gridmap, banner_pos, true)
+		# Adiciona na lista de heatmaps de estandartes
+		heatmaps["banners"].append(heat)
+
+	# Posiciona o spawn do player se for nesta sala
+	if spawn_player and available_spots.size() > 0:
+		gridmap.set_cell_item(available_spots.pop_front(), PLAYER_SPAWN_ID)

@@ -26,3 +26,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0001220703, 0.24978638, -0
 shape = SubResource("BoxShape3D_dnrjv")
 
 [connection signal="body_entered" from="ResetTimerArea" to="." method="_on_reset_timer_area_body_entered"]
+[connection signal="body_exited" from="ResetTimerArea" to="." method="_on_reset_timer_area_body_exited"]

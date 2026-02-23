@@ -8,6 +8,7 @@ extends Node3D
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
+@onready var heatmap_multimesh := $HeatmapVisualizer/HeatmapMultiMesh
 
 @export var max_life_time := 10.0
 var life_time := max_life_time
@@ -17,6 +18,13 @@ var used_banners := []
 
 enum Mode { CREATION, PLAY }
 var mode = Mode.CREATION
+
+var enemy_heatmap_visible := false
+var coin_heatmap_visible := false
+var banner_heatmap_visible := false
+
+func _ready():
+	enter_creation_mode()
 
 func _process(delta):
 	if mode == Mode.PLAY:
@@ -33,7 +41,7 @@ func update_life_timer(delta):
 	life_time -= delta
 	life_time = max(life_time, 0.0)
 	
-	# print("Life:", life_time)
+	print("Life:", life_time)
 
 	if life_time <= 0:
 		
@@ -70,6 +78,10 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
+	life_active = false # Congela timer	
+	
+func _on_banner_player_exit():
+	life_active = true # Descongela timer
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
@@ -106,6 +118,7 @@ func spawn_play_objects_from_gridmap():
 				7:
 					obj.add_to_group("Banners")
 					obj.player_entered_banner_area.connect(_on_banner_player_entered.bind(cell))
+					obj.player_exit_banner_area.connect(_on_banner_player_exit.bind())
 					if cell in used_banners:
 						obj.active = false
 						
@@ -114,9 +127,6 @@ func spawn_play_objects_from_gridmap():
 			
 			# Coloca apenas chão naquele local do gridmap
 			gridmap.set_cell_item(cell, 2)
-
-func _ready():
-	enter_creation_mode()
 
 func toggle_mode() -> void:
 	if mode == Mode.CREATION:
@@ -211,6 +221,69 @@ func enter_play_mode():
 			life_time = max_life_time
 		life_active = true
 
+func show_heatmaps(heatmaps, positive_influence := false, cell_size := 1.0):
+	var total_instances := 0
+	var global_max := 0
+	for heatmap in heatmaps:
+		total_instances += heatmap.size()
+		for value in heatmap.values():
+			global_max = max(global_max, abs(value))
+	
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	mm.instance_count = total_instances
+
+	var mesh := PlaneMesh.new()
+	mesh.size = Vector2(cell_size, cell_size)
+	
+	mm.mesh = mesh
+	heatmap_multimesh.multimesh = mm
+
+	var mat := ShaderMaterial.new()
+	mat.shader = preload("res://shaders/heatmap.gdshader")
+	heatmap_multimesh.material_override = mat	
+
+	var i := 0
+	for heatmap in heatmaps:
+		for cell: Vector3i in heatmap.keys():
+			var intensity := float(abs(heatmap[cell])) / float(global_max)
+
+			transform.origin = gridmap.map_to_local(cell) + Vector3(0, 0.05, 0)
+
+			mm.set_instance_transform(i, transform)
+			mm.set_instance_custom_data(i, Color(intensity, 1.0 if positive_influence else 0.0, 0.0, 0.0))
+			i += 1
+	
+	heatmap_multimesh.visible = true
+
+func toggle_enemy_heatmaps():
+	if enemy_heatmap_visible:
+		heatmap_multimesh.visible = false
+		enemy_heatmap_visible = false
+	else:
+		var enemies_heatmaps = Gen.heatmaps["enemies"]
+		show_heatmaps(enemies_heatmaps)
+		enemy_heatmap_visible = true
+		
+func toggle_coin_heatmaps():
+	if coin_heatmap_visible:
+		heatmap_multimesh.visible = false
+		coin_heatmap_visible = false
+	else:
+		var coins_heatmaps = Gen.heatmaps["coins"]
+		show_heatmaps(coins_heatmaps, true)
+		coin_heatmap_visible = true
+		
+func toggle_banner_heatmaps():
+	if banner_heatmap_visible:
+		heatmap_multimesh.visible = false
+		banner_heatmap_visible = false
+	else:
+		var banners_heatmaps = Gen.heatmaps["banners"]
+		show_heatmaps(banners_heatmaps, true)
+		banner_heatmap_visible = true
+
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon e chama Autoload Gen
 	if event.is_action_pressed("generate_dungeon"):
@@ -219,3 +292,15 @@ func _unhandled_input(event):
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
 		toggle_mode()
+	
+	# Captura evento de exibir heatmap de inimigos
+	if event.is_action_pressed("show_enemies_heatmaps"):
+		toggle_enemy_heatmaps()
+		
+	# Captura evento de exibir heatmap de moedas
+	if event.is_action_pressed("show_coins_heatmaps"):
+		toggle_coin_heatmaps()
+		
+	# Captura evento de exibir heatmap de estandartes
+	if event.is_action_pressed("show_banners_heatmaps"):
+		toggle_banner_heatmaps()
