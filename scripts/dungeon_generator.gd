@@ -12,30 +12,35 @@ const BANNER_ID = 7
 
 const BORDER_MARGIN = 1 # Borda mínima do tile de chão
 const ATTEMPTS = 1000 # Número de tentativas de geração de salas
-const MAP_SIZE = 50 # Tamanho do mapa
+const MAP_SIZE = 50 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
 
+# Fator de escala
+const SCALE_FACTOR = 1
+
 # Sala retangular
-const RECT_MIN_WIDTH = 6
-const RECT_MAX_WIDTH = 12
-const RECT_MIN_HEIGHT = 6
-const RECT_MAX_HEIGHT = 12
+const RECT_MIN_WIDTH = 6 * SCALE_FACTOR
+const RECT_MAX_WIDTH = 12 * SCALE_FACTOR
+const RECT_MIN_HEIGHT = 6 * SCALE_FACTOR
+const RECT_MAX_HEIGHT = 12 * SCALE_FACTOR
 
 # Sala em cruz
-const CROSS_MIN_LENGTH = 10
-const CROSS_MAX_LENGTH = 14
-const CROSS_MIN_THICKNESS = 4
-const CROSS_MAX_THICKNESS = 6
+const CROSS_MIN_LENGTH = 10 * SCALE_FACTOR
+const CROSS_MAX_LENGTH = 14 * SCALE_FACTOR
+const CROSS_MIN_THICKNESS = 4 * SCALE_FACTOR
+const CROSS_MAX_THICKNESS = 6 * SCALE_FACTOR
 
 # Sala em T
-const T_TOP_RECT_MIN_WIDTH = 10
-const T_TOP_RECT_MAX_WIDTH = 14
-const T_TOP_RECT_MIN_HEIGHT = 4
-const T_TOP_RECT_MAX_HEIGHT = 6
-const T_CENTRAL_RECT_MIN_WIDTH = 4
-const T_CENTRAL_RECT_MAX_WIDTH = 6
-const T_CENTRAL_RECT_MIN_HEIGHT = 6
-const T_CENTRAL_RECT_MAX_HEIGHT = 10
+const T_TOP_RECT_MIN_WIDTH = 10 * SCALE_FACTOR
+const T_TOP_RECT_MAX_WIDTH = 14 * SCALE_FACTOR
+const T_TOP_RECT_MIN_HEIGHT = 4 * SCALE_FACTOR
+const T_TOP_RECT_MAX_HEIGHT = 6 * SCALE_FACTOR
+const T_CENTRAL_RECT_MIN_WIDTH = 4 * SCALE_FACTOR
+const T_CENTRAL_RECT_MAX_WIDTH = 6 * SCALE_FACTOR
+const T_CENTRAL_RECT_MIN_HEIGHT = 6 * SCALE_FACTOR
+const T_CENTRAL_RECT_MAX_HEIGHT = 10 * SCALE_FACTOR 
+
+const MAX_WEIGHT = CROSS_MAX_LENGTH*2
 
 var portal_links: Dictionary = {}
 var firstPortal: Vector3i
@@ -44,7 +49,8 @@ var lastPortal: Vector3i
 var heatmaps = {
 	"enemies": [],
 	"coins": [],
-	"banners": []
+	"banners": [],
+	"combined": []
 }
 
 const DIRECTIONS := [
@@ -58,14 +64,21 @@ const DIRECTIONS := [
 	Vector3i(0, 0, -1)
 ]
 
-func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_infuence: bool):
+const start_cell_weight_objects = {
+	"enemies": -5,
+	"coins": 5,
+	"banners": 5,  
+}
+
+func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influence: bool, object: String):
 	# Estruturas para o BFS
 	var queue: Array[Vector3i] = [start_cell]
-	#var visited = { start_cell: true }
 	
 	# Define o mapa de influência com célula inicial
-	var heatmap = { start_cell: 0 }
+	#var heatmap = { start_cell: 0 }
 	
+	var heatmap = { start_cell: start_cell_weight_objects[object] }
+
 	# Loop da Busca em Largura
 	while queue.size() > 0:
 		# Remove o primeiro da fila
@@ -85,8 +98,12 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_infuenc
 			# Verifica se o vizinho não é parede
 			if neighbor_id != WALL_ID and neighbor_id != SOLID_ID:
 				# Adiciona vizinho chão no mapa de calor
-				heatmap[neighbor] = heatmap[current] - 1 if positive_infuence else heatmap[current] + 1
-				#visited[neighbor] = true
+				#heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+				heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+				if heatmap[current] != 0:
+					heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+				else:
+					heatmap[neighbor] = 0
 				queue.append(neighbor)
 				
 	return heatmap
@@ -98,6 +115,7 @@ func generate_dungeon(target_grid_map: GridMap, map_size: int = MAP_SIZE, room_c
 	heatmaps["enemies"] = []
 	heatmaps["coins"] = []
 	heatmaps["banners"] = []
+	heatmaps["combined"] = []
 	
 	# Limpa todo o GridMap
 	target_grid_map.clear()
@@ -317,7 +335,7 @@ func spawn_room_objects(gridmap: GridMap, shape: Array[Rect2i], spawn_player: bo
 		var npc_pos = available_spots.pop_front()
 		gridmap.set_cell_item(npc_pos, NPC_ID)
 		# Cria heatmap do inimigo
-		var heat = create_heatmap_bfs(gridmap, npc_pos, false)
+		var heat = create_heatmap_bfs(gridmap, npc_pos, false, "enemies")
 		# Adiciona na lista de heatmaps de inimigos
 		heatmaps["enemies"].append(heat)
 		
@@ -326,7 +344,7 @@ func spawn_room_objects(gridmap: GridMap, shape: Array[Rect2i], spawn_player: bo
 		var coin_pos = available_spots.pop_front()
 		gridmap.set_cell_item(coin_pos, COIN_ID)
 		# Cria heatmap da moeda
-		var heat = create_heatmap_bfs(gridmap, coin_pos, true)
+		var heat = create_heatmap_bfs(gridmap, coin_pos, true, "coins")
 		# Adiciona na lista de heatmaps de moedas
 		heatmaps["coins"].append(heat)
 		
@@ -335,10 +353,32 @@ func spawn_room_objects(gridmap: GridMap, shape: Array[Rect2i], spawn_player: bo
 		var banner_pos = available_spots.pop_front()
 		gridmap.set_cell_item(banner_pos, BANNER_ID)
 		# Cria heatmap do estandarte
-		var heat = create_heatmap_bfs(gridmap, banner_pos, true)
+		var heat = create_heatmap_bfs(gridmap, banner_pos, true, "banners")
 		# Adiciona na lista de heatmaps de estandartes
 		heatmaps["banners"].append(heat)
+	
+	var last_banner_heat = heatmaps["banners"][len(heatmaps["banners"]) - 1]
+	var last_enemy_heat = heatmaps["enemies"][len(heatmaps["enemies"]) - 1]
+	var last_coin_heat = heatmaps["coins"][len(heatmaps["coins"]) - 1]
+	var combined_heat = create_combined_heatmap(last_banner_heat, last_enemy_heat, last_coin_heat)
+	heatmaps["combined"].append(combined_heat) 
 
 	# Posiciona o spawn do player se for nesta sala
 	if spawn_player and available_spots.size() > 0:
 		gridmap.set_cell_item(available_spots.pop_front(), PLAYER_SPAWN_ID)
+
+# Função peso para as distancias até cada elemento da sala
+func calculate_combined_heat_pos_value(banner_val, coin_val, enemy_val):
+	return banner_val + coin_val + enemy_val
+
+# Cria heatmap combinando elementos da sala
+func create_combined_heatmap(last_banner_heat, last_enemy_heat, last_coin_heat):
+	var combined_heat = {}
+	for key in last_banner_heat.keys():
+		combined_heat[key] = calculate_combined_heat_pos_value(
+			last_banner_heat[key], 
+			last_coin_heat[key], 
+			last_enemy_heat[key]
+		)
+				
+	return combined_heat		
