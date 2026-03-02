@@ -230,16 +230,16 @@ func enter_play_mode():
 
  #Criar funcao que exibe quanto menor o valor, pior o resultado do quadrado
 
-func show_heatmaps(heatmaps, type, cell_size := 1.0):
+func show_heatmaps(heatmaps, cell_size := 1.0):
 	var total_instances := 0
 	var global_max := 0
 	var global_min := 10000
 	for heatmap in heatmaps:
 		total_instances += heatmap.size()
-		if  type == heatmap_types["combined"]:
-			for value in heatmap.values():
-				global_max = max(global_max, value)
-				global_min = min(global_min, value)
+		for value in heatmap.values():
+			global_max = max(global_max, value)
+			global_min = min(global_min, value)
+		
 	
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -260,22 +260,15 @@ func show_heatmaps(heatmaps, type, cell_size := 1.0):
 	for heatmap in heatmaps:
 		for cell: Vector3i in heatmap.keys():
 			var intensity
-			if (type == heatmap_types["positive"]):
-				intensity = heatmap[cell]/float(Gen.MAX_WEIGHT)
-			elif (type == heatmap_types["negative"]):
-				intensity = 1 - (-heatmap[cell])/float(Gen.MAX_WEIGHT)
-			elif (type == heatmap_types["combined"]):
-				if ((heatmap[cell]) < 0):
-					# Normaliza e comprime para a primeira metade (0 a 0.5)					
-					intensity = 0.5 * ((heatmap[cell] - global_min) / float(-global_min))
-				elif ((heatmap[cell]) > 0):
-					# Normaliza e comprime para a segunda metade (0.5 a 1)
-					intensity = 0.5 + (0.5 * (heatmap[cell] / float(global_max)))
-				else:
-					# Zero fica no centro
-					intensity = 0.5
-			else:
-				print("Tipo de heatmap incorreto!")
+			if ((heatmap[cell]) == 0):
+				# Zero fica no centro
+				intensity = 0.5
+			if ((heatmap[cell]) < 0):
+				# Normaliza e comprime para a primeira metade (0 a 0.5)				
+				intensity = 0.5 * (1 - (-heatmap[cell])/float(-global_min))
+			elif ((heatmap[cell]) > 0):
+				# Normaliza e comprime para a segunda metade (0.5 a 1)
+				intensity = 0.5 + (0.5 * (heatmap[cell] / float(global_max)))
 			
 			transform.origin = gridmap.map_to_local(cell) + Vector3(0, 0.05, 0)
 
@@ -291,7 +284,7 @@ func toggle_enemy_heatmaps():
 		enemy_heatmap_visible = false
 	else:
 		var enemies_heatmaps = Gen.heatmaps["enemies"]
-		show_heatmaps(enemies_heatmaps, heatmap_types["negative"])
+		show_heatmaps(enemies_heatmaps)
 		enemy_heatmap_visible = true
 		
 func toggle_coin_heatmaps():
@@ -300,7 +293,7 @@ func toggle_coin_heatmaps():
 		coin_heatmap_visible = false
 	else:
 		var coins_heatmaps = Gen.heatmaps["coins"]
-		show_heatmaps(coins_heatmaps, heatmap_types["positive"])
+		show_heatmaps(coins_heatmaps)
 		coin_heatmap_visible = true
 		
 func toggle_banner_heatmaps():
@@ -309,7 +302,7 @@ func toggle_banner_heatmaps():
 		banner_heatmap_visible = false
 	else:
 		var banners_heatmaps = Gen.heatmaps["banners"]
-		show_heatmaps(banners_heatmaps, heatmap_types["positive"])
+		show_heatmaps(banners_heatmaps)
 		banner_heatmap_visible = true
 
 func toggle_combined_heatmaps():
@@ -319,7 +312,7 @@ func toggle_combined_heatmaps():
 	else:
 		var combined_heatmaps = Gen.heatmaps["combined"]
 		# Criar nova funcao para exibir cores sem necessidade de passar influencia?
-		show_heatmaps(combined_heatmaps, heatmap_types["combined"]) 
+		show_heatmaps(combined_heatmaps) 
 		combined_heatmap_visible = true
 		
 func _unhandled_input(event):

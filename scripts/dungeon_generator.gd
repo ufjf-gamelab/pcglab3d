@@ -40,8 +40,6 @@ const T_CENTRAL_RECT_MAX_WIDTH = 6 * SCALE_FACTOR
 const T_CENTRAL_RECT_MIN_HEIGHT = 6 * SCALE_FACTOR
 const T_CENTRAL_RECT_MAX_HEIGHT = 10 * SCALE_FACTOR 
 
-const MAX_WEIGHT = CROSS_MAX_LENGTH*2
-
 var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
