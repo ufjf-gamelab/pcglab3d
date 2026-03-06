@@ -1,6 +1,9 @@
 extends Node3D
 
-@onready var gridmap = $GridMap
+const CA_GENERATOR = preload("res://scripts/ca_dungeon_generator.gd")
+const GENERATOR = preload("res://scripts/dungeon_generator.gd")
+
+@onready var gridmap := $GridMap
 @onready var builder := $Builder
 @onready var world := $World
 @onready var edit_camera := $View/EditCamera
@@ -8,7 +11,6 @@ extends Node3D
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
-@onready var heatmap_multimesh := $HeatmapVisualizer/HeatmapMultiMesh
 
 @export var max_life_time := 10.0
 var life_time := max_life_time
@@ -19,18 +21,8 @@ var used_banners := []
 enum Mode { CREATION, PLAY }
 var mode = Mode.CREATION
 
-var enemy_heatmap_visible := false
-var coin_heatmap_visible := false
-var banner_heatmap_visible := false
-var combined_heatmap_visible := false
-
-var heatmap_types = {
-	"positive" = "POSITIVE",
-	"negative" = "NEGATIVE",
-	"combined" = "COMBINED",
-}
-
 func _ready():
+	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
 
 func _process(delta):
@@ -51,7 +43,6 @@ func update_life_timer(delta):
 	print("Life:", life_time)
 
 	if life_time <= 0:
-		
 		on_player_dead()
 	
 func on_player_dead():
@@ -78,7 +69,7 @@ func update_player_camera(delta):
 
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 	if body.name == "Player":
-		var arrival = Gen.portal_links[portal_pos]
+		var arrival = UGen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
 			
@@ -230,95 +221,17 @@ func enter_play_mode():
 
  #Criar funcao que exibe quanto menor o valor, pior o resultado do quadrado
 
-func show_heatmaps(heatmaps, cell_size := 1.0):
-	var total_instances := 0
-	var global_max := 0
-	var global_min := 10000
-	for heatmap in heatmaps:
-		total_instances += heatmap.size()
-		for value in heatmap.values():
-			global_max = max(global_max, value)
-			global_min = min(global_min, value)
-		
-	
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_custom_data = true
-	mm.instance_count = total_instances
-
-	var mesh := PlaneMesh.new()
-	mesh.size = Vector2(cell_size, cell_size)
-	
-	mm.mesh = mesh
-	heatmap_multimesh.multimesh = mm
-
-	var mat := ShaderMaterial.new()
-	mat.shader = preload("res://shaders/heatmap.gdshader")
-	heatmap_multimesh.material_override = mat	
-
-	var i := 0
-	for heatmap in heatmaps:
-		for cell: Vector3i in heatmap.keys():
-			var intensity
-			if ((heatmap[cell]) == 0):
-				# Zero fica no centro
-				intensity = 0.5
-			if ((heatmap[cell]) < 0):
-				# Normaliza e comprime para a primeira metade (0 a 0.5)				
-				intensity = 0.5 * (1 - (-heatmap[cell])/float(-global_min))
-			elif ((heatmap[cell]) > 0):
-				# Normaliza e comprime para a segunda metade (0.5 a 1)
-				intensity = 0.5 + (0.5 * (heatmap[cell] / float(global_max)))
-			
-			transform.origin = gridmap.map_to_local(cell) + Vector3(0, 0.05, 0)
-
-			mm.set_instance_transform(i, transform)
-			mm.set_instance_custom_data(i, Color(intensity, 0.0, 0.0, 0.0))
-			i += 1
-	
-	heatmap_multimesh.visible = true
-
-func toggle_enemy_heatmaps():
-	if enemy_heatmap_visible:
-		heatmap_multimesh.visible = false
-		enemy_heatmap_visible = false
-	else:
-		var enemies_heatmaps = Gen.heatmaps["enemies"]
-		show_heatmaps(enemies_heatmaps)
-		enemy_heatmap_visible = true
-		
-func toggle_coin_heatmaps():
-	if coin_heatmap_visible:
-		heatmap_multimesh.visible = false
-		coin_heatmap_visible = false
-	else:
-		var coins_heatmaps = Gen.heatmaps["coins"]
-		show_heatmaps(coins_heatmaps)
-		coin_heatmap_visible = true
-		
-func toggle_banner_heatmaps():
-	if banner_heatmap_visible:
-		heatmap_multimesh.visible = false
-		banner_heatmap_visible = false
-	else:
-		var banners_heatmaps = Gen.heatmaps["banners"]
-		show_heatmaps(banners_heatmaps)
-		banner_heatmap_visible = true
-
-func toggle_combined_heatmaps():
-	if combined_heatmap_visible:
-		heatmap_multimesh.visible = false
-		combined_heatmap_visible = false
-	else:
-		var combined_heatmaps = Gen.heatmaps["combined"]
-		# Criar nova funcao para exibir cores sem necessidade de passar influencia?
-		show_heatmaps(combined_heatmaps) 
-		combined_heatmap_visible = true
-		
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon e chama Autoload Gen
+	if event.is_action_pressed("ca_generate_dungeon"):
+		var ca_generator = CA_GENERATOR.new()
+		ca_generator.generate_dungeon_ca(gridmap)
+		ca_generator.spawn_dungeon_elements(gridmap)
+		
 	if event.is_action_pressed("generate_dungeon"):
-		Gen.generate_dungeon(gridmap)
+		var generator = GENERATOR.new()
+		generator.generate_dungeon(gridmap)
+		generator.spawn_dungeon_elements(gridmap)
 		
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
@@ -326,16 +239,16 @@ func _unhandled_input(event):
 	
 	# Captura evento de exibir heatmap de inimigos
 	if event.is_action_pressed("show_enemies_heatmaps"):
-		toggle_enemy_heatmaps()
+		UHeat.toggle_enemy_heatmaps(gridmap)
 		
 	# Captura evento de exibir heatmap de moedas
 	if event.is_action_pressed("show_coins_heatmaps"):
-		toggle_coin_heatmaps()
+		UHeat.toggle_coin_heatmaps(gridmap)
 		
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
-		toggle_banner_heatmaps()
+		UHeat.toggle_banner_heatmaps(gridmap)
 	
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
-		toggle_combined_heatmaps()
+		UHeat.toggle_combined_heatmaps(gridmap)
