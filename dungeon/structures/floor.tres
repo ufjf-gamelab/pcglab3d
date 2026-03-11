@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://bw0w3w1fdc4c8"]
 
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_8is44"]
-[ext_resource type="PackedScene" uid="uid://c68avr1th60xd" path="res://dungeon/assets/floor.glb" id="1_tspnp"]
+[ext_resource type="PackedScene" uid="uid://bcgssi348kw2o" path="res://scenes/playable/floor.tscn" id="1_tspnp"]
 
 [resource]
 script = ExtResource("1_8is44")

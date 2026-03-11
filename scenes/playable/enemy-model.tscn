@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cie6y5pvn7hji"]
+
+[ext_resource type="PackedScene" uid="uid://bq3oalkvr3ppm" path="res://dungeon/assets/character-orc.glb" id="1_iqn54"]
+
+[node name="character-orc2" instance=ExtResource("1_iqn54")]
+
+[node name="Skeleton3D" parent="character-orc" index="0"]
+bones/4/rotation = Quaternion(0, 0, -0.38268346, 0.9238795)
+bones/5/rotation = Quaternion(0, 0, 0.3826835, 0.92387956)

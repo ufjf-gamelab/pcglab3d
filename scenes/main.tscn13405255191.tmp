@@ -30,6 +30,7 @@ shadow_color = Color(0, 0, 0, 0.392157)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_yc10j")
+max_life_time = null
 
 [node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
 script = ExtResource("1_jybm7")
