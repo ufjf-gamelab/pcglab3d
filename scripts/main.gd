@@ -252,3 +252,7 @@ func _unhandled_input(event):
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
 		UHeat.toggle_combined_heatmaps(gridmap)
+
+	# Captura evento de exibir heatmap combinando influências
+	if event.is_action_pressed("recalculate_heatmaps"):
+		UHeat.recalculate_heatmaps(gridmap)
