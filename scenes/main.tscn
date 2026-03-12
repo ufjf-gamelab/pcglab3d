@@ -37,7 +37,7 @@ structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource(
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/EditCamera")
-gridmap = NodePath("../GridMap")
+gridmap = NodePath("../NavigationRegion3D/GridMap")
 cash_display = NodePath("../UI/CreationUI/Top/Cash")
 
 [node name="Selector" type="Node3D" parent="Builder"]
@@ -58,12 +58,6 @@ environment = ExtResource("1_yndf3")
 fov = 20.0
 
 [node name="PlayerCamera" type="Camera3D" parent="View"]
-
-[node name="GridMap" type="GridMap" parent="."]
-cell_size = Vector3(1, 1, 1)
-cell_center_x = false
-cell_center_y = false
-cell_center_z = false
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.422618, -0.694272, 0.582563, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
@@ -135,3 +129,11 @@ autoplay = true
 [node name="HeatmapVisualizer" type="Node3D" parent="."]
 
 [node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer"]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+
+[node name="GridMap" type="GridMap" parent="NavigationRegion3D"]
+cell_size = Vector3(1, 1, 1)
+cell_center_x = false
+cell_center_y = false
+cell_center_z = false
