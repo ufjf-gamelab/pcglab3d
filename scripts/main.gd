@@ -13,7 +13,7 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 
-@export var max_life_time := 10.0
+@export var max_life_time := 50.0
 var life_time := max_life_time
 var life_active := false
 
@@ -41,7 +41,7 @@ func update_life_timer(delta):
 	life_time -= delta
 	life_time = max(life_time, 0.0)
 	
-	print("Life:", life_time)
+	#print("Life:", life_time)
 
 	if life_time <= 0:
 		on_player_dead()
@@ -222,6 +222,10 @@ func enter_play_mode():
 
 func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()
+	navigation_mesh.sample_partition_type = NavigationMesh.SAMPLE_PARTITION_LAYERS
+	navigation_mesh.agent_radius = 0.1
+	navigation_mesh.cell_height = 0.01
+	
 	var source := NavigationMeshSourceGeometryData3D.new()
 
 	NavigationServer3D.parse_source_geometry_data(navigation_mesh,source,gridmap)
@@ -230,7 +234,6 @@ func rebuild_navigation_mesh():
 
 	$NavigationRegion3D.navigation_mesh = navigation_mesh
 
- #Criar funcao que exibe quanto menor o valor, pior o resultado do quadrado
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon e chama Autoload Gen
 	if event.is_action_pressed("ca_generate_dungeon"):

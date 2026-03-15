@@ -1,6 +1,9 @@
 extends CharacterBody3D
 
-@export var speed := 4.0
+@export var max_life := 2
+var life := max_life
+
+@export var speed := 3.0
 @export var gravity := 9.8
 @export var jump_force := 4.0
 @export var attack_damage := 1
@@ -14,6 +17,21 @@ var attacking := false
 var enemies_hit := []
 
 var dying := false
+
+# Faz a animação de morte e remove do mapa
+func on_die():
+	anim.play("die")
+	await anim.animation_finished
+	queue_free()
+
+# Recebe dano
+func take_damage(amount):
+	life -= amount
+	print("Vida Player:", life)
+
+	if life <= 0:
+		dying = true
+		on_die()
 
 func _ready():
 	anim.play("idle")
