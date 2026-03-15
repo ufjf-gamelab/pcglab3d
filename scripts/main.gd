@@ -3,7 +3,7 @@ extends Node3D
 const CA_GENERATOR = preload("res://scripts/ca_dungeon_generator.gd")
 const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 
-@onready var gridmap := $GridMap
+@onready var gridmap := $NavigationRegion3D/GridMap
 @onready var builder := $Builder
 @onready var world := $World
 @onready var edit_camera := $View/EditCamera
@@ -11,8 +11,9 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
+@onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 
-@export var max_life_time := 10.0
+@export var max_life_time := 50.0
 var life_time := max_life_time
 var life_active := false
 
@@ -40,7 +41,7 @@ func update_life_timer(delta):
 	life_time -= delta
 	life_time = max(life_time, 0.0)
 	
-	print("Life:", life_time)
+	#print("Life:", life_time)
 
 	if life_time <= 0:
 		on_player_dead()
@@ -219,7 +220,19 @@ func enter_play_mode():
 			life_time = max_life_time
 		life_active = true
 
- #Criar funcao que exibe quanto menor o valor, pior o resultado do quadrado
+func rebuild_navigation_mesh():
+	var navigation_mesh := NavigationMesh.new()
+	navigation_mesh.sample_partition_type = NavigationMesh.SAMPLE_PARTITION_LAYERS
+	navigation_mesh.agent_radius = 0.1
+	navigation_mesh.cell_height = 0.01
+	
+	var source := NavigationMeshSourceGeometryData3D.new()
+
+	NavigationServer3D.parse_source_geometry_data(navigation_mesh,source,gridmap)
+
+	NavigationServer3D.bake_from_source_geometry_data(navigation_mesh, source)
+
+	$NavigationRegion3D.navigation_mesh = navigation_mesh
 
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon e chama Autoload Gen
@@ -228,11 +241,15 @@ func _unhandled_input(event):
 		ca_generator.generate_dungeon_ca(gridmap)
 		ca_generator.spawn_dungeon_elements(gridmap)
 		
+		rebuild_navigation_mesh()
+		
 	if event.is_action_pressed("generate_dungeon"):
 		var generator = GENERATOR.new()
 		generator.generate_dungeon(gridmap)
 		generator.spawn_dungeon_elements(gridmap)
 		
+		rebuild_navigation_mesh()
+				
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
 		toggle_mode()

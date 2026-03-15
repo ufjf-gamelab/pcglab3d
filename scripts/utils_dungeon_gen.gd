@@ -25,9 +25,9 @@ var firstPortal: Vector3i
 var lastPortal: Vector3i
 
 var room_elements_quantity = {
-	"enemies": 2,
+	"enemies": 1,
 	"coins": 2,
-	"banners": 2
+	"banners": 1
 }
 
 # Preenche o espaço todo do mapa com paredes sólidas
