@@ -62,8 +62,7 @@ func _ready():
 	gridmap.mesh_library = mesh_library
 	
 	update_structure()
-	update_cash()
-
+	
 func _process(delta):
 	
 	# Controls
@@ -106,7 +105,6 @@ func action_build(gridmap_position):
 		
 		if previous_tile != index:
 			map.cash -= structures[index].price
-			update_cash()
 			
 			Audio.play("sounds/placement-a.ogg, sounds/placement-b.ogg, sounds/placement-c.ogg, sounds/placement-d.ogg", -20)
 
@@ -147,9 +145,6 @@ func update_structure():
 	var _model = structures[index].model.instantiate()
 	selector_container.add_child(_model)
 	_model.position.y += 0.25
-	
-func update_cash():
-	cash_display.text = "$" + str(map.cash)
 
 # Saving/load
 func action_save():
@@ -177,8 +172,7 @@ func action_load():
 			map = DataMap.new()
 		for cell in map.structures:
 			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
-			
-		update_cash()
+
 
 func action_load_resources():
 	if Input.is_action_just_pressed("load_resources"):
@@ -191,5 +185,3 @@ func action_load_resources():
 			map = DataMap.new()
 		for cell in map.structures:
 			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
-			
-		update_cash()
