@@ -134,44 +134,60 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	
 	heatmap_multimesh.visible = true
 
-func toggle_enemy_heatmaps(gridmap: GridMap):
+func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if enemy_heatmap_visible:
 		heatmap_multimesh.visible = false
 		enemy_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var enemies_heatmaps = heatmaps["enemies"]
 		show_heatmaps(gridmap, enemies_heatmaps)
 		enemy_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Inimigos", {"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"]})
+
 		
-func toggle_coin_heatmaps(gridmap: GridMap):
+func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if coin_heatmap_visible:
 		heatmap_multimesh.visible = false
 		coin_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var coins_heatmaps = heatmaps["coins"]
 		show_heatmaps(gridmap, coins_heatmaps)
 		coin_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Moedas", {"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"]})
+
 		
-func toggle_banner_heatmaps(gridmap: GridMap):
+func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if banner_heatmap_visible:
 		heatmap_multimesh.visible = false
 		banner_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var banners_heatmaps = heatmaps["banners"]
 		show_heatmaps(gridmap, banners_heatmaps)
 		banner_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Estandartes", {"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]})
 
-func toggle_combined_heatmaps(gridmap: GridMap):
+
+func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if combined_heatmap_visible:
 		heatmap_multimesh.visible = false
 		combined_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var combined_heatmaps = heatmaps["combined"]
-		# Criar nova funcao para exibir cores sem necessidade de passar influencia?
 		show_heatmaps(gridmap, combined_heatmaps) 
 		combined_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
+		{
+			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"],
+			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"],
+			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]
+		})
 
-func recalculate_heatmaps(gridmap: GridMap):
+
+func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	heatmaps["enemies"] = []
 	heatmaps["coins"] = []
 	heatmaps["banners"] = []
@@ -182,6 +198,7 @@ func recalculate_heatmaps(gridmap: GridMap):
 	banner_heatmap_visible = false
 	coin_heatmap_visible = false
 	enemy_heatmap_visible = false
+	heatmap_panel.clear()
 	
 	var room_enemies_heatmaps
 	var room_coins_heatmaps

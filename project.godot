@@ -25,8 +25,8 @@ config/icon="res://icon.png"
 [autoload]
 
 Audio="*res://scripts/audio.gd"
-UGen="*res://scripts/utils_dungeon_gen.gd"
-UHeat="*res://scripts/utils_heatmap.gd"
+UGen="*res://scripts/utils/utils_dungeon_gen.gd"
+UHeat="*res://scripts/utils/utils_heatmap.gd"
 
 [editor]
 

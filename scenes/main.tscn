@@ -18,6 +18,7 @@
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://dungeon/structures/floor.tres" id="12_gqmmt"]
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
 [ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
+[ext_resource type="PackedScene" uid="uid://rhdgrxbxbexv" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="19_yc10j"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
 
@@ -70,6 +71,9 @@ offset_bottom = 40.0
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="HeatmapInfoPanel" parent="UI/CreationUI/Top" unique_id=84922852 instance=ExtResource("19_yc10j")]
+layout_mode = 0
 
 [node name="Bottom" type="Control" parent="UI/CreationUI" unique_id=28570854]
 layout_mode = 1

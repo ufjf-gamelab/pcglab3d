@@ -12,6 +12,7 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
+@onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
 
 @export var max_life_time := 50.0
 var life_time := max_life_time
@@ -256,20 +257,20 @@ func _unhandled_input(event):
 	
 	# Captura evento de exibir heatmap de inimigos
 	if event.is_action_pressed("show_enemies_heatmaps"):
-		UHeat.toggle_enemy_heatmaps(gridmap)
+		UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
 		
 	# Captura evento de exibir heatmap de moedas
 	if event.is_action_pressed("show_coins_heatmaps"):
-		UHeat.toggle_coin_heatmaps(gridmap)
+		UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
 		
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
-		UHeat.toggle_banner_heatmaps(gridmap)
+		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
 	
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
-		UHeat.toggle_combined_heatmaps(gridmap)
+		UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
 
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("recalculate_heatmaps"):
-		UHeat.recalculate_heatmaps(gridmap)
+		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)

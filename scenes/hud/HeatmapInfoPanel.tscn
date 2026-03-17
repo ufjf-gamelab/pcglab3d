@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://rhdgrxbxbexv"]
+
+[ext_resource type="Script" uid="uid://c27iauyf3sug" path="res://scripts/utils/heatmap_info_panel.gd" id="1_145pq"]
+[ext_resource type="StyleBox" uid="uid://c5d3u2sy477d3" path="res://structures/style/style_box_flat.tres" id="1_talok"]
+
+[node name="HeatmapInfoPanel" type="Panel" unique_id=84922852]
+offset_right = 1.0
+offset_bottom = 55.0
+theme_override_styles/panel = ExtResource("1_talok")
+script = ExtResource("1_145pq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1262896575]
+layout_mode = 0
+offset_right = 1.0
+offset_bottom = 55.0
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1710059386]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Subtitle" type="Label" parent="VBoxContainer" unique_id=2143631324]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
