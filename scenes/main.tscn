@@ -63,17 +63,25 @@ shadow_opacity = 0.75
 
 [node name="CreationUI" type="Control" parent="UI" unique_id=627118002]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Top" type="Control" parent="UI/CreationUI" unique_id=1856101939]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="HeatmapInfoPanel" parent="UI/CreationUI/Top" unique_id=84922852 instance=ExtResource("19_yc10j")]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
 
 [node name="Bottom" type="Control" parent="UI/CreationUI" unique_id=28570854]
 layout_mode = 1
