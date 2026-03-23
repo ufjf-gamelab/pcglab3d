@@ -31,6 +31,20 @@ var coin_heatmap_visible := false
 var banner_heatmap_visible := false
 var combined_heatmap_visible := false
 
+var decay_func_type = "linear"
+
+var decay_func_types = {
+	"linear": {
+		"positive_influ_exibit": "B = A - 1",
+		"negative_influ_exibit": "B = A + 1"
+	}
+}
+
+func switch_decay_func(positive_influence, curr_heatmap_tile):
+	match decay_func_type:
+		"linear":
+			return curr_heatmap_tile - 1 if positive_influence else curr_heatmap_tile + 1
+
 func create_same_element_type_combined_heatmap(type_heatmaps):
 	var combined_type_heat = {}
 	for heat in type_heatmaps:
