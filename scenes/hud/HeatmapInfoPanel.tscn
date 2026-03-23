@@ -10,8 +10,6 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="VBoxContainer" unique_id=1705627038]
 layout_mode = 2
-text = "Opa meu cumpade"
 
 [node name="Subtitle" type="Label" parent="VBoxContainer" unique_id=1260016562]
 layout_mode = 2
-text = "Subtitulo"

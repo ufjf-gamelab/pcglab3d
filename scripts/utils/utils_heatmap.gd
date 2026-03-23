@@ -67,8 +67,8 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 			# Verifica se o vizinho não é parede
 			if neighbor_id != UGen.WALL_ID and neighbor_id != UGen.SOLID_ID:
 				# Adiciona vizinho no mapa de calor
-				heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
 				if heatmap[current] != 0:
+					# Função de decaimento entra aqui (diferentes tipos)
 					heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
 				else:
 					heatmap[neighbor] = 0
