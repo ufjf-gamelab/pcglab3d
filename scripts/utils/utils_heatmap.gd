@@ -82,8 +82,7 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 			if neighbor_id != UGen.WALL_ID and neighbor_id != UGen.SOLID_ID:
 				# Adiciona vizinho no mapa de calor
 				if heatmap[current] != 0:
-					# Função de decaimento entra aqui (diferentes tipos)
-					heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+					heatmap[neighbor] = switch_decay_func(positive_influence, heatmap[current])
 				else:
 					heatmap[neighbor] = 0
 				queue.append(neighbor)
