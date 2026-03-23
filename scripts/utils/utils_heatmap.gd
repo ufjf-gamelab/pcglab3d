@@ -31,6 +31,20 @@ var coin_heatmap_visible := false
 var banner_heatmap_visible := false
 var combined_heatmap_visible := false
 
+var decay_func_type = "linear"
+
+var decay_func_types = {
+	"linear": {
+		"positive_influ_exibit": "B = A - 1",
+		"negative_influ_exibit": "B = A + 1"
+	}
+}
+
+func switch_decay_func(positive_influence, curr_heatmap_tile):
+	match decay_func_type:
+		"linear":
+			return curr_heatmap_tile - 1 if positive_influence else curr_heatmap_tile + 1
+
 func create_same_element_type_combined_heatmap(type_heatmaps):
 	var combined_type_heat = {}
 	for heat in type_heatmaps:
@@ -67,9 +81,8 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 			# Verifica se o vizinho não é parede
 			if neighbor_id != UGen.WALL_ID and neighbor_id != UGen.SOLID_ID:
 				# Adiciona vizinho no mapa de calor
-				heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
 				if heatmap[current] != 0:
-					heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+					heatmap[neighbor] = switch_decay_func(positive_influence, heatmap[current])
 				else:
 					heatmap[neighbor] = 0
 				queue.append(neighbor)
