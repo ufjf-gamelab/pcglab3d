@@ -28,6 +28,10 @@ Audio="*res://scripts/audio.gd"
 UGen="*res://scripts/utils/utils_dungeon_gen.gd"
 UHeat="*res://scripts/utils/utils_heatmap.gd"
 
+[display]
+
+window/size/mode=2
+
 [editor]
 
 movie_writer/movie_file="D:/Godot/recording.avi"
