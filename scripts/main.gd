@@ -13,7 +13,7 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
-@onready var health_bar: ProgressBar = $UI/GameHUD/HealthBar
+@onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
 
 @export var max_life_time := 20.0
 var life_time := max_life_time

@@ -18,6 +18,7 @@
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://dungeon/structures/floor.tres" id="12_gqmmt"]
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
 [ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
+[ext_resource type="Texture2D" uid="uid://cdy6l6u51msrw" path="res://sprites/spritesheet-tiles-default.png" id="21_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
@@ -57,13 +58,17 @@ content_margin_left = 2.0
 content_margin_top = 2.0
 content_margin_right = 2.0
 content_margin_bottom = 2.0
-bg_color = Color(0.76247627, 6.256998e-07, 6.738305e-07, 1)
+bg_color = Color(0.9372549, 0.6117647, 0, 1)
 border_color = Color(0.33333334, 0.38431373, 0.4117647, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 corner_detail = 12
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yc10j"]
+atlas = ExtResource("21_jscy8")
+region = Rect2(527, 270, 49, 45)
 
 [node name="Main" type="Node3D" unique_id=1635729911]
 script = ExtResource("1_yc10j")
@@ -148,7 +153,7 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="HealthBar" type="ProgressBar" parent="UI/GameHUD" unique_id=1666987954]
+[node name="LightBar" type="ProgressBar" parent="UI/GameHUD" unique_id=1666987954]
 layout_mode = 0
 offset_left = 514.0
 offset_top = 10.0
@@ -159,6 +164,21 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_pm3ni")
 step = 0.0
 value = 100.0
 show_percentage = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/GameHUD" unique_id=250787039]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = 108.0
+offset_bottom = 48.0
+
+[node name="TextureRect" type="TextureRect" parent="UI/GameHUD/HBoxContainer" unique_id=791317673]
+layout_mode = 2
+texture = SubResource("AtlasTexture_yc10j")
+
+[node name="TextureRect2" type="TextureRect" parent="UI/GameHUD/HBoxContainer" unique_id=2073187984]
+layout_mode = 2
+texture = SubResource("AtlasTexture_yc10j")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=2042514993]
 stream = ExtResource("24_y6deb")
