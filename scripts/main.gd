@@ -13,8 +13,9 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
+@onready var health_bar: ProgressBar = $UI/GameHUD/HealthBar
 
-@export var max_life_time := 50.0
+@export var max_life_time := 20.0
 var life_time := max_life_time
 var life_active := false
 
@@ -26,11 +27,17 @@ var mode = Mode.CREATION
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
+	health_bar.max_value = max_life_time
+	health_bar.value = max_life_time
 
 func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		update_life_timer(delta)
+
+func set_life_smooth(new_value):
+	var tween = create_tween()
+	tween.tween_property(health_bar, "value", new_value, 0.4)
 
 func update_life_timer(delta):
 	if mode != Mode.PLAY:
@@ -42,7 +49,7 @@ func update_life_timer(delta):
 	life_time -= delta
 	life_time = max(life_time, 0.0)
 	
-	#print("Life:", life_time)
+	health_bar.value = life_time
 
 	if life_time <= 0:
 		on_player_dead()
@@ -78,6 +85,7 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
+	set_life_smooth(life_time)
 	life_active = false # Congela timer	
 	
 func _on_banner_player_exit():

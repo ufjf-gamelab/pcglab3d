@@ -35,6 +35,36 @@ border_width_bottom = 10
 border_blend = true
 corner_radius_bottom_right = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jscy8"]
+bg_color = Color(0.01223816, 0.0003895802, 4.3376334e-05, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.33333334, 0.38431373, 0.4117647, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 12
+expand_margin_left = 4.0
+expand_margin_top = 4.0
+expand_margin_right = 4.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pm3ni"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.76247627, 6.256998e-07, 6.738305e-07, 1)
+border_color = Color(0.33333334, 0.38431373, 0.4117647, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 12
+
 [node name="Main" type="Node3D" unique_id=1635729911]
 script = ExtResource("1_yc10j")
 
@@ -117,6 +147,18 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="HealthBar" type="ProgressBar" parent="UI/GameHUD" unique_id=1666987954]
+layout_mode = 0
+offset_left = 514.0
+offset_top = 10.0
+offset_right = 665.0
+offset_bottom = 29.0
+theme_override_styles/background = SubResource("StyleBoxFlat_jscy8")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pm3ni")
+step = 0.0
+value = 100.0
+show_percentage = false
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=2042514993]
 stream = ExtResource("24_y6deb")
