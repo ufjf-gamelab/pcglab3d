@@ -34,10 +34,7 @@ var combined_heatmap_visible := false
 var decay_func_type = "linear"
 
 var decay_func_types = {
-	"linear": {
-		"positive_influ_exibit": "B = A - 1",
-		"negative_influ_exibit": "B = A + 1"
-	}
+	"linear": "Linear"
 }
 
 func switch_decay_func(positive_influence, curr_heatmap_tile):
@@ -182,7 +179,6 @@ func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		banner_heatmap_visible = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Estandartes", {"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]})
 
-
 func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if combined_heatmap_visible:
 		heatmap_multimesh.visible = false
@@ -198,7 +194,6 @@ func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"],
 			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]
 		})
-
 
 func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	heatmaps["enemies"] = []

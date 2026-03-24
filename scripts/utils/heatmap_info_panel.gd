@@ -17,18 +17,14 @@ func clear():
 
 func format_influences(influences: Dictionary, title: String) -> String:
 	var parts := []
-
+	
+	if title.contains("Combinado"):
+		parts.append("Somatório de Influências Positivas e Negativas")
+	else:
+		var decay_type = UHeat.decay_func_types[UHeat.decay_func_type]
+		parts.append("Função de Decaimento %s" % decay_type)
+		
 	for key in influences.keys():
 		parts.append("%s: %s" % [key, influences[key]])
-	
-	var positive_decay_func = UHeat.decay_func_types[UHeat.decay_func_type]["positive_influ_exibit"]
-	var negative_decay_func = UHeat.decay_func_types[UHeat.decay_func_type]["negative_influ_exibit"]
-	
-	if title.contains("Inimigo"):
-		parts.append("Função de Decaimento: %s" % negative_decay_func)
-	elif title.contains("Moeda") or title.contains("Estandarte"):
-		parts.append("Função de Decaimento: %s" % positive_decay_func)
-	else:
-		parts.append("Influência Positiva em B + Influência Negativa em B")
 		
-	return "\n ".join(parts)
+	return "\n".join(parts)
