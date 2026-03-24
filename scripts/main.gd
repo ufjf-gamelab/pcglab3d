@@ -15,6 +15,8 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
 @onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
 
+@onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
+
 @export var max_life_time := 20.0
 var life_time := max_life_time
 var life_active := false
@@ -52,9 +54,9 @@ func update_life_timer(delta):
 	health_bar.value = life_time
 
 	if life_time <= 0:
-		on_player_dead()
+		_on_player_dead()
 	
-func on_player_dead():
+func _on_player_dead():
 	var player = world.get_node_or_null("Player")
 	life_active = false
 	
@@ -224,10 +226,17 @@ func enter_play_mode():
 	if player:
 		player_camera.global_position = player.global_position + Vector3(0, 3, -5)
 		player_camera.look_at(player.global_position)
+		player.update_life.connect(_on_player_update_life)
 		
 		if life_time <= 0:
 			life_time = max_life_time
 		life_active = true
+
+func _on_player_update_life(curr_life):
+	life_hearts.update_hearts(curr_life)
+	if (curr_life <= 0):
+		await get_tree().create_timer(2.0).timeout
+		toggle_mode()
 
 func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()

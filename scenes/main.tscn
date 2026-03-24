@@ -19,6 +19,7 @@
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
 [ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
 [ext_resource type="Texture2D" uid="uid://cdy6l6u51msrw" path="res://sprites/spritesheet-tiles-default.png" id="21_jscy8"]
+[ext_resource type="Script" uid="uid://d3tqf4ubckujf" path="res://scripts/life_hearts.gd" id="21_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
@@ -165,18 +166,19 @@ step = 0.0
 value = 100.0
 show_percentage = false
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UI/GameHUD" unique_id=250787039]
+[node name="LifeHearts" type="HBoxContainer" parent="UI/GameHUD" unique_id=250787039]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 3.0
 offset_right = 108.0
 offset_bottom = 48.0
+script = ExtResource("21_pm3ni")
 
-[node name="TextureRect" type="TextureRect" parent="UI/GameHUD/HBoxContainer" unique_id=791317673]
+[node name="Heart1" type="TextureRect" parent="UI/GameHUD/LifeHearts" unique_id=791317673]
 layout_mode = 2
 texture = SubResource("AtlasTexture_yc10j")
 
-[node name="TextureRect2" type="TextureRect" parent="UI/GameHUD/HBoxContainer" unique_id=2073187984]
+[node name="Heart2" type="TextureRect" parent="UI/GameHUD/LifeHearts" unique_id=2073187984]
 layout_mode = 2
 texture = SubResource("AtlasTexture_yc10j")
 
