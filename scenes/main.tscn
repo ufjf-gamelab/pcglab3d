@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://d3tqf4ubckujf" path="res://scripts/life_hearts.gd" id="21_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
+[ext_resource type="Script" uid="uid://iinemfi6cdva" path="res://scripts/coins_ui.gd" id="23_og1vs"]
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
 
@@ -189,6 +190,7 @@ offset_left = 186.0
 offset_top = 4.0
 offset_right = 262.0
 offset_bottom = 48.0
+script = ExtResource("23_og1vs")
 
 [node name="TextureRect" type="TextureRect" parent="UI/GameHUD/Coins" unique_id=1418426503]
 layout_mode = 2

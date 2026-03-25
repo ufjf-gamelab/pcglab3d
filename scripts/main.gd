@@ -14,7 +14,7 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
 @onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
-
+@onready var coins_ui: HBoxContainer = $UI/GameHUD/Coins
 @onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
 
 @export var max_life_time := 20.0
@@ -93,6 +93,9 @@ func _on_banner_player_entered(banner_pos: Vector3i):
 func _on_banner_player_exit():
 	life_active = true # Descongela timer
 
+func _on_player_collect_coin():
+	coins_ui.update_coin_count()
+	
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
 	var tile_id_to_scene = {
@@ -117,7 +120,9 @@ func spawn_play_objects_from_gridmap():
 			var obj = tile_id_to_scene[id].instantiate()
 			
 			match id:
-				3: obj.add_to_group("Coins") 
+				3: 
+					obj.add_to_group("Coins")
+					obj.collect_coin.connect(_on_player_collect_coin.bind()) 
 				4: obj.add_to_group("Enemies")
 				5: 
 					obj.add_to_group("Portals")
