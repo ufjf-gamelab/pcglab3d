@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://d3tqf4ubckujf" path="res://scripts/life_hearts.gd" id="21_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
+[ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yc10j"]
@@ -156,10 +157,10 @@ offset_bottom = 40.0
 
 [node name="LightBar" type="ProgressBar" parent="UI/GameHUD" unique_id=1666987954]
 layout_mode = 0
-offset_left = 514.0
-offset_top = 10.0
-offset_right = 665.0
-offset_bottom = 29.0
+offset_left = 357.0
+offset_top = 15.0
+offset_right = 508.0
+offset_bottom = 34.0
 theme_override_styles/background = SubResource("StyleBoxFlat_jscy8")
 theme_override_styles/fill = SubResource("StyleBoxFlat_pm3ni")
 step = 0.0
@@ -181,6 +182,24 @@ texture = SubResource("AtlasTexture_yc10j")
 [node name="Heart2" type="TextureRect" parent="UI/GameHUD/LifeHearts" unique_id=2073187984]
 layout_mode = 2
 texture = SubResource("AtlasTexture_yc10j")
+
+[node name="Coins" type="HBoxContainer" parent="UI/GameHUD" unique_id=37196413]
+layout_mode = 0
+offset_left = 186.0
+offset_top = 4.0
+offset_right = 262.0
+offset_bottom = 48.0
+
+[node name="TextureRect" type="TextureRect" parent="UI/GameHUD/Coins" unique_id=1418426503]
+layout_mode = 2
+texture = ExtResource("23_y6deb")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/GameHUD/Coins" unique_id=1805333060]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "0"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=2042514993]
 stream = ExtResource("24_y6deb")
