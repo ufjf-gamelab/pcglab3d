@@ -26,7 +26,7 @@ var lastPortal: Vector3i
 
 var room_elements_quantity = {
 	"enemies": 1,
-	"coins": 2,
+	"coins": 1,
 	"banners": 1
 }
 

@@ -54,7 +54,7 @@ func idle_state():
 		
 # CHASE
 func chase_state():
-	if player == null:
+	if player == null or player.life <= 0:
 		state = State.IDLE
 		return
 
@@ -130,7 +130,7 @@ func _on_attack_area_body_entered(body):
 	if state == State.DEAD:
 		return
 
-	if body.name == "Player" and body.has_method("take_damage"):
+	if body.name == "Player" and body.life > 0:
 		body.take_damage(attack_damage)
 
 func take_damage(amount):
