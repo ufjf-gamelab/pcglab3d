@@ -21,6 +21,8 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 var life_time := max_life_time
 var life_active := false
 
+var collected_coins = 0
+
 var used_banners := []
 
 enum Mode { CREATION, PLAY }
@@ -94,7 +96,8 @@ func _on_banner_player_exit():
 	life_active = true # Descongela timer
 
 func _on_player_collect_coin():
-	coins_ui.update_coin_count()
+	collected_coins += 1
+	coins_ui.update_coin_count(collected_coins)
 	
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
