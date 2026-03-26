@@ -26,6 +26,8 @@
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
 
+[sub_resource type="Environment" id="Environment_og1vs"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yc10j"]
 content_margin_left = 10.0
 content_margin_top = 10.0
@@ -45,7 +47,7 @@ border_width_left = 4
 border_width_top = 4
 border_width_right = 4
 border_width_bottom = 4
-border_color = Color(0.33333334, 0.38431373, 0.4117647, 1)
+border_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 14
 corner_radius_top_right = 14
 corner_radius_bottom_right = 14
@@ -75,6 +77,9 @@ region = Rect2(527, 270, 49, 45)
 
 [node name="Main" type="Node3D" unique_id=1635729911]
 script = ExtResource("1_yc10j")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1201926833]
+environment = SubResource("Environment_og1vs")
 
 [node name="Builder" type="Node3D" parent="." unique_id=1826473606 node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap")]
 script = ExtResource("1_jybm7")
@@ -109,6 +114,18 @@ shadow_enabled = true
 shadow_opacity = 0.75
 
 [node name="World" type="Node3D" parent="." unique_id=1064644955]
+
+[node name="HeatmapVisualizer" type="Node3D" parent="." unique_id=72363053]
+
+[node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer" unique_id=1177631106]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=2029804297]
+
+[node name="GridMap" type="GridMap" parent="NavigationRegion3D" unique_id=873056231]
+cell_size = Vector3(1, 1, 1)
+cell_center_x = false
+cell_center_y = false
+cell_center_z = false
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1624123558]
 
@@ -207,15 +224,3 @@ text = "0"
 stream = ExtResource("24_y6deb")
 volume_db = -30.0
 autoplay = true
-
-[node name="HeatmapVisualizer" type="Node3D" parent="." unique_id=72363053]
-
-[node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer" unique_id=1177631106]
-
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=2029804297]
-
-[node name="GridMap" type="GridMap" parent="NavigationRegion3D" unique_id=873056231]
-cell_size = Vector3(1, 1, 1)
-cell_center_x = false
-cell_center_y = false
-cell_center_z = false

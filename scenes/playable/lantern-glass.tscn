@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://brwsxim4n1dsj"]
+
+[ext_resource type="PackedScene" uid="uid://by14ktmg7uj7w" path="res://dungeon/assets/lantern-glass.glb" id="1_lnxsl"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lnxsl"]
+
+[node name="lantern-glass" type="StaticBody3D" unique_id=1287788766]
+
+[node name="Model" parent="." unique_id=1227853346 instance=ExtResource("1_lnxsl")]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=322146395]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12876412, 0)
+light_color = Color(1, 0.78431374, 0.52156866, 1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=909924780]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.14789753, 0)
+shape = SubResource("CapsuleShape3D_lnxsl")

@@ -16,6 +16,8 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
 @onready var coins_ui: HBoxContainer = $UI/GameHUD/Coins
 @onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
+@onready var world_environment: WorldEnvironment = $WorldEnvironment
+@onready var sun := $Sun
 
 @export var max_life_time := 20.0
 var life_time := max_life_time
@@ -200,6 +202,8 @@ func recover_gridmap():
 
 func enter_creation_mode():
 	mode = Mode.CREATION
+	
+	sun.visible = true
 
 	builder.set_process(true)
 	
@@ -218,6 +222,17 @@ func enter_creation_mode():
 
 func enter_play_mode():
 	mode = Mode.PLAY
+	
+	sun.visible = false
+	
+	var env = world_environment.environment
+
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0, 0, 0)
+	
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.05, 0.05, 0.2)
+	env.ambient_light_energy = 0.2
 
 	builder.set_process(false)
 	spawn_play_objects_from_gridmap()

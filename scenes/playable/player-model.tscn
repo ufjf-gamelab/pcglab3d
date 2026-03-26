@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d3dwghdshaaty"]
 
 [ext_resource type="PackedScene" uid="uid://b78ce543wflfl" path="res://dungeon/assets/character-human.glb" id="1_20mvo"]
+[ext_resource type="PackedScene" uid="uid://brwsxim4n1dsj" path="res://scenes/playable/lantern-glass.tscn" id="2_jrkcg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_20mvo"]
 size = Vector3(0.31557965, 0.18417358, 0.16305684)
@@ -25,3 +26,11 @@ monitoring = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="character-human/Skeleton3D/RightHand/AttackArea" index="0" unique_id=1733975453]
 transform = Transform3D(0.9721882, 0.027810508, 0.23254406, 0.027810236, 0.9721884, -0.23254372, -0.23254357, 0.23254311, 0.9443724, -0.19610056, -0.00092849135, 0.027872317)
 shape = SubResource("BoxShape3D_20mvo")
+
+[node name="LeftHand" type="BoneAttachment3D" parent="character-human/Skeleton3D" index="3" unique_id=691623194]
+transform = Transform3D(0.7071067, 0.7071068, 0, -0.7071068, 0.7071067, 0, 0, 0, 1, 0.09989677, 0.28775, -0.01225)
+bone_name = "arm-left"
+bone_idx = 4
+
+[node name="lantern-glass" parent="character-human/Skeleton3D/LeftHand" index="0" unique_id=1287788766 instance=ExtResource("2_jrkcg")]
+transform = Transform3D(0.3889087, -0.38890874, 0, 0.38890874, 0.3889087, 0, 0, 0, 0.55, 0.34216505, -0.057868645, 0.10272634)
