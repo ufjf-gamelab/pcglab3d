@@ -59,7 +59,7 @@ func update_life_timer(delta):
 
 	if life_time <= 0:
 		_on_player_dead()
-	
+
 func _on_player_dead():
 	var player = world.get_node_or_null("Player")
 	life_active = false
@@ -87,13 +87,13 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		var arrival = UGen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
-			
+
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
 	set_life_smooth(life_time)
 	life_active = false # Congela timer	
-	
+
 func _on_banner_player_exit():
 	life_active = true # Descongela timer
 
