@@ -34,3 +34,21 @@ bone_idx = 4
 
 [node name="lantern-glass" parent="character-human/Skeleton3D/LeftHand" index="0" unique_id=1287788766 instance=ExtResource("2_jrkcg")]
 transform = Transform3D(0.3889087, -0.38890874, 0, 0.38890874, 0.3889087, 0, 0, 0, 0.55, 0.34216505, -0.057868645, 0.10272634)
+
+[node name="OmniLight3D" type="SpotLight3D" parent="." index="2" unique_id=1273555740]
+transform = Transform3D(0.94672245, 0, 0.32205093, -0.043506835, 0.9908329, 0.1278956, -0.31909868, -0.13509305, 0.9380438, 0.19595402, 0.5673919, 0.4660535)
+light_energy = 0.1
+spot_range = 1.0
+spot_angle = 30.0
+
+[node name="OmniLight3D2" type="SpotLight3D" parent="." index="3" unique_id=437373992]
+transform = Transform3D(0.9785809, 0, -0.20586261, 0, 1, 0, 0.20586261, 0, 0.9785809, -0.37677175, 0.5673919, 0.4660535)
+light_energy = 0.1
+spot_range = 1.0
+spot_angle = 30.0
+
+[node name="OmniLight3D3" type="SpotLight3D" parent="." index="4" unique_id=989282806]
+transform = Transform3D(-1, 0, -8.742278e-08, 4.3815735e-08, 0.86533517, -0.5011936, 7.565e-08, -0.5011936, -0.86533517, -0.00103724, 0.099361956, -0.5400913)
+light_energy = 0.1
+spot_range = 1.0
+spot_angle = 30.0

@@ -4,11 +4,11 @@ var heatmap_multimesh: MultiMeshInstance3D
 
 const DIRECTIONS := [
 	Vector3i(1, 0, 0),
-	Vector3i(1, 0, -1),
-	Vector3i(1, 0, 1),
+	#Vector3i(1, 0, -1),
+	#Vector3i(1, 0, 1),
 	Vector3i(-1, 0, 0),
-	Vector3i(-1, 0, 1),
-	Vector3i(-1, 0, -1),
+	#Vector3i(-1, 0, 1),
+	#Vector3i(-1, 0, -1),
 	Vector3i(0, 0, 1),
 	Vector3i(0, 0, -1)
 ]
