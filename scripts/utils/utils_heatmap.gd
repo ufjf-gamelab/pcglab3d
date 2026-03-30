@@ -4,13 +4,13 @@ var heatmap_multimesh: MultiMeshInstance3D
 
 const DIRECTIONS := [
 	Vector3i(1, 0, 0),
-	#Vector3i(1, 0, -1),
-	#Vector3i(1, 0, 1),
 	Vector3i(-1, 0, 0),
-	#Vector3i(-1, 0, 1),
-	#Vector3i(-1, 0, -1),
 	Vector3i(0, 0, 1),
 	Vector3i(0, 0, -1)
+	#Vector3i(1, 0, -1),
+	#Vector3i(1, 0, 1),
+	#Vector3i(-1, 0, 1),
+	#Vector3i(-1, 0, -1),
 ]
 
 const START_CELL_ELEMENT_WEIGHT = {
@@ -97,14 +97,20 @@ func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
 
 func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	var total_instances := 0
-	var global_max := 0
-	var global_min := 10000
-	for heatmap in element_heatmaps:
+	var extreme_values_heatmaps = []
+	var extreme_values = {
+		global_min = 10000,
+		global_max = -10000
+	}
+	for i in range(element_heatmaps.size()):
+		var heatmap = element_heatmaps[i]
 		total_instances += heatmap.size()
 		for value in heatmap.values():
-			global_max = max(global_max, value)
-			global_min = min(global_min, value)
-		
+			extreme_values.global_max = max(extreme_values.global_max, value)
+			extreme_values.global_min = min(extreme_values.global_min, value)
+		extreme_values_heatmaps.append(extreme_values.duplicate())
+		extreme_values.global_min = 10000
+		extreme_values.global_max = -10000
 	
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -119,17 +125,20 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 
 	var mat := ShaderMaterial.new()
 	mat.shader = preload("res://shaders/heatmap.gdshader")
-	heatmap_multimesh.material_override = mat	
+	heatmap_multimesh.material_override = mat
 
-	var i := 0
-	for heatmap in element_heatmaps:
+	var j := 0
+	for i in range(element_heatmaps.size()):
+		var heatmap = element_heatmaps[i]
+		var global_min = extreme_values_heatmaps[i]["global_min"]
+		var global_max = extreme_values_heatmaps[i]["global_max"]
 		for cell: Vector3i in heatmap.keys():
 			var intensity
 			if ((heatmap[cell]) == 0):
 				# Zero fica no centro
 				intensity = 0.5
 			if ((heatmap[cell]) < 0):
-				# Normaliza e comprime para a primeira metade (0 a 0.5)				
+				# Normaliza e comprime para a primeira metade (0 a 0.5)
 				intensity = 0.5 * (1 - (-heatmap[cell])/float(-global_min))
 			elif ((heatmap[cell]) > 0):
 				# Normaliza e comprime para a segunda metade (0.5 a 1)
@@ -138,9 +147,9 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 			var transform := Transform3D()
 			transform.origin = gridmap.map_to_local(cell) + Vector3(0, 0.05, 0)
 
-			mm.set_instance_transform(i, transform)
-			mm.set_instance_custom_data(i, Color(intensity, 0.0, 0.0, 0.0))
-			i += 1
+			mm.set_instance_transform(j, transform)
+			mm.set_instance_custom_data(j, Color(intensity, 0.0, 0.0, 0.0))
+			j += 1
 	
 	heatmap_multimesh.visible = true
 
@@ -155,7 +164,6 @@ func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		enemy_heatmap_visible = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Inimigos", {"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"]})
 
-		
 func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if coin_heatmap_visible:
 		heatmap_multimesh.visible = false
@@ -167,7 +175,6 @@ func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		coin_heatmap_visible = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Moedas", {"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"]})
 
-		
 func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if banner_heatmap_visible:
 		heatmap_multimesh.visible = false
