@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://caeruhpql1m5n"]
+[gd_resource type="Resource" script_class="Structure" format=3 uid="uid://caeruhpql1m5n"]
 
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_8nx1l"]
 [ext_resource type="PackedScene" uid="uid://b5v61rjy8qb43" path="res://dungeon/assets/floor_trap.glb" id="1_h2s6u"]

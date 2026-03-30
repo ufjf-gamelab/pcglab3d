@@ -4,13 +4,13 @@ var heatmap_multimesh: MultiMeshInstance3D
 
 const DIRECTIONS := [
 	Vector3i(1, 0, 0),
-	Vector3i(1, 0, -1),
-	Vector3i(1, 0, 1),
 	Vector3i(-1, 0, 0),
-	Vector3i(-1, 0, 1),
-	Vector3i(-1, 0, -1),
 	Vector3i(0, 0, 1),
 	Vector3i(0, 0, -1)
+	#Vector3i(1, 0, -1),
+	#Vector3i(1, 0, 1),
+	#Vector3i(-1, 0, 1),
+	#Vector3i(-1, 0, -1),
 ]
 
 const START_CELL_ELEMENT_WEIGHT = {
@@ -30,6 +30,17 @@ var enemy_heatmap_visible := false
 var coin_heatmap_visible := false
 var banner_heatmap_visible := false
 var combined_heatmap_visible := false
+
+var decay_func_type = "linear"
+
+var decay_func_types = {
+	"linear": "Linear"
+}
+
+func switch_decay_func(positive_influence, curr_heatmap_tile):
+	match decay_func_type:
+		"linear":
+			return curr_heatmap_tile - 1 if positive_influence else curr_heatmap_tile + 1
 
 func create_same_element_type_combined_heatmap(type_heatmaps):
 	var combined_type_heat = {}
@@ -67,9 +78,8 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 			# Verifica se o vizinho não é parede
 			if neighbor_id != UGen.WALL_ID and neighbor_id != UGen.SOLID_ID:
 				# Adiciona vizinho no mapa de calor
-				heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
 				if heatmap[current] != 0:
-					heatmap[neighbor] = heatmap[current] - 1 if positive_influence else heatmap[current] + 1
+					heatmap[neighbor] = switch_decay_func(positive_influence, heatmap[current])
 				else:
 					heatmap[neighbor] = 0
 				queue.append(neighbor)
@@ -87,14 +97,20 @@ func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
 
 func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	var total_instances := 0
-	var global_max := 0
-	var global_min := 10000
-	for heatmap in element_heatmaps:
+	var extreme_values_heatmaps = []
+	var extreme_values = {
+		global_min = 10000,
+		global_max = -10000
+	}
+	for i in range(element_heatmaps.size()):
+		var heatmap = element_heatmaps[i]
 		total_instances += heatmap.size()
 		for value in heatmap.values():
-			global_max = max(global_max, value)
-			global_min = min(global_min, value)
-		
+			extreme_values.global_max = max(extreme_values.global_max, value)
+			extreme_values.global_min = min(extreme_values.global_min, value)
+		extreme_values_heatmaps.append(extreme_values.duplicate())
+		extreme_values.global_min = 10000
+		extreme_values.global_max = -10000
 	
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -109,17 +125,20 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 
 	var mat := ShaderMaterial.new()
 	mat.shader = preload("res://shaders/heatmap.gdshader")
-	heatmap_multimesh.material_override = mat	
+	heatmap_multimesh.material_override = mat
 
-	var i := 0
-	for heatmap in element_heatmaps:
+	var j := 0
+	for i in range(element_heatmaps.size()):
+		var heatmap = element_heatmaps[i]
+		var global_min = extreme_values_heatmaps[i]["global_min"]
+		var global_max = extreme_values_heatmaps[i]["global_max"]
 		for cell: Vector3i in heatmap.keys():
 			var intensity
 			if ((heatmap[cell]) == 0):
 				# Zero fica no centro
 				intensity = 0.5
 			if ((heatmap[cell]) < 0):
-				# Normaliza e comprime para a primeira metade (0 a 0.5)				
+				# Normaliza e comprime para a primeira metade (0 a 0.5)
 				intensity = 0.5 * (1 - (-heatmap[cell])/float(-global_min))
 			elif ((heatmap[cell]) > 0):
 				# Normaliza e comprime para a segunda metade (0.5 a 1)
@@ -128,50 +147,62 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 			var transform := Transform3D()
 			transform.origin = gridmap.map_to_local(cell) + Vector3(0, 0.05, 0)
 
-			mm.set_instance_transform(i, transform)
-			mm.set_instance_custom_data(i, Color(intensity, 0.0, 0.0, 0.0))
-			i += 1
+			mm.set_instance_transform(j, transform)
+			mm.set_instance_custom_data(j, Color(intensity, 0.0, 0.0, 0.0))
+			j += 1
 	
 	heatmap_multimesh.visible = true
 
-func toggle_enemy_heatmaps(gridmap: GridMap):
+func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if enemy_heatmap_visible:
 		heatmap_multimesh.visible = false
 		enemy_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var enemies_heatmaps = heatmaps["enemies"]
 		show_heatmaps(gridmap, enemies_heatmaps)
 		enemy_heatmap_visible = true
-		
-func toggle_coin_heatmaps(gridmap: GridMap):
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Inimigos", {"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"]})
+
+func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if coin_heatmap_visible:
 		heatmap_multimesh.visible = false
 		coin_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var coins_heatmaps = heatmaps["coins"]
 		show_heatmaps(gridmap, coins_heatmaps)
 		coin_heatmap_visible = true
-		
-func toggle_banner_heatmaps(gridmap: GridMap):
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Moedas", {"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"]})
+
+func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if banner_heatmap_visible:
 		heatmap_multimesh.visible = false
 		banner_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var banners_heatmaps = heatmaps["banners"]
 		show_heatmaps(gridmap, banners_heatmaps)
 		banner_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência de Estandartes", {"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]})
 
-func toggle_combined_heatmaps(gridmap: GridMap):
+func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if combined_heatmap_visible:
 		heatmap_multimesh.visible = false
 		combined_heatmap_visible = false
+		heatmap_panel.clear()
 	else:
 		var combined_heatmaps = heatmaps["combined"]
-		# Criar nova funcao para exibir cores sem necessidade de passar influencia?
 		show_heatmaps(gridmap, combined_heatmaps) 
 		combined_heatmap_visible = true
+		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
+		{
+			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"],
+			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"],
+			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]
+		})
 
-func recalculate_heatmaps(gridmap: GridMap):
+func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	heatmaps["enemies"] = []
 	heatmaps["coins"] = []
 	heatmaps["banners"] = []
@@ -182,6 +213,7 @@ func recalculate_heatmaps(gridmap: GridMap):
 	banner_heatmap_visible = false
 	coin_heatmap_visible = false
 	enemy_heatmap_visible = false
+	heatmap_panel.clear()
 	
 	var room_enemies_heatmaps
 	var room_coins_heatmaps

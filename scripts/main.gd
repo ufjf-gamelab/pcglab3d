@@ -12,10 +12,18 @@ const GENERATOR = preload("res://scripts/dungeon_generator.gd")
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
+@onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
+@onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
+@onready var coins_ui: HBoxContainer = $UI/GameHUD/Coins
+@onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
+@onready var world_environment: WorldEnvironment = $WorldEnvironment
+@onready var sun := $Sun
 
-@export var max_life_time := 50.0
+@export var max_life_time := 20.0
 var life_time := max_life_time
 var life_active := false
+
+var collected_coins = 0
 
 var used_banners := []
 
@@ -25,13 +33,19 @@ var mode = Mode.CREATION
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
+	health_bar.max_value = max_life_time
+	health_bar.value = max_life_time
 
 func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
-		update_life_timer(delta)
+		_update_life_timer(delta)
 
-func update_life_timer(delta):
+func _set_life_smooth(new_value):
+	var tween = create_tween()
+	tween.tween_property(health_bar, "value", new_value, 0.4)
+
+func _update_life_timer(delta):
 	if mode != Mode.PLAY:
 		return
 		
@@ -41,12 +55,12 @@ func update_life_timer(delta):
 	life_time -= delta
 	life_time = max(life_time, 0.0)
 	
-	#print("Life:", life_time)
+	health_bar.value = life_time
 
 	if life_time <= 0:
-		on_player_dead()
-	
-func on_player_dead():
+		_on_player_dead()
+
+func _on_player_dead():
 	var player = world.get_node_or_null("Player")
 	life_active = false
 	
@@ -59,28 +73,70 @@ func on_player_dead():
 	
 	toggle_mode()
 
-func update_player_camera(delta):
-	var player = world.get_node_or_null("Player")
-	if not player:
-		return
-
-	# Camera jogavel atras do player
-	var target_pos = player.global_position + Vector3(0, 3, -5)
-	player_camera.global_position = player_camera.global_position.lerp(target_pos, delta * 5)
-
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 	if body.name == "Player":
 		var arrival = UGen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
-			
+
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
+	_set_life_smooth(life_time)
 	life_active = false # Congela timer	
-	
+
 func _on_banner_player_exit():
 	life_active = true # Descongela timer
+
+func _on_player_collect_coin():
+	collected_coins += 1
+	coins_ui.update_coin_count(collected_coins)
+
+func _on_player_update_life(curr_life):
+	life_hearts.update_hearts(curr_life)
+	if (curr_life <= 0):
+		await get_tree().create_timer(2.0).timeout
+		toggle_mode()
+
+func _unhandled_input(event):
+	# Captura evento de geração da dungeon e chama Autoload Gen
+	if event.is_action_pressed("ca_generate_dungeon"):
+		var ca_generator = CA_GENERATOR.new()
+		ca_generator.generate_dungeon_ca(gridmap)
+		ca_generator.spawn_dungeon_elements(gridmap)
+		
+		rebuild_navigation_mesh()
+		
+	if event.is_action_pressed("generate_dungeon"):
+		var generator = GENERATOR.new()
+		generator.generate_dungeon(gridmap)
+		generator.spawn_dungeon_elements(gridmap)
+		
+		rebuild_navigation_mesh()
+				
+	# Captura evento de mudança de modo e chama a toggle_mode()
+	if event.is_action_pressed("toggle_mode"):
+		toggle_mode()
+	
+	# Captura evento de exibir heatmap de inimigos
+	if event.is_action_pressed("show_enemies_heatmaps"):
+		UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
+		
+	# Captura evento de exibir heatmap de moedas
+	if event.is_action_pressed("show_coins_heatmaps"):
+		UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
+		
+	# Captura evento de exibir heatmap de estandartes
+	if event.is_action_pressed("show_banners_heatmaps"):
+		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
+	
+	# Captura evento de exibir heatmap combinando influências
+	if event.is_action_pressed("show_combined_heatmaps"):
+		UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
+
+	# Captura evento de exibir heatmap combinando influências
+	if event.is_action_pressed("recalculate_heatmaps"):
+		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
@@ -106,7 +162,9 @@ func spawn_play_objects_from_gridmap():
 			var obj = tile_id_to_scene[id].instantiate()
 			
 			match id:
-				3: obj.add_to_group("Coins") 
+				3: 
+					obj.add_to_group("Coins")
+					obj.collect_coin.connect(_on_player_collect_coin.bind()) 
 				4: obj.add_to_group("Enemies")
 				5: 
 					obj.add_to_group("Portals")
@@ -181,6 +239,8 @@ func recover_gridmap():
 
 func enter_creation_mode():
 	mode = Mode.CREATION
+	
+	sun.visible = true
 
 	builder.set_process(true)
 	
@@ -199,6 +259,17 @@ func enter_creation_mode():
 
 func enter_play_mode():
 	mode = Mode.PLAY
+	
+	sun.visible = false
+	
+	var env = world_environment.environment
+
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color(0, 0, 0)
+	
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.05, 0.05, 0.2)
+	env.ambient_light_energy = 0.2
 
 	builder.set_process(false)
 	spawn_play_objects_from_gridmap()
@@ -215,6 +286,7 @@ func enter_play_mode():
 	if player:
 		player_camera.global_position = player.global_position + Vector3(0, 3, -5)
 		player_camera.look_at(player.global_position)
+		player.update_life.connect(_on_player_update_life)
 		
 		if life_time <= 0:
 			life_time = max_life_time
@@ -234,42 +306,11 @@ func rebuild_navigation_mesh():
 
 	$NavigationRegion3D.navigation_mesh = navigation_mesh
 
-func _unhandled_input(event):
-	# Captura evento de geração da dungeon e chama Autoload Gen
-	if event.is_action_pressed("ca_generate_dungeon"):
-		var ca_generator = CA_GENERATOR.new()
-		ca_generator.generate_dungeon_ca(gridmap)
-		ca_generator.spawn_dungeon_elements(gridmap)
-		
-		rebuild_navigation_mesh()
-		
-	if event.is_action_pressed("generate_dungeon"):
-		var generator = GENERATOR.new()
-		generator.generate_dungeon(gridmap)
-		generator.spawn_dungeon_elements(gridmap)
-		
-		rebuild_navigation_mesh()
-				
-	# Captura evento de mudança de modo e chama a toggle_mode()
-	if event.is_action_pressed("toggle_mode"):
-		toggle_mode()
-	
-	# Captura evento de exibir heatmap de inimigos
-	if event.is_action_pressed("show_enemies_heatmaps"):
-		UHeat.toggle_enemy_heatmaps(gridmap)
-		
-	# Captura evento de exibir heatmap de moedas
-	if event.is_action_pressed("show_coins_heatmaps"):
-		UHeat.toggle_coin_heatmaps(gridmap)
-		
-	# Captura evento de exibir heatmap de estandartes
-	if event.is_action_pressed("show_banners_heatmaps"):
-		UHeat.toggle_banner_heatmaps(gridmap)
-	
-	# Captura evento de exibir heatmap combinando influências
-	if event.is_action_pressed("show_combined_heatmaps"):
-		UHeat.toggle_combined_heatmaps(gridmap)
+func update_player_camera(delta):
+	var player = world.get_node_or_null("Player")
+	if not player:
+		return
 
-	# Captura evento de exibir heatmap combinando influências
-	if event.is_action_pressed("recalculate_heatmaps"):
-		UHeat.recalculate_heatmaps(gridmap)
+	# Camera jogavel atras do player
+	var target_pos = player.global_position + Vector3(0, 3, -5)
+	player_camera.global_position = player_camera.global_position.lerp(target_pos, delta * 5)

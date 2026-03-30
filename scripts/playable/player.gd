@@ -11,6 +11,8 @@ var life := max_life
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
 
+signal update_life(curr_life)
+
 var portal_cooldown := false
 
 var attacking := false
@@ -22,13 +24,15 @@ var dying := false
 func on_die():
 	anim.play("die")
 	await anim.animation_finished
+	await get_tree().create_timer(2).timeout
 	queue_free()
 
 # Recebe dano
 func take_damage(amount):
 	life -= amount
-	print("Vida Player:", life)
-
+	#print("Vida Player:", life)
+	emit_signal("update_life", life)
+	
 	if life <= 0:
 		dying = true
 		on_die()
