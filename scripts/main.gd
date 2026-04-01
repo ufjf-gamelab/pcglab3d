@@ -31,6 +31,9 @@ var used_banners := []
 enum Mode { CREATION, PLAY }
 var mode = Mode.CREATION
 
+var paths = []
+var paths_influences = []
+
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
@@ -99,22 +102,50 @@ func _on_player_update_life(curr_life):
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
 
+func _on_pathfinding_pressed():
+	var pathfinder = PATHFINDER.new(gridmap)
+	var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
+	var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
+	pathfinder.setup_grid(map_region, cell_size_2d)
+	
+	paths = []
+	paths_influences = []
+	
+	for i in range((UGen.rooms).size()):
+		var elem_pos = UGen.rooms_elements_pos[i]
+		var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
+		var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
+		
+		var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
+		paths.append(path)
+		
+		var path_influ = {}
+		for cell in path:
+			var cell_3d = Vector3i(cell.x, 0, cell.y)
+			path_influ[cell_3d] = UHeat.heatmaps.combined[i][cell_3d]
+		
+		paths_influences.append(paths_influences)
+
+func _on_ca_generate_dungeon_pressed():
+	var ca_generator = CA_GENERATOR.new()
+	ca_generator.generate_dungeon_ca(gridmap)
+	ca_generator.spawn_dungeon_elements(gridmap)
+	rebuild_navigation_mesh()
+
+func _on_generate_dungeon_pressed():
+	var generator = GENERATOR.new()
+	generator.generate_dungeon(gridmap)
+	generator.spawn_dungeon_elements(gridmap)
+	rebuild_navigation_mesh()
+
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon com automatos celulares
 	if event.is_action_pressed("ca_generate_dungeon"):
-		var ca_generator = CA_GENERATOR.new()
-		ca_generator.generate_dungeon_ca(gridmap)
-		ca_generator.spawn_dungeon_elements(gridmap)
-		
-		rebuild_navigation_mesh()
+		_on_ca_generate_dungeon_pressed()
 
 	# Captura evento de geração da dungeon com salas em X, T e +
 	if event.is_action_pressed("generate_dungeon"):
-		var generator = GENERATOR.new()
-		generator.generate_dungeon(gridmap)
-		generator.spawn_dungeon_elements(gridmap)
-		
-		rebuild_navigation_mesh()
+		_on_generate_dungeon_pressed()
 
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
@@ -142,31 +173,8 @@ func _unhandled_input(event):
 	
 	# Calcula caminho entre portais das salas
 	if event.is_action_pressed("pathfinding"):
-		print("Registra caminhos")
-		var pathfinder = PATHFINDER.new(gridmap)
-		var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
-		var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
-		pathfinder.setup_grid(map_region, cell_size_2d)
-		
-		var paths = []
-		
-		for i in range((UGen.rooms).size()):
-			var elem_pos = UGen.rooms_elements_pos[i]
-			var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
-			var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
-			
-			print(portal1_pos_2d, portal2_pos_2d)
-			var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
-			print(path)
-			paths.append(path)
-			
-			var path_influences = {}
-			for cell in path:
-				var cell_3d = Vector3i(cell.x, 0, cell.y)
-				
-				path_influences[cell_3d] = UHeat.heatmaps.combined[i][cell_3d]
-				
-			print(path_influences, "\n")
+		print("Calculando caminhos...")
+		_on_pathfinding_pressed()
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
