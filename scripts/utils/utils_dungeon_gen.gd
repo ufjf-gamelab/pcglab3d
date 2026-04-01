@@ -36,7 +36,7 @@ func fill_map_with_solids(grid: GridMap, size: int):
 	for x in range(size):
 		for z in range(size):
 			grid.set_cell_item(Vector3i(x, 0, z), SOLID_ID)
-			
+
 # Adiciona paredes internas
 func add_room_walls(grid: GridMap, size: int):
 	for x in range(size):

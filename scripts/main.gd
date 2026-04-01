@@ -157,8 +157,16 @@ func _unhandled_input(event):
 			
 			print(portal1_pos_2d, portal2_pos_2d)
 			var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
-			print(path, "\n")
+			print(path)
 			paths.append(path)
+			
+			var path_influences = {}
+			for cell in path:
+				var cell_3d = Vector3i(cell.x, 0, cell.y)
+				
+				path_influences[cell_3d] = UHeat.heatmaps.combined[i][cell_3d]
+				
+			print(path_influences, "\n")
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
