@@ -1,7 +1,8 @@
 extends Node3D
 
-const CA_GENERATOR = preload("res://scripts/ca_dungeon_generator.gd")
-const GENERATOR = preload("res://scripts/dungeon_generator.gd")
+const CA_GENERATOR = preload("res://scripts/generators/ca_dungeon_generator.gd")
+const GENERATOR = preload("res://scripts/generators/dungeon_generator.gd")
+const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 
 @onready var gridmap := $NavigationRegion3D/GridMap
 @onready var builder := $Builder
@@ -99,33 +100,34 @@ func _on_player_update_life(curr_life):
 		toggle_mode()
 
 func _unhandled_input(event):
-	# Captura evento de geração da dungeon e chama Autoload Gen
+	# Captura evento de geração da dungeon com automatos celulares
 	if event.is_action_pressed("ca_generate_dungeon"):
 		var ca_generator = CA_GENERATOR.new()
 		ca_generator.generate_dungeon_ca(gridmap)
 		ca_generator.spawn_dungeon_elements(gridmap)
 		
 		rebuild_navigation_mesh()
-		
+
+	# Captura evento de geração da dungeon com salas em X, T e +
 	if event.is_action_pressed("generate_dungeon"):
 		var generator = GENERATOR.new()
 		generator.generate_dungeon(gridmap)
 		generator.spawn_dungeon_elements(gridmap)
 		
 		rebuild_navigation_mesh()
-				
+
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
 		toggle_mode()
-	
+
 	# Captura evento de exibir heatmap de inimigos
 	if event.is_action_pressed("show_enemies_heatmaps"):
 		UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
-		
+
 	# Captura evento de exibir heatmap de moedas
 	if event.is_action_pressed("show_coins_heatmaps"):
 		UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
-		
+
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
 		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
@@ -137,6 +139,26 @@ func _unhandled_input(event):
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("recalculate_heatmaps"):
 		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+	
+	# Calcula caminho entre portais das salas
+	if event.is_action_pressed("pathfinding"):
+		print("Registra caminhos")
+		var pathfinder = PATHFINDER.new(gridmap)
+		var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
+		var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
+		pathfinder.setup_grid(map_region, cell_size_2d)
+		
+		var paths = []
+		
+		for i in range((UGen.rooms).size()):
+			var elem_pos = UGen.rooms_elements_pos[i]
+			var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
+			var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
+			
+			print(portal1_pos_2d, portal2_pos_2d)
+			var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
+			print(path, "\n")
+			paths.append(path)
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais

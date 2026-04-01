@@ -19,6 +19,7 @@ const ROOM_COUNT = 8 # Número de salas
 const SCALE_FACTOR = 1
 
 var rooms = [] # Array[Array[Vector3i]]
+var rooms_elements_pos = []
 
 var portal_links: Dictionary = {}
 var firstPortal: Vector3i
@@ -122,10 +123,11 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	
 	var last_coin_heat
 	var coins_heats = []
+	var coin_pos
 	for _n in range(room_elements_quantity["coins"]):
 		# Posiciona a moeda no primeiro slot disponível
 		if available_spots.size() > 0:
-			var coin_pos = available_spots.pop_front()
+			coin_pos = available_spots.pop_front()
 			gridmap.set_cell_item(coin_pos, UGen.COIN_ID)
 			# Cria heatmap da moeda
 			var heat = UHeat.create_heatmap_bfs(gridmap, coin_pos, true, "coins")
@@ -138,10 +140,11 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	
 	var last_enemy_heat
 	var enemies_heats = []
+	var npc_pos
 	for _n in range(room_elements_quantity["enemies"]):
 		# Posiciona o NPC no próximo slot disponível
 		if available_spots.size() > 0:
-			var npc_pos = available_spots.pop_front()
+			npc_pos = available_spots.pop_front()
 			gridmap.set_cell_item(npc_pos, UGen.NPC_ID)
 			# Cria heatmap do inimigo
 			var heat = UHeat.create_heatmap_bfs(gridmap, npc_pos, false, "enemies")
@@ -154,16 +157,28 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	
 	var last_banner_heat
 	var banners_heats = []
+	var banner_pos
 	for _n in range(room_elements_quantity["banners"]):
 		# Posiciona o estandarte no próximo slot disponível
 		if available_spots.size() > 0:
-			var banner_pos = available_spots.pop_front()
+			banner_pos = available_spots.pop_front()
 			gridmap.set_cell_item(banner_pos, UGen.BANNER_ID)
 			# Cria heatmap do estandarte
 			var heat = UHeat.create_heatmap_bfs(gridmap, banner_pos, true, "banners")
 			# Adiciona na lista de heatmaps de estandartes
 			last_banner_heat = heat
 			banners_heats.append(last_banner_heat)
+
+	# Salva posições dos elementos da sala
+	var elements_pos = {
+		"portal1_pos": portal1_pos,
+		"portal2_pos": portal2_pos,
+		"coin_pos": coin_pos,
+		"npc_pos": npc_pos,
+		"banner_pos": banner_pos
+	}
+	rooms_elements_pos.append(elements_pos)
+	
 	# Cria heatmap combinado de banners da sala			
 	var combined_banners_heat = UHeat.create_same_element_type_combined_heatmap(banners_heats)
 	UHeat.heatmaps["banners"].append(combined_banners_heat)
