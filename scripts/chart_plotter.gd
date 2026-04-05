@@ -3,6 +3,8 @@ extends Control
 @onready var chart: Chart = $VBoxContainer/Chart
 @onready var next_button: Button = $VBoxContainer/HBoxContainer/Next
 
+signal close_button_pressed
+
 var f: Function
 
 var cp: ChartProperties
@@ -86,6 +88,7 @@ func _on_close_pressed() -> void:
 	rooms_y_values = []
 	x = []
 	y = []
+	close_button_pressed.emit()
 
 func _on_next_pressed() -> void:
 	if chart_pos == rooms_x_values.size() - 1:

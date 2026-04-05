@@ -40,11 +40,16 @@ func _ready():
 	enter_creation_mode()
 	health_bar.max_value = max_life_time
 	health_bar.value = max_life_time
+	chart_plotter.close_button_pressed.connect(_on_chart_button_pressed)
 
 func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		_update_life_timer(delta)
+
+func _on_chart_button_pressed():
+	builder.set_process(true)
+	view.active = true
 
 func _set_life_smooth(new_value):
 	var tween = create_tween()
@@ -104,6 +109,9 @@ func _on_player_update_life(curr_life):
 		toggle_mode()
 
 func handle_chart(influences):
+	builder.set_process(false)
+	view.active = false
+	
 	var x = []
 	for influence in influences:
 		x.append(range(influence.size()))
