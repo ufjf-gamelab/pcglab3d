@@ -19,6 +19,7 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var sun := $Sun
+@onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 
 @export var max_life_time := 20.0
 var life_time := max_life_time
@@ -102,6 +103,12 @@ func _on_player_update_life(curr_life):
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
 
+func handle_chart(influences):
+	var x = []
+	for influence in influences:
+		x.append(range(influence.size()))
+	chart_plotter.show_charts(x, influences)
+
 func _on_pathfinding_pressed():
 	var pathfinder = PATHFINDER.new(gridmap)
 	var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
@@ -110,6 +117,7 @@ func _on_pathfinding_pressed():
 	
 	paths = []
 	paths_influences = []
+	var influences = []
 	
 	for i in range((UGen.rooms).size()):
 		var elem_pos = UGen.rooms_elements_pos[i]
@@ -120,11 +128,16 @@ func _on_pathfinding_pressed():
 		paths.append(path)
 		
 		var path_influ = {}
+		var room_influ = []
 		for cell in path:
 			var cell_3d = Vector3i(cell.x, 0, cell.y)
 			path_influ[cell_3d] = UHeat.heatmaps.combined[i][cell_3d]
+			room_influ.append(UHeat.heatmaps.combined[i][cell_3d])
+			
+		influences.append(room_influ)
+		paths_influences.append(path_influ)
 		
-		paths_influences.append(paths_influences)
+	handle_chart(influences)
 
 func _on_ca_generate_dungeon_pressed():
 	var ca_generator = CA_GENERATOR.new()
