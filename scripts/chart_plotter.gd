@@ -62,11 +62,11 @@ func show_charts(x_values, y_values):
 
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos], false)
 
-func get_max_abs_from_array(y) -> int:
+func get_max_abs_from_array(array) -> int:
 	var y_max = 0
-	for i in range(y.size()):
-		if (abs(y[i]) > y_max):
-			y_max = abs(y[i])
+	for i in range(array.size()):
+		if (abs(array[i]) > y_max):
+			y_max = abs(array[i])
 	return y_max
 	
 func show_chart(x_val, y_val, external_call: bool):
@@ -77,14 +77,15 @@ func show_chart(x_val, y_val, external_call: bool):
 	x = x_val
 	y = y_val
 	
-	print(chart.y_domain)
 	var max_y := get_max_abs_from_array(y)
 	chart.set_y_domain(-max_y-1, max_y+1)
-	print(chart.y_domain, "\n")
-	
-	chart.y_
 	
 	chart.y_labels_function = func(value):
+		if value == int(value):
+			return str(value)
+		return ""
+		
+	chart.x_labels_function = func(value):
 		if value == int(value):
 			return str(value)
 		return ""

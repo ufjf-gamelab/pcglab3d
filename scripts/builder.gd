@@ -173,7 +173,6 @@ func action_load():
 		for cell in map.structures:
 			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
 
-
 func action_load_resources():
 	if Input.is_action_just_pressed("load_resources"):
 		print("Loading map...")

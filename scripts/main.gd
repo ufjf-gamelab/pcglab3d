@@ -35,12 +35,16 @@ var mode = Mode.CREATION
 var paths = []
 var paths_influences = []
 
+var plane:Plane # Used for raycasting mouse
+
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
 	health_bar.max_value = max_life_time
 	health_bar.value = max_life_time
 	chart_plotter.close_button_pressed.connect(_on_chart_button_pressed)
+	
+	plane = Plane(Vector3.UP, Vector3.ZERO)
 
 func _process(delta):
 	if mode == Mode.PLAY:
@@ -118,34 +122,33 @@ func handle_chart(influences):
 	chart_plotter.show_charts(x, influences)
 
 func _on_pathfinding_pressed():
-	var pathfinder = PATHFINDER.new(gridmap)
-	var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
-	var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
-	pathfinder.setup_grid(map_region, cell_size_2d)
+	var pathfinder = _pathfinder_init()
 	
 	paths = []
 	paths_influences = []
 	var influences = []
 	
 	for i in range((UGen.rooms).size()):
-		var elem_pos = UGen.rooms_elements_pos[i]
-		var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
-		var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
+		var path = _get_room_path(i, pathfinder)
 		
-		var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
 		paths.append(path)
 		
-		var path_influ = {}
-		var room_influ = []
-		for cell in path:
-			var cell_3d = Vector3i(cell.x, 0, cell.y)
-			path_influ[cell_3d] = UHeat.heatmaps.combined[i][cell_3d]
-			room_influ.append(UHeat.heatmaps.combined[i][cell_3d])
-			
-		influences.append(room_influ)
-		paths_influences.append(path_influ)
+		var influ = _get_path_influences(i, path)
+		
+		paths_influences.append(influ[0])
+		influences.append(influ[1])
 		
 	handle_chart(influences)
+
+func _get_path_influences(room_index, path):
+	var path_influ = {}
+	var room_influ = []
+	for cell in path:
+		var cell_3d = Vector3i(cell.x, 0, cell.y)
+		path_influ[cell_3d] = UHeat.heatmaps.combined[room_index][cell_3d]
+		room_influ.append(UHeat.heatmaps.combined[room_index][cell_3d])
+	
+	return [path_influ, room_influ]
 
 func _on_ca_generate_dungeon_pressed():
 	var ca_generator = CA_GENERATOR.new()
@@ -158,6 +161,44 @@ func _on_generate_dungeon_pressed():
 	generator.generate_dungeon(gridmap)
 	generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
+
+func _pathfinder_init():
+	var pathfinder = PATHFINDER.new(gridmap)
+	var cell_size_2d = Vector2i(gridmap.cell_size.x, gridmap.cell_size.z)
+	var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
+	pathfinder.setup_grid(map_region, cell_size_2d)
+	return pathfinder
+
+func _get_room_path(room_index, pathfinder):
+	var elem_pos = UGen.rooms_elements_pos[room_index]
+	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
+	var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
+	
+	var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
+	
+	return path
+
+func _on_select_room_path():
+	# Map position based on mouse
+	var world_position = plane.intersects_ray(
+		edit_camera.project_ray_origin(get_viewport().get_mouse_position()),
+		edit_camera.project_ray_normal(get_viewport().get_mouse_position()))
+
+	# GridMap position based on mouse
+	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
+	
+	var pathfinder = _pathfinder_init()
+	var path
+	
+	for i in range((UGen.rooms).size()):
+		var room = UGen.rooms[i]
+		if gridmap_position in room:
+			path = _get_room_path(i, pathfinder)
+			var influ = _get_path_influences(i, path)
+			
+			builder.set_process(false)
+			view.active = false
+			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
 
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon com automatos celulares
@@ -196,6 +237,11 @@ func _unhandled_input(event):
 	if event.is_action_pressed("pathfinding"):
 		print("Calculando caminhos...")
 		_on_pathfinding_pressed()
+		
+	# Escolhe sala e exibe grafico apenas dela
+	if event.is_action_pressed("select_room"):
+		print("Calculando caminho...")
+		_on_select_room_path()
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
