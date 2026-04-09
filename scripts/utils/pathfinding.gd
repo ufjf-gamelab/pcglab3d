@@ -32,7 +32,7 @@ func _set_solid_cells(solid_cells: Array[Vector3i]):
 # Retorna o caminho entre dois pontos do grid
 func find_path(start: Vector2i, end: Vector2i) -> Array[Vector2i]:
 	if not astar.is_in_boundsv(start) or not astar.is_in_boundsv(end):
-		print("Tile de início ou fim fora da egião")
+		print("Tile de início ou fim fora da região")
 		return []
 	
 	return astar.get_id_path(start, end)
