@@ -125,7 +125,7 @@ func _on_player_update_life(curr_life):
 
 func handle_chart(influences):
 	builder.set_process(false)
-	view.active = false
+	hide_selector()
 	
 	var x = []
 	for influence in influences:
@@ -208,7 +208,7 @@ func _on_select_room_path():
 			var influ = _get_path_influences(i, path)
 			
 			builder.set_process(false)
-			view.active = false
+			
 			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
 			
 			var path_3d: Array[Vector3i] = []
