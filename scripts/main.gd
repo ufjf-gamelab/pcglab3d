@@ -20,6 +20,7 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var sun := $Sun
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
+@onready var path_visualizer: Node3D = $PathVisualizer
 
 @export var max_life_time := 20.0
 var life_time := max_life_time
@@ -42,7 +43,7 @@ func _ready():
 	enter_creation_mode()
 	health_bar.max_value = max_life_time
 	health_bar.value = max_life_time
-	chart_plotter.close_button_pressed.connect(_on_chart_button_pressed)
+	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
 	
 	plane = Plane(Vector3.UP, Vector3.ZERO)
 
@@ -51,9 +52,19 @@ func _process(delta):
 		update_player_camera(delta)
 		_update_life_timer(delta)
 
-func _on_chart_button_pressed():
+func show_selector():
+	builder.selector.visible = true
+	builder.selector_container.visible = true
+
+func hide_selector():
+	builder.selector.visible = false
+	builder.selector_container.visible = false
+
+func _on_chart_close_button_pressed():
 	builder.set_process(true)
 	view.active = true
+	path_visualizer.clear_path()
+	show_selector()
 
 func _set_life_smooth(new_value):
 	var tween = create_tween()
@@ -199,6 +210,14 @@ func _on_select_room_path():
 			builder.set_process(false)
 			view.active = false
 			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
+			
+			var path_3d: Array[Vector3i] = []
+
+			for key in influ[0].keys():
+				path_3d.append(key)
+			
+			path_visualizer.draw_path(path_3d)
+			hide_selector()
 
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon com automatos celulares
