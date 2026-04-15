@@ -35,6 +35,7 @@ var mode = Mode.CREATION
 
 var paths = []
 var paths_influences = []
+var curr_room_chart = 0
 
 var plane:Plane # Used for raycasting mouse
 
@@ -44,6 +45,7 @@ func _ready():
 	health_bar.max_value = max_life_time
 	health_bar.value = max_life_time
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
+	chart_plotter.next_button_pressed.connect(_on_chart_next_button_pressed)
 	
 	plane = Plane(Vector3.UP, Vector3.ZERO)
 
@@ -51,6 +53,10 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		_update_life_timer(delta)
+
+func _on_chart_next_button_pressed():
+	curr_room_chart += 1
+	print(curr_room_chart)
 
 func show_selector():
 	builder.selector.visible = true
@@ -148,6 +154,8 @@ func _on_pathfinding_pressed():
 		
 		paths_influences.append(influ[0])
 		influences.append(influ[1])
+		
+		print(paths_influences)
 		
 	handle_chart(influences)
 
