@@ -150,6 +150,10 @@ func _on_pathfinding_pressed():
 		
 		var influ = _get_path_influences(i, path)
 		
+		if influ[1] == []:
+			print("Nenhum mapa de influência selecionado.")
+			return
+		
 		paths_influences.append(influ[0])
 		influences.append(influ[1])
 	
@@ -168,11 +172,13 @@ func _visualize_path_by_room_index(room_index):
 func _get_path_influences(room_index, path):
 	var path_influ = {}
 	var room_influ = []
-	for cell in path:
-		var cell_3d = Vector3i(cell.x, 0, cell.y)
-		path_influ[cell_3d] = UHeat.heatmaps.combined[room_index][cell_3d]
-		room_influ.append(UHeat.heatmaps.combined[room_index][cell_3d])
-	
+	for key in UHeat.curr_visible_heatmap.keys():
+		if UHeat.curr_visible_heatmap[key]:
+			for cell in path:
+				var cell_3d = Vector3i(cell.x, 0, cell.y)
+				path_influ[cell_3d] = UHeat.heatmaps[key][room_index][cell_3d]
+				room_influ.append(UHeat.heatmaps[key][room_index][cell_3d])
+
 	return [path_influ, room_influ]
 
 func _on_ca_generate_dungeon_pressed():
@@ -220,6 +226,10 @@ func _on_select_room_path():
 		if gridmap_position in room:
 			path = _get_room_path(i, pathfinder)
 			var influ = _get_path_influences(i, path)
+			
+			if influ[1] == []:
+				print("Nenhum mapa de influência selecionado.")
+				return
 			
 			builder.set_process(false)
 			

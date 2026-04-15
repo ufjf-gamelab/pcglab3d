@@ -13,28 +13,35 @@ const DIRECTIONS := [
 	#Vector3i(-1, 0, -1),
 ]
 
+const ENEMIES = "enemies"
+const COINS = "coins"
+const BANNERS = "banners"
+const COMBINED = "combined"
+
 const START_CELL_ELEMENT_WEIGHT = {
-	"enemies": -5,
-	"coins": 5,
-	"banners": 5,  
+	ENEMIES: -5,
+	COINS: 5,
+	BANNERS: 5,  
 }
 
 var heatmaps = {
-	"enemies": [],
-	"coins": [],
-	"banners": [],
-	"combined": []
+	ENEMIES: [],
+	COINS: [],
+	BANNERS: [],
+	COMBINED: []
 }
-
-var enemy_heatmap_visible := false
-var coin_heatmap_visible := false
-var banner_heatmap_visible := false
-var combined_heatmap_visible := false
 
 var decay_func_type = "linear"
 
 var decay_func_types = {
 	"linear": "Linear"
+}
+
+var curr_visible_heatmap = {
+	ENEMIES: false,
+	COINS: false,
+	BANNERS: false,
+	COMBINED: false
 }
 
 func switch_decay_func(positive_influence, curr_heatmap_tile):
@@ -91,9 +98,9 @@ func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
 	var combined_heat = {}
 	
 	for key in coins_heat.keys():
-		combined_heat[key] = banners_heat[key] + enemies_heat[key] + coins_heat[key]	
-				
-	return combined_heat	
+		combined_heat[key] = banners_heat[key] + enemies_heat[key] + coins_heat[key]
+	
+	return combined_heat
 
 func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	var total_instances := 0
@@ -154,47 +161,51 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	heatmap_multimesh.visible = true
 
 func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	if enemy_heatmap_visible:
+	if curr_visible_heatmap[ENEMIES]:
 		heatmap_multimesh.visible = false
-		enemy_heatmap_visible = false
+		curr_visible_heatmap[ENEMIES] = false
 		heatmap_panel.clear()
 	else:
-		var enemies_heatmaps = heatmaps["enemies"]
+		deactivate_heatmaps()
+		var enemies_heatmaps = heatmaps[ENEMIES]
 		show_heatmaps(gridmap, enemies_heatmaps)
-		enemy_heatmap_visible = true
+		curr_visible_heatmap[ENEMIES] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Inimigos", {"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"]})
 
 func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	if coin_heatmap_visible:
+	if curr_visible_heatmap[COINS]:
 		heatmap_multimesh.visible = false
-		coin_heatmap_visible = false
+		curr_visible_heatmap[COINS] = false
 		heatmap_panel.clear()
 	else:
-		var coins_heatmaps = heatmaps["coins"]
+		deactivate_heatmaps()
+		var coins_heatmaps = heatmaps[COINS]
 		show_heatmaps(gridmap, coins_heatmaps)
-		coin_heatmap_visible = true
+		curr_visible_heatmap[COINS] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Moedas", {"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"]})
 
 func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	if banner_heatmap_visible:
+	if curr_visible_heatmap[BANNERS]:
 		heatmap_multimesh.visible = false
-		banner_heatmap_visible = false
+		curr_visible_heatmap[BANNERS] = false
 		heatmap_panel.clear()
 	else:
-		var banners_heatmaps = heatmaps["banners"]
+		deactivate_heatmaps()
+		var banners_heatmaps = heatmaps[BANNERS]
 		show_heatmaps(gridmap, banners_heatmaps)
-		banner_heatmap_visible = true
+		curr_visible_heatmap[BANNERS] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência de Estandartes", {"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]})
 
 func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	if combined_heatmap_visible:
+	if curr_visible_heatmap[COMBINED]:
 		heatmap_multimesh.visible = false
-		combined_heatmap_visible = false
+		curr_visible_heatmap[COMBINED] = false
 		heatmap_panel.clear()
 	else:
-		var combined_heatmaps = heatmaps["combined"]
+		deactivate_heatmaps()
+		var combined_heatmaps = heatmaps[COMBINED]
 		show_heatmaps(gridmap, combined_heatmaps) 
-		combined_heatmap_visible = true
+		curr_visible_heatmap[COMBINED] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
 		{
 			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"],
@@ -202,17 +213,22 @@ func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]
 		})
 
-func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	heatmaps["enemies"] = []
-	heatmaps["coins"] = []
-	heatmaps["banners"] = []
-	heatmaps["combined"] = []
-	
+func deactivate_heatmaps():
 	heatmap_multimesh.visible = false
-	combined_heatmap_visible = false
-	banner_heatmap_visible = false
-	coin_heatmap_visible = false
-	enemy_heatmap_visible = false
+	curr_visible_heatmap[ENEMIES] = false
+	curr_visible_heatmap[COINS] = false
+	curr_visible_heatmap[BANNERS] = false
+	curr_visible_heatmap[COMBINED] = false
+
+func _clear_heatmaps():
+	heatmaps[ENEMIES] = []
+	heatmaps[COINS] = []
+	heatmaps[BANNERS] = []
+	heatmaps[COMBINED] = []
+
+func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+	deactivate_heatmaps()
+	_clear_heatmaps()
 	heatmap_panel.clear()
 	
 	var room_enemies_heatmaps
@@ -225,23 +241,23 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		for pos in room:
 			match gridmap.get_cell_item(pos):
 				UGen.NPC_ID:
-					var heat = create_heatmap_bfs(gridmap, pos, false, "enemies")
+					var heat = create_heatmap_bfs(gridmap, pos, false, ENEMIES)
 					room_enemies_heatmaps.append(heat)
 				UGen.COIN_ID:
-					var heat = create_heatmap_bfs(gridmap, pos, true, "coins")
+					var heat = create_heatmap_bfs(gridmap, pos, true, COINS)
 					room_coins_heatmaps.append(heat)
 				UGen.BANNER_ID:
-					var heat = create_heatmap_bfs(gridmap, pos, true, "banners")
+					var heat = create_heatmap_bfs(gridmap, pos, true, BANNERS)
 					room_banners_heatmaps.append(heat)
 		# Cria heatmap combinado de moedas da sala
 		var combined_coins_heat = create_same_element_type_combined_heatmap(room_coins_heatmaps)
-		UHeat.heatmaps["coins"].append(combined_coins_heat)
+		UHeat.heatmaps[COINS].append(combined_coins_heat)
 		# Cria heatmap combinado de inimigos da sala
 		var combined_enemies_heat = create_same_element_type_combined_heatmap(room_enemies_heatmaps)
-		UHeat.heatmaps["enemies"].append(combined_enemies_heat)
+		UHeat.heatmaps[ENEMIES].append(combined_enemies_heat)
 		# Cria heatmap combinado de banners da sala
 		var combined_banners_heat = create_same_element_type_combined_heatmap(room_banners_heatmaps)
-		UHeat.heatmaps["banners"].append(combined_banners_heat)
+		UHeat.heatmaps[BANNERS].append(combined_banners_heat)
 		# Cria heatmap combinado de todos os elementos de uma sala
 		var combined_heat = UHeat.create_combined_heatmap(combined_banners_heat, combined_enemies_heat, combined_coins_heat)
-		UHeat.heatmaps["combined"].append(combined_heat) 
+		UHeat.heatmaps[COMBINED].append(combined_heat) 
