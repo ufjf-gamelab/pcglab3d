@@ -35,7 +35,6 @@ var mode = Mode.CREATION
 
 var paths = []
 var paths_influences = []
-var curr_room_chart = 0
 
 var plane:Plane # Used for raycasting mouse
 
@@ -54,10 +53,6 @@ func _process(delta):
 		update_player_camera(delta)
 		_update_life_timer(delta)
 
-func _on_chart_next_button_pressed():
-	curr_room_chart += 1
-	print(curr_room_chart)
-
 func show_selector():
 	builder.selector.visible = true
 	builder.selector_container.visible = true
@@ -65,6 +60,9 @@ func show_selector():
 func hide_selector():
 	builder.selector.visible = false
 	builder.selector_container.visible = false
+
+func _on_chart_next_button_pressed(curr_room_chart):
+	_visualize_path_by_room_index(curr_room_chart)
 
 func _on_chart_close_button_pressed():
 	builder.set_process(true)
@@ -129,7 +127,7 @@ func _on_player_update_life(curr_life):
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
 
-func handle_chart(influences):
+func _handle_chart(influences):
 	builder.set_process(false)
 	hide_selector()
 	
@@ -154,10 +152,18 @@ func _on_pathfinding_pressed():
 		
 		paths_influences.append(influ[0])
 		influences.append(influ[1])
-		
-		print(paths_influences)
-		
-	handle_chart(influences)
+	
+	_handle_chart(influences)
+	_visualize_path_by_room_index(0)
+
+func _visualize_path_by_room_index(room_index):
+	var path_3d: Array[Vector3i] = []
+
+	for key in paths_influences[room_index].keys():
+		path_3d.append(key)
+	
+	path_visualizer.draw_path(path_3d)
+	hide_selector()
 
 func _get_path_influences(room_index, path):
 	var path_influ = {}

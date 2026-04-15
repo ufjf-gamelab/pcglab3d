@@ -4,7 +4,7 @@ extends Control
 @onready var next_button: Button = $VBoxContainer/HBoxContainer/Next
 
 signal close_button_pressed
-signal next_button_pressed
+signal next_button_pressed(chart_pos)
 
 var f: Function
 
@@ -118,4 +118,4 @@ func _on_next_pressed() -> void:
 		chart_pos += 1
 	
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos], false)
-	next_button_pressed.emit()
+	next_button_pressed.emit(chart_pos)
