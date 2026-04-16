@@ -37,7 +37,7 @@ func find_path(start: Vector2i, end: Vector2i) -> Array[Vector2i]:
 	
 	return astar.get_id_path(start, end)
 	
-func find_explorer_path(start: Vector2i, interest_points: Array, end: Vector2i) -> Array[Vector2i]:
+func find_explorer_path(start: Vector2i, interest_points: Array[Vector2i], end: Vector2i) -> Array[Vector2i]:
 	var remaining = interest_points.duplicate()
 	var current = start
 	
@@ -56,7 +56,7 @@ func find_explorer_path(start: Vector2i, interest_points: Array, end: Vector2i) 
 	_append_segment(full_path, final_segment)
 
 	return full_path
-	
+
 func _get_closest_point(from: Vector2i, points: Array[Vector2i]) -> Vector2i:
 	var closest_point = points[0]
 	var shortest_distance = from.distance_to(points[0])
