@@ -151,7 +151,7 @@ func _on_pathfinding_pressed():
 		var influ = _get_path_influences(i, path)
 		
 		if influ[1] == []:
-			print("Nenhum mapa de influência selecionado.")
+			print("Nenhum tipo de mapa de influência selecionado.")
 			return
 		
 		paths_influences.append(influ[0])
@@ -228,7 +228,7 @@ func _on_select_room_path():
 			var influ = _get_path_influences(i, path)
 			
 			if influ[1] == []:
-				print("Nenhum mapa de influência selecionado.")
+				print("Nenhum tipo de mapa de influência selecionado.")
 				return
 			
 			builder.set_process(false)
