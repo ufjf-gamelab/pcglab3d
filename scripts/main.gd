@@ -182,12 +182,14 @@ func _get_path_influences(room_index, path):
 	return [path_influ, room_influ]
 
 func _on_ca_generate_dungeon_pressed():
+	UHeat.deactivate_heatmaps()
 	var ca_generator = CA_GENERATOR.new()
 	ca_generator.generate_dungeon_ca(gridmap)
 	ca_generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
 
 func _on_generate_dungeon_pressed():
+	UHeat.deactivate_heatmaps()
 	var generator = GENERATOR.new()
 	generator.generate_dungeon(gridmap)
 	generator.spawn_dungeon_elements(gridmap)
