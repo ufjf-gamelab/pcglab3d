@@ -39,6 +39,8 @@ var curr_room_chart = 0
 
 var plane:Plane # Used for raycasting mouse
 
+const PATH_TYPE = "STRAIGHT"
+
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
@@ -193,7 +195,13 @@ func _get_room_path(room_index, pathfinder):
 	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
 	var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
 	
-	var path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
+	var interest_points = []
+	
+	var path
+	if (PATH_TYPE == "STRAIGHT"):
+		path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
+	elif (PATH_TYPE == "EXPLORER"):
+		path = pathfinder.find_explorer_path(portal1_pos_2d, interest_points, portal2_pos_2d)
 	
 	return path
 

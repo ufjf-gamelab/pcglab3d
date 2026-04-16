@@ -36,3 +36,46 @@ func find_path(start: Vector2i, end: Vector2i) -> Array[Vector2i]:
 		return []
 	
 	return astar.get_id_path(start, end)
+	
+func find_explorer_path(start: Vector2i, interest_points: Array, end: Vector2i) -> Array[Vector2i]:
+	var remaining = interest_points.duplicate()
+	var current = start
+	
+	var full_path: Array[Vector2i] = []
+
+	while remaining.size() > 0:
+		var closest = _get_closest_point(current, remaining)
+		
+		var segment = find_path(current, closest)
+		_append_segment(full_path, segment)
+		
+		current = closest
+		remaining.erase(closest)
+
+	var final_segment = astar.get_id_path(current, end)
+	_append_segment(full_path, final_segment)
+
+	return full_path
+	
+func _get_closest_point(from: Vector2i, points: Array[Vector2i]) -> Vector2i:
+	var closest_point = points[0]
+	var shortest_distance = from.distance_to(points[0])
+
+	for i in range(1, points.size()):
+		var p = points[i]
+		var dist = from.distance_to(p)
+		if dist < shortest_distance:
+			shortest_distance = dist
+			closest_point = p
+
+	return closest_point
+	
+func _append_segment(path: Array[Vector2i], segment: Array[Vector2i]) -> void:
+	if segment.is_empty():
+		return
+	
+	if path.is_empty():
+		path.append_array(segment)
+	else:
+		# Remove a primeira posição do segmento pois ela já está na última posição do full_path
+		path.append_array(segment.slice(1))
