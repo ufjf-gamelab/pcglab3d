@@ -210,16 +210,15 @@ func _get_room_path(room_index, pathfinder):
 	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
 	var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
 	
-	var coin_pos = Vector2i(elem_pos.coin_pos.x, elem_pos.coin_pos.z)
-	var banner_pos = Vector2i(elem_pos.banner_pos.x, elem_pos.banner_pos.z) 
-	
-	var interest_points : Array[Vector2i] = [coin_pos, banner_pos]
-	
 	var path
 	if (PATH_TYPE == "STRAIGHT"):
 		path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
 	elif (PATH_TYPE == "EXPLORER"):
-		path = pathfinder.find_explorer_path(portal1_pos_2d, interest_points, portal2_pos_2d)
+		var room_coins_pos : Array[Vector2i] = []
+		for coin_pos in elem_pos.coin_pos:
+			room_coins_pos.append(Vector2i(coin_pos.x, coin_pos.z))
+	
+		path = pathfinder.find_explorer_path(portal1_pos_2d, room_coins_pos, portal2_pos_2d)
 	
 	return path
 

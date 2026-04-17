@@ -26,8 +26,8 @@ var firstPortal: Vector3i
 var lastPortal: Vector3i
 
 var room_elements_quantity = {
-	"enemies": 1,
-	"coins": 1,
+	"enemies": 2,
+	"coins": 2,
 	"banners": 1
 }
 
@@ -124,10 +124,12 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	var last_coin_heat
 	var coins_heats = []
 	var coin_pos
+	var room_coins_pos = []
 	for _n in range(room_elements_quantity["coins"]):
 		# Posiciona a moeda no primeiro slot disponível
 		if available_spots.size() > 0:
 			coin_pos = available_spots.pop_front()
+			room_coins_pos.append(coin_pos)
 			gridmap.set_cell_item(coin_pos, UGen.COIN_ID)
 			# Cria heatmap da moeda
 			var heat = UHeat.create_heatmap_bfs(gridmap, coin_pos, true, "coins")
@@ -141,10 +143,12 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	var last_enemy_heat
 	var enemies_heats = []
 	var npc_pos
+	var room_npc_pos = []
 	for _n in range(room_elements_quantity["enemies"]):
 		# Posiciona o NPC no próximo slot disponível
 		if available_spots.size() > 0:
 			npc_pos = available_spots.pop_front()
+			room_npc_pos.append(npc_pos)
 			gridmap.set_cell_item(npc_pos, UGen.NPC_ID)
 			# Cria heatmap do inimigo
 			var heat = UHeat.create_heatmap_bfs(gridmap, npc_pos, false, "enemies")
@@ -158,10 +162,12 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	var last_banner_heat
 	var banners_heats = []
 	var banner_pos
+	var room_banners_pos = []
 	for _n in range(room_elements_quantity["banners"]):
 		# Posiciona o estandarte no próximo slot disponível
 		if available_spots.size() > 0:
 			banner_pos = available_spots.pop_front()
+			room_banners_pos.append(banner_pos)
 			gridmap.set_cell_item(banner_pos, UGen.BANNER_ID)
 			# Cria heatmap do estandarte
 			var heat = UHeat.create_heatmap_bfs(gridmap, banner_pos, true, "banners")
@@ -173,9 +179,9 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spa
 	var elements_pos = {
 		"portal1_pos": portal1_pos,
 		"portal2_pos": portal2_pos,
-		"coin_pos": coin_pos,
-		"npc_pos": npc_pos,
-		"banner_pos": banner_pos
+		"coin_pos": room_coins_pos,
+		"npc_pos": room_npc_pos,
+		"banner_pos": room_banners_pos
 	}
 	rooms_elements_pos.append(elements_pos)
 	
