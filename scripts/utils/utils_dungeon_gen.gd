@@ -31,6 +31,12 @@ var room_elements_quantity = {
 	"banners": 1
 }
 
+func clear_elements_pos():
+	for room in rooms_elements_pos:
+		room["coin_pos"].clear()
+		room["banner_pos"].clear()
+		room["npc_pos"].clear()
+
 # Preenche o espaço todo do mapa com paredes sólidas
 func fill_map_with_solids(grid: GridMap, size: int):
 	for x in range(size):

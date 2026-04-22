@@ -293,7 +293,10 @@ func _unhandled_input(event):
 
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("recalculate_heatmaps"):
+		UGen.clear_elements_pos()
 		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+		# Fazer uma funçao em UGen que atualiza a posicao dos elementos e UHeat só recalcula
+		# os heatmaps
 	
 	# Calcula caminho entre portais das salas
 	if event.is_action_pressed("pathfinding"):

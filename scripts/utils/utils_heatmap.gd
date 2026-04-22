@@ -234,19 +234,26 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	var room_enemies_heatmaps
 	var room_coins_heatmaps
 	var room_banners_heatmaps
-	for room in UGen.rooms:
+	for i in range(UGen.rooms.size()):
+		var room = UGen.rooms[i]
+		
+		var elements_pos = UGen.rooms_elements_pos[i]
+		
 		room_enemies_heatmaps = []
 		room_coins_heatmaps = []
 		room_banners_heatmaps = []
 		for pos in room:
 			match gridmap.get_cell_item(pos):
 				UGen.NPC_ID:
+					elements_pos["npc_pos"].append(pos)
 					var heat = create_heatmap_bfs(gridmap, pos, false, ENEMIES)
 					room_enemies_heatmaps.append(heat)
 				UGen.COIN_ID:
+					elements_pos["coin_pos"].append(pos)
 					var heat = create_heatmap_bfs(gridmap, pos, true, COINS)
 					room_coins_heatmaps.append(heat)
 				UGen.BANNER_ID:
+					elements_pos["banner_pos"].append(pos)
 					var heat = create_heatmap_bfs(gridmap, pos, true, BANNERS)
 					room_banners_heatmaps.append(heat)
 		# Cria heatmap combinado de moedas da sala
