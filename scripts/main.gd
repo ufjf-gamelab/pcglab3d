@@ -164,24 +164,28 @@ func _on_pathfinding_pressed():
 
 func _visualize_path_by_room_index(room_index):
 	var path_3d: Array[Vector3i] = []
-
-	for key in paths_influences[room_index].keys():
-		path_3d.append(key)
+	
+	var room_tuples = paths_influences[room_index]
+	
+	for tuple in room_tuples:
+		path_3d.append(tuple[0])
 	
 	path_visualizer.draw_path(path_3d)
 	hide_selector()
 
-func _get_path_influences(room_index, path):
-	var path_influ = {}
-	var room_influ = []
+
+func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
+	var path_cell_influ = []
+	var path_influences = []
 	for key in UHeat.curr_visible_heatmap.keys():
 		if UHeat.curr_visible_heatmap[key]:
 			for cell in path:
 				var cell_3d = Vector3i(cell.x, 0, cell.y)
-				path_influ[cell_3d] = UHeat.heatmaps[key][room_index][cell_3d]
-				room_influ.append(UHeat.heatmaps[key][room_index][cell_3d])
+				var tuple = [cell_3d, UHeat.heatmaps[key][room_index][cell_3d]]
+				path_cell_influ.append(tuple)
+				path_influences.append(UHeat.heatmaps[key][room_index][cell_3d])
 
-	return [path_influ, room_influ]
+	return [path_cell_influ, path_influences]
 
 func _on_ca_generate_dungeon_pressed():
 	UHeat.deactivate_heatmaps()
@@ -252,8 +256,8 @@ func _on_select_room_path():
 			
 			var path_3d: Array[Vector3i] = []
 
-			for key in influ[0].keys():
-				path_3d.append(key)
+			for tuple in influ[0]:
+				path_3d.append(tuple[0])
 			
 			path_visualizer.draw_path(path_3d)
 			hide_selector()
