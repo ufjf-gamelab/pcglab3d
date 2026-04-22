@@ -103,7 +103,7 @@ func show_chart(x_val, y_val, external_call: bool):
 		cp.y_scale = int((scale_y))
 		
 	var max_x = x[x.size()-1]
-	cp.x_scale = int(max_x)
+	cp.x_scale = int(max_x/2)
 	chart.set_x_domain(0, max_x)
 	
 	if f.__x.size() > 0:
