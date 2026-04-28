@@ -173,7 +173,6 @@ func _visualize_path_by_room_index(room_index):
 	path_visualizer.draw_path(path_3d)
 	hide_selector()
 
-
 func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 	var path_cell_influ = []
 	var path_influences = []
@@ -293,10 +292,8 @@ func _unhandled_input(event):
 
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("recalculate_heatmaps"):
-		UGen.clear_elements_pos()
+		UGen.update_elements_pos(gridmap)
 		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
-		# Fazer uma funçao em UGen que atualiza a posicao dos elementos e UHeat só recalcula
-		# os heatmaps
 	
 	# Calcula caminho entre portais das salas
 	if event.is_action_pressed("pathfinding"):

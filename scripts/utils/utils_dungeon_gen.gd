@@ -31,6 +31,22 @@ var room_elements_quantity = {
 	"banners": 1
 }
 
+func update_elements_pos(gridmap: GridMap):
+	clear_elements_pos()
+	
+	for i in range(rooms.size()):
+		var room = rooms[i]
+		var elements_pos = rooms_elements_pos[i]
+		
+		for pos in room:
+			match gridmap.get_cell_item(pos):
+				NPC_ID:
+					elements_pos["npc_pos"].append(pos)
+				COIN_ID:
+					elements_pos["coin_pos"].append(pos)
+				BANNER_ID:
+					elements_pos["banner_pos"].append(pos)
+
 func clear_elements_pos():
 	for room in rooms_elements_pos:
 		room["coin_pos"].clear()
