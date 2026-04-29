@@ -98,7 +98,9 @@ func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
 	var combined_heat = {}
 	
 	for key in coins_heat.keys():
-		combined_heat[key] = banners_heat[key] + enemies_heat[key] + coins_heat[key]
+		var b = banners_heat.get(key, 0)
+		var e = enemies_heat.get(key, 0)
+		combined_heat[key] = banners_heat[key] + e + b
 	
 	return combined_heat
 

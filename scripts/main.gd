@@ -38,7 +38,9 @@ var paths_influences = []
 
 var plane:Plane # Used for raycasting mouse
 
-const PATH_TYPE = "EXPLORER"
+enum Pathfing {STRAIGHT, EXPLORER}
+
+const PATH_TYPE = Pathfing.EXPLORER
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
@@ -216,9 +218,9 @@ func _get_room_path(room_index, pathfinder):
 	var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
 	
 	var path
-	if (PATH_TYPE == "STRAIGHT"):
+	if (PATH_TYPE == Pathfing.STRAIGHT):
 		path = pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
-	elif (PATH_TYPE == "EXPLORER"):
+	elif (PATH_TYPE == Pathfing.EXPLORER):
 		var room_coins_pos : Array[Vector2i] = []
 		for coin_pos in elem_pos.coin_pos:
 			room_coins_pos.append(Vector2i(coin_pos.x, coin_pos.z))
