@@ -274,6 +274,8 @@ func _unhandled_input(event):
 
 	# Captura evento de mudança de modo e chama a toggle_mode()
 	if event.is_action_pressed("toggle_mode"):
+		UHeat.deactivate_heatmaps()
+		heatmap_panel.clear()
 		toggle_mode()
 
 	# Captura evento de exibir heatmap de inimigos
