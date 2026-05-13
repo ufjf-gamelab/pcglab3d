@@ -18,7 +18,7 @@
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://dungeon/structures/floor.tres" id="12_gqmmt"]
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
 [ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
-[ext_resource type="PackedScene" uid="uid://ukcepkmtkcxw" path="res://scenes/hud/ChartPlotter.tscn" id="21_2wyq8"]
+[ext_resource type="PackedScene" uid="uid://dlwq4kmdb3bhs" path="res://addons/easy_charts/control_charts/chart.tscn" id="21_2wyq8"]
 [ext_resource type="Texture2D" uid="uid://cdy6l6u51msrw" path="res://sprites/spritesheet-tiles-default.png" id="21_jscy8"]
 [ext_resource type="Script" uid="uid://d3tqf4ubckujf" path="res://scripts/life_hearts.gd" id="21_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
@@ -26,7 +26,6 @@
 [ext_resource type="Script" uid="uid://iinemfi6cdva" path="res://scripts/coins_ui.gd" id="23_og1vs"]
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
-[ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
 
@@ -129,9 +128,6 @@ cell_center_x = false
 cell_center_y = false
 cell_center_z = false
 
-[node name="PathVisualizer" parent="." unique_id=1976440335 node_paths=PackedStringArray("grid_map") instance=ExtResource("27_vxglm")]
-grid_map = NodePath("../NavigationRegion3D/GridMap")
-
 [node name="UI" type="CanvasLayer" parent="." unique_id=1624123558]
 
 [node name="CreationUI" type="Control" parent="UI" unique_id=627118002]
@@ -172,8 +168,12 @@ offset_bottom = 280.0
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("22_pm3ni")
 
-[node name="ChartPlotter" parent="UI/CreationUI" unique_id=791246719 instance=ExtResource("21_2wyq8")]
-layout_mode = 1
+[node name="Chart" parent="UI/CreationUI" unique_id=1852851049 instance=ExtResource("21_2wyq8")]
+visible = false
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
 
 [node name="GameHUD" type="Control" parent="UI" unique_id=709230869]
 layout_mode = 3

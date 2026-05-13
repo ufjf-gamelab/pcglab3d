@@ -26,7 +26,6 @@
 [ext_resource type="Script" uid="uid://iinemfi6cdva" path="res://scripts/coins_ui.gd" id="23_og1vs"]
 [ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
-[ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
 
@@ -128,9 +127,6 @@ cell_size = Vector3(1, 1, 1)
 cell_center_x = false
 cell_center_y = false
 cell_center_z = false
-
-[node name="PathVisualizer" parent="." unique_id=1976440335 node_paths=PackedStringArray("grid_map") instance=ExtResource("27_vxglm")]
-grid_map = NodePath("../NavigationRegion3D/GridMap")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1624123558]
 

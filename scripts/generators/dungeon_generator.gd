@@ -38,6 +38,10 @@ func generate_dungeon(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_coun
 	# Limpa lista de salas	
 	rect_rooms.clear()
 	
+	# Limpa as salas existentes e seus elementos
+	UGen.rooms.clear()
+	UGen.rooms_elements_pos.clear()
+	
 	# Limpa todo o GridMap
 	gridmap.clear()
 	
@@ -148,7 +152,6 @@ func is_shape_valid(new_shape: Array[Rect2i], existing_shapes: Array[Rect2i], ma
 	return true
 
 func spawn_dungeon_elements(gridmap: GridMap):
-	UGen.rooms.clear()
 	dungeon_room_rects_to_tiles()
 	UGen.spawn_dungeon_elements(gridmap)
 

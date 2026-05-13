@@ -3,9 +3,7 @@ extends CharacterBody3D
 @export var max_life := 2
 var life := max_life
 
-@export var speed := 3.0
-@export var gravity := 9.8
-@export var jump_force := 4.0
+@export var speed := 2.5
 @export var attack_damage := 1
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer

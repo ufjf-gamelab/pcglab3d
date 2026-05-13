@@ -28,8 +28,9 @@ func generate_dungeon_ca(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_c
 	UHeat.heatmaps["banners"] = []
 	UHeat.heatmaps["combined"] = []
 	
-	# Limpa as salas existentes	
+	# Limpa as salas existentes e seus elementos
 	UGen.rooms.clear()
+	UGen.rooms_elements_pos.clear()
 	
 	# Limpa todo o GridMap
 	gridmap.clear()
