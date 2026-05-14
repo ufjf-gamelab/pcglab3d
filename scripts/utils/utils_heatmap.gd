@@ -16,19 +16,22 @@ const DIRECTIONS := [
 const ENEMIES = "enemies"
 const COINS = "coins"
 const BANNERS = "banners"
+const PORTALS = "portals"
 const COMBINED = "combined"
 
 const START_CELL_ELEMENT_WEIGHT = {
 	ENEMIES: -5,
 	COINS: 5,
-	BANNERS: 5,  
+	BANNERS: 5,
+	PORTALS: 8
 }
 
 var heatmaps = {
 	ENEMIES: [],
 	COINS: [],
 	BANNERS: [],
-	COMBINED: []
+	COMBINED: [],
+	PORTALS: []
 }
 
 var decay_func_type = "linear"
@@ -41,7 +44,8 @@ var curr_visible_heatmap = {
 	ENEMIES: false,
 	COINS: false,
 	BANNERS: false,
-	COMBINED: false
+	COMBINED: false,
+	PORTALS: false
 }
 
 func switch_decay_func(positive_influence, curr_heatmap_tile):
@@ -93,16 +97,29 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 				
 	return heatmap
 
-# Cria heatmap combinando elementos da sala
-func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
-	var combined_heat = {}
+## Cria heatmap combinando elementos da sala
+#func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
+	#var combined_heat = {}
+	#
+	#for key in coins_heat.keys():
+		#var b = banners_heat.get(key, 0)
+		#var e = enemies_heat.get(key, 0)
+		#combined_heat[key] = coins_heat[key] + e + b
+	#
+	#return combined_heat
+
+# Cria heatmap combinando de N heatmaps
+func create_combined_heatmap(heatmap_array: Array[Dictionary]) -> Dictionary:
+	var combined: Dictionary = {}
 	
-	for key in coins_heat.keys():
-		var b = banners_heat.get(key, 0)
-		var e = enemies_heat.get(key, 0)
-		combined_heat[key] = coins_heat[key] + e + b
+	for heatmap in heatmap_array:
+		for key in heatmap.keys():
+			if combined.has(key):
+				combined[key] += heatmap[key]
+			else:
+				combined[key] = heatmap[key]
 	
-	return combined_heat
+	return combined
 
 func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0):
 	var total_instances := 0
@@ -196,7 +213,25 @@ func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		var banners_heatmaps = heatmaps[BANNERS]
 		show_heatmaps(gridmap, banners_heatmaps)
 		curr_visible_heatmap[BANNERS] = true
-		heatmap_panel.show_heatmap_info("Mapas de Influência de Estandartes", {"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]})
+		heatmap_panel.show_heatmap_info(
+			"Mapas de Influência de Estandartes", 
+			{"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]}
+		)
+
+func toggle_portal_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+	if curr_visible_heatmap[PORTALS]:
+		heatmap_multimesh.visible = false
+		curr_visible_heatmap[PORTALS] = false
+		heatmap_panel.clear()
+	else:
+		deactivate_heatmaps()
+		var portals_heatmaps = heatmaps[PORTALS]
+		show_heatmaps(gridmap, portals_heatmaps)
+		curr_visible_heatmap[PORTALS] = true
+		heatmap_panel.show_heatmap_info(
+			"Mapas de Influência de Portais",
+			{"Influência de um Portal": START_CELL_ELEMENT_WEIGHT["portals"]}
+		)
 
 func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if curr_visible_heatmap[COMBINED]:
@@ -221,12 +256,14 @@ func deactivate_heatmaps():
 	curr_visible_heatmap[COINS] = false
 	curr_visible_heatmap[BANNERS] = false
 	curr_visible_heatmap[COMBINED] = false
+	curr_visible_heatmap[PORTALS] = false
 
 func _clear_heatmaps():
 	heatmaps[ENEMIES] = []
 	heatmaps[COINS] = []
 	heatmaps[BANNERS] = []
 	heatmaps[COMBINED] = []
+	heatmaps[PORTALS] = []
 
 func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	deactivate_heatmaps()
@@ -236,6 +273,7 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	var room_enemies_heatmaps
 	var room_coins_heatmaps
 	var room_banners_heatmaps
+	
 	for i in range(UGen.rooms.size()):
 		var elements_pos = UGen.rooms_elements_pos[i]
 		
@@ -268,5 +306,23 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		var combined_banners_heat = create_same_element_type_combined_heatmap(room_banners_heatmaps)
 		UHeat.heatmaps[BANNERS].append(combined_banners_heat)
 		# Cria heatmap combinado de todos os elementos de uma sala
-		var combined_heat = UHeat.create_combined_heatmap(combined_banners_heat, combined_enemies_heat, combined_coins_heat)
+		var combined_heat = UHeat.create_combined_heatmap([combined_banners_heat, combined_enemies_heat, combined_coins_heat])
 		UHeat.heatmaps[COMBINED].append(combined_heat) 
+
+func sum_heatmaps(a: Dictionary, b: Dictionary) -> Dictionary:
+	var result = a.duplicate()
+	for key in b.keys():
+		if result.has(key):
+			result[key] += b[key]
+		else:
+			result[key] = b[key]
+	return result
+
+func subtract_heatmaps(a: Dictionary, b: Dictionary) -> Dictionary:
+	var result = a.duplicate()
+	for key in b.keys():
+		if result.has(key):
+			result[key] -= b[key]
+		else:
+			result[key] = b[key]
+	return result

@@ -39,7 +39,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE = Pathfing.FREE
+const PATH_TYPE = Pathfing.STRAIGHT
 
 var player_walked_paths: Array = [] # Array[Array[Vector3i]]
 
@@ -307,6 +307,10 @@ func _unhandled_input(event):
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
 		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
+		
+	# Captura evento de exibir heatmap de portais
+	if event.is_action_pressed("show_portals_heatmaps"):
+		UHeat.toggle_portal_heatmaps(gridmap, heatmap_panel)
 	
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
