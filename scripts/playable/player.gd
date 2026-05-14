@@ -9,6 +9,9 @@ var life := max_life
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
 
+var walked_tiles: Array[Vector3i] = []
+var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
+
 signal update_life(curr_life)
 
 var portal_cooldown := false
@@ -90,10 +93,15 @@ func teleport_to(pos: Vector3):
 	await get_tree().create_timer(0.2).timeout
 	portal_cooldown = false
 
-
 func _physics_process(_delta):
 	if attacking or dying:
 		return
+	
+	# Registra tile percorrido caso seja diferente do último da lista
+	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
+	if current_tile != last_tile:
+		walked_tiles.append(current_tile)
+		last_tile = current_tile
 	
 	var dir = Vector3.ZERO
 

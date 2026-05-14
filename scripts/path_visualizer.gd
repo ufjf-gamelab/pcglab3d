@@ -51,9 +51,6 @@ func _create_arrow(from: Vector3, to: Vector3, int_to: Vector3i):
 	var visits = tile_visit_count.get(int_to, 0)
 	var to_offset = visits * BASE_Z_OFFSET
 	
-	print("Offset Cauda: ", from_offset)
-	print("Offset Ponta: ", to_offset)
-	
 	# Aplica os offsets
 	from += Vector3.UP * from_offset
 	to += Vector3.UP * to_offset

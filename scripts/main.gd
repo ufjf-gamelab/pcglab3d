@@ -38,8 +38,10 @@ var paths_influences = []
 
 var plane:Plane # Used for raycasting mouse
 
-enum Pathfing {STRAIGHT, EXPLORER}
-const PATH_TYPE = Pathfing.EXPLORER
+enum Pathfing {STRAIGHT, EXPLORER, FREE}
+const PATH_TYPE = Pathfing.FREE
+
+var player_walked_paths: Array = [] # Array[Array[Vector3i]]
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
@@ -140,6 +142,10 @@ func _handle_chart(influences):
 	chart_plotter.show_charts(x, influences)
 
 func _on_pathfinding_pressed():
+	if PATH_TYPE == Pathfing.FREE and player_walked_paths.is_empty():
+		print("Nenhum caminho livre registrado. Jogue primeiro.")
+		return
+		
 	var pathfinder = _pathfinder_init()
 	
 	paths = []
@@ -148,6 +154,9 @@ func _on_pathfinding_pressed():
 	
 	for i in range((UGen.rooms).size()):
 		var path = _get_room_path(i, pathfinder)
+		
+		if path == []:
+			continue
 		
 		paths.append(path)
 		
@@ -209,6 +218,13 @@ func _pathfinder_init():
 	return pathfinder
 
 func _get_room_path(room_index, pathfinder):
+	# FREE, retorna o caminho livre do jogador
+	if PATH_TYPE == Pathfing.FREE:
+		if room_index < player_walked_paths.size():
+			return player_walked_paths[room_index].map(func(t): return Vector2i(t.x, t.z))
+		else:
+			return []
+	
 	var elem_pos = UGen.rooms_elements_pos[room_index]
 	
 	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
@@ -242,6 +258,11 @@ func _on_select_room_path():
 		var room = UGen.rooms[i]
 		if gridmap_position in room:
 			path = _get_room_path(i, pathfinder)
+			
+			if path == []:
+				print("Jogador não passou por essa sala!")
+				return
+			
 			var influ = _get_path_influences(i, path)
 			
 			if influ[1] == []:
@@ -405,8 +426,25 @@ func recover_gridmap():
 		var cell_pos = get_cell_pos(banner)
 		gridmap.set_cell_item(cell_pos, 7)
 
+func _split_walked_path_by_room(all_tiles: Array[Vector3i]):
+	player_walked_paths.clear()
+
+	for i in range(UGen.rooms.size()):
+		var room = UGen.rooms[i]
+		var room_path: Array[Vector3i] = []
+
+		for tile in all_tiles:
+			if tile in room and (room_path.is_empty() or room_path.back() != tile):
+				room_path.append(tile)
+		player_walked_paths.append(room_path)
+
 func enter_creation_mode():
 	mode = Mode.CREATION
+	
+	# Coleta e separa o caminho livre antes de destruir o player
+	var player = world.get_node_or_null("Player")
+	if player and player.walked_tiles.size() > 0:
+		_split_walked_path_by_room(player.walked_tiles)
 	
 	sun.visible = true
 
