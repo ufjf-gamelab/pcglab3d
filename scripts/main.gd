@@ -39,7 +39,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER}
-const PATH_TYPE = Pathfing.STRAIGHT
+const PATH_TYPE = Pathfing.EXPLORER
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh

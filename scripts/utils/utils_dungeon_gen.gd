@@ -41,7 +41,7 @@ var room_enemies_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
-const SPAWN = Spawn.SMART
+const SPAWN = Spawn.RANDOM
 
 func update_elements_pos(gridmap: GridMap):
 	clear_elements_pos()

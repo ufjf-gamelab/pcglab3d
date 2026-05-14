@@ -6,17 +6,18 @@ extends Node3D
 
 var _arrows: Array[Node3D] = []
 
-var destinations : Array[Vector3i] = []
+const BASE_Z_OFFSET = 0.5
+var tile_visit_count: Dictionary = {}  # Vector3i -> float
+var last_arrow_tip_offset: float = 0
 
-const BASE_Z_OFFSET = 0.3
-var n_intersection :int = 0
+#var n_intersection :int = 0
 
 func clear_path():
 	for a in _arrows:
 		a.queue_free()
 	_arrows.clear()
-	destinations.clear()
-	n_intersection = 0
+	tile_visit_count.clear()
+	last_arrow_tip_offset = 0
 
 func _tile_to_world_center(tile: Vector3i) -> Vector3:
 	var local_pos = grid_map.map_to_local(tile)
@@ -40,35 +41,36 @@ func draw_path(tile_path: Array[Vector3i]):
 		_create_arrow(from_pos, to_pos, to_tile)
 
 func _create_arrow(from: Vector3, to: Vector3, int_to: Vector3i):
-	var adjusted_int_to = Vector3i(int_to.x, int_to.y + n_intersection, int_to.z)
-	if !destinations.has(adjusted_int_to):
-		destinations.append(adjusted_int_to)
-	else:
-		n_intersection += 1
-	
-	var arrow = arrow_scene.instantiate()
-	add_child(arrow)
-
+	# Se o tile de inicio for igual a final, para a função
 	var dir = to - from
-	var length = dir.length()
-	if length == 0:
+	if dir.length() == 0:
 		return
 	
-	# Calcula offset atual
-	var z_offset = n_intersection * BASE_Z_OFFSET
-
-	# Eleva o from e o to de acordo com o z_offset atual
-	from += Vector3.UP * z_offset
-	to += Vector3.UP * z_offset
+	# Pega os offsets de cada extremidade da seta
+	var from_offset = last_arrow_tip_offset
+	var visits = tile_visit_count.get(int_to, 0)
+	var to_offset = visits * BASE_Z_OFFSET
 	
+	print("Offset Cauda: ", from_offset)
+	print("Offset Ponta: ", to_offset)
+	
+	# Aplica os offsets
+	from += Vector3.UP * from_offset
+	to += Vector3.UP * to_offset
+	
+	# Atualiza offset do tile de destino para a próxima seta que passar por ele
+	tile_visit_count[int_to] = visits + 1
+	last_arrow_tip_offset = to_offset
+	
+	# Cria uma instância da seta e adiciona como filha
+	var arrow = arrow_scene.instantiate()
+	add_child(arrow)
 	# Posiciona a seta na origem
 	arrow.global_position = from
-	
 	# Direciona a seta para o to
 	arrow.look_at(to, Vector3.UP)
-	
-	# Inverte a frente da seta
-	arrow.rotate_y(PI)
-	
+	# Aumenta o comprimento da seta
+	var distance = from.distance_to(to)
+	arrow.scale.z = distance
 	# Adiciona seta na lista de setas
 	_arrows.append(arrow)
