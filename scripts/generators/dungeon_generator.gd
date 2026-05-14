@@ -30,10 +30,6 @@ var rect_rooms := [] # Array[Array[Rect2i]]
 func generate_dungeon(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_count: int = UGen.ROOM_COUNT):
 	print("Gerando Dungeon...")
 	UGen.portal_links = {}
-	UHeat.heatmaps["enemies"] = []
-	UHeat.heatmaps["coins"] = []
-	UHeat.heatmaps["banners"] = []
-	UHeat.heatmaps["combined"] = []
 	
 	# Limpa lista de salas	
 	rect_rooms.clear()

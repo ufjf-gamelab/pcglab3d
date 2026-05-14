@@ -197,6 +197,7 @@ func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 func _on_ca_generate_dungeon_pressed():
 	UHeat.deactivate_heatmaps()
 	heatmap_panel.clear()
+	UHeat.clear_heatmaps()
 	var ca_generator = CA_GENERATOR.new()
 	ca_generator.generate_dungeon_ca(gridmap)
 	ca_generator.spawn_dungeon_elements(gridmap)
@@ -204,6 +205,7 @@ func _on_ca_generate_dungeon_pressed():
 
 func _on_generate_dungeon_pressed():
 	UHeat.deactivate_heatmaps()
+	UHeat.clear_heatmaps()
 	heatmap_panel.clear()
 	var generator = GENERATOR.new()
 	generator.generate_dungeon(gridmap)
@@ -281,6 +283,18 @@ func _on_select_room_path():
 			path_visualizer.draw_path(path_3d)
 			hide_selector()
 
+func _split_walked_path_by_room(all_tiles: Array[Vector3i]):
+	player_walked_paths.clear()
+
+	for i in range(UGen.rooms.size()):
+		var room = UGen.rooms[i]
+		var room_path: Array[Vector3i] = []
+
+		for tile in all_tiles:
+			if tile in room and (room_path.is_empty() or room_path.back() != tile):
+				room_path.append(tile)
+		player_walked_paths.append(room_path)
+
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon com automatos celulares
 	if event.is_action_pressed("ca_generate_dungeon"):
@@ -309,8 +323,8 @@ func _unhandled_input(event):
 		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
 		
 	# Captura evento de exibir heatmap de portais
-	if event.is_action_pressed("show_portals_heatmaps"):
-		UHeat.toggle_portal_heatmaps(gridmap, heatmap_panel)
+	if event.is_action_pressed("show_recharges_heatmaps"):
+		UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
 	
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
@@ -429,18 +443,6 @@ func recover_gridmap():
 	for banner in banners:
 		var cell_pos = get_cell_pos(banner)
 		gridmap.set_cell_item(cell_pos, 7)
-
-func _split_walked_path_by_room(all_tiles: Array[Vector3i]):
-	player_walked_paths.clear()
-
-	for i in range(UGen.rooms.size()):
-		var room = UGen.rooms[i]
-		var room_path: Array[Vector3i] = []
-
-		for tile in all_tiles:
-			if tile in room and (room_path.is_empty() or room_path.back() != tile):
-				room_path.append(tile)
-		player_walked_paths.append(room_path)
 
 func enter_creation_mode():
 	mode = Mode.CREATION

@@ -16,14 +16,17 @@ const DIRECTIONS := [
 const ENEMIES = "enemies"
 const COINS = "coins"
 const BANNERS = "banners"
-const PORTALS = "portals"
+const ENTRY_PORTALS = "entry_portals"
+const EXIT_PORTALS = "exit_portals"
 const COMBINED = "combined"
+const RECHARGES = "recharges"
 
 const START_CELL_ELEMENT_WEIGHT = {
 	ENEMIES: -5,
 	COINS: 5,
 	BANNERS: 5,
-	PORTALS: 8
+	ENTRY_PORTALS: 5,
+	EXIT_PORTALS: 5
 }
 
 var heatmaps = {
@@ -31,7 +34,8 @@ var heatmaps = {
 	COINS: [],
 	BANNERS: [],
 	COMBINED: [],
-	PORTALS: []
+	ENTRY_PORTALS: [],
+	EXIT_PORTALS: []
 }
 
 var decay_func_type = "linear"
@@ -45,7 +49,7 @@ var curr_visible_heatmap = {
 	COINS: false,
 	BANNERS: false,
 	COMBINED: false,
-	PORTALS: false
+	RECHARGES: false
 }
 
 func switch_decay_func(positive_influence, curr_heatmap_tile):
@@ -218,19 +222,32 @@ func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 			{"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]}
 		)
 
-func toggle_portal_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
-	if curr_visible_heatmap[PORTALS]:
+func toggle_recharge_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+	if curr_visible_heatmap[RECHARGES]:
 		heatmap_multimesh.visible = false
-		curr_visible_heatmap[PORTALS] = false
+		curr_visible_heatmap[RECHARGES] = false
 		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
-		var portals_heatmaps = heatmaps[PORTALS]
-		show_heatmaps(gridmap, portals_heatmaps)
-		curr_visible_heatmap[PORTALS] = true
+		
+		var recharge_heatmaps = []
+		
+		for i in range(heatmaps[BANNERS].size()):
+			recharge_heatmaps.append(
+				UHeat.create_combined_heatmap([heatmaps[ENTRY_PORTALS][i], heatmaps[EXIT_PORTALS][i], heatmaps[BANNERS][i]])
+			)
+			
+		UHeat.heatmaps[RECHARGES] = recharge_heatmaps
+		
+		show_heatmaps(gridmap, recharge_heatmaps)
+		curr_visible_heatmap[RECHARGES] = true
 		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência de Portais",
-			{"Influência de um Portal": START_CELL_ELEMENT_WEIGHT["portals"]}
+			"Mapas de Influência de Recargas de Energia",
+			{
+				"Influência do Portal de Entrada": START_CELL_ELEMENT_WEIGHT[ENTRY_PORTALS],
+				"Influência do Portal de Saída": START_CELL_ELEMENT_WEIGHT[EXIT_PORTALS],
+				"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT[BANNERS]
+			}
 		)
 
 func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
@@ -245,9 +262,9 @@ func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 		curr_visible_heatmap[COMBINED] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
 		{
-			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"],
-			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"],
-			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]
+			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT[ENEMIES],
+			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT[COINS],
+			"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT[BANNERS]
 		})
 
 func deactivate_heatmaps():
@@ -256,18 +273,20 @@ func deactivate_heatmaps():
 	curr_visible_heatmap[COINS] = false
 	curr_visible_heatmap[BANNERS] = false
 	curr_visible_heatmap[COMBINED] = false
-	curr_visible_heatmap[PORTALS] = false
+	curr_visible_heatmap[RECHARGES] = false
 
-func _clear_heatmaps():
+func clear_heatmaps():
 	heatmaps[ENEMIES] = []
 	heatmaps[COINS] = []
 	heatmaps[BANNERS] = []
 	heatmaps[COMBINED] = []
-	heatmaps[PORTALS] = []
+	heatmaps[ENTRY_PORTALS] = []
+	heatmaps[EXIT_PORTALS] = []
+	heatmaps[RECHARGES] = []
 
 func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	deactivate_heatmaps()
-	_clear_heatmaps()
+	clear_heatmaps()
 	heatmap_panel.clear()
 	
 	var room_enemies_heatmaps

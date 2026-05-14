@@ -39,7 +39,8 @@ var room_coins_heatmap = {}
 var room_banners_heatmap = {}
 var room_enemies_heatmap = {}
 
-var room_portals_heatmap = {}
+var room_entry_portals_heatmap = {}
+var room_exit_portals_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
@@ -125,14 +126,17 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	room_coins_heatmap = {}
 	room_banners_heatmap = {}
 	room_enemies_heatmap = {}
-	room_portals_heatmap = {}
+	room_entry_portals_heatmap = {}
+	room_exit_portals_heatmap = {}
 	
 	var room_portals = _handle_room_portals_spawn(gridmap, available_spots)
 	if room_portals.size() == 0:
 		print("Posicionamento de elementos não pôde continuar devido à falta de espaços livres.")
 		return
-	# Captura o heatmap do portal recém criado
-	room_portals_heatmap = UHeat.heatmaps["portals"].back()
+	# Captura o heatmap do portal de entrada recém criado
+	room_entry_portals_heatmap = UHeat.heatmaps[UHeat.ENTRY_PORTALS].back()
+	# Captura o heatmap do portal de saída recém criado
+	room_exit_portals_heatmap = UHeat.heatmaps[UHeat.EXIT_PORTALS].back()
 	
 	# Caulcula a quantidade de elementos da sala
 	_calculate_elements_quantity(room_index, available_spots.size())
@@ -150,7 +154,6 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	var room_banners_pos = _handle_room_banners_spawn(gridmap, room_elements_quantity, available_spots)
 	room_banners_heatmap = UHeat.heatmaps["banners"].back()
 	
-
 	# Salva posições dos elementos da sala
 	var elements_pos = {
 		"portal1_pos": room_portals[0],
@@ -272,8 +275,12 @@ func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3
 		available_spots.erase(portal2_pos)
 		
 		# Cria heatmap do portal de entrada (portal1)
-		var portal_heat = UHeat.create_heatmap_bfs(gridmap, portal1_pos, true, "portals")
-		UHeat.heatmaps["portals"].append(portal_heat)
+		var portal1_heat = UHeat.create_heatmap_bfs(gridmap, portal1_pos, true, UHeat.ENTRY_PORTALS)
+		UHeat.heatmaps[UHeat.ENTRY_PORTALS].append(portal1_heat)
+		
+		# Cria heatmap do portal de saída (portal2)
+		var portal2_heat = UHeat.create_heatmap_bfs(gridmap, portal2_pos, true, UHeat.EXIT_PORTALS)
+		UHeat.heatmaps[UHeat.EXIT_PORTALS].append(portal2_heat)
 		
 		return [portal1_pos, portal2_pos]
 	else:
@@ -295,7 +302,7 @@ func _handle_room_coins_spawn(gridmap: GridMap, room_elements_quantity: Dictiona
 			else:
 				if coins_heats.size() == 0:
 					# Pega posições repelidas pela entrada
-					var lowest_tiles = _get_lowest_tiles(room_portals_heatmap, available_spots)
+					var lowest_tiles = _get_lowest_tiles(room_entry_portals_heatmap, available_spots)
 					lowest_tiles.shuffle()
 					coin_pos = lowest_tiles.pop_front()
 					available_spots.erase(coin_pos)
@@ -303,7 +310,7 @@ func _handle_room_coins_spawn(gridmap: GridMap, room_elements_quantity: Dictiona
 					var partial_combined_coins_heat = UHeat.create_same_element_type_combined_heatmap(coins_heats)
 					
 					# Soma heatmap do portal de entrada para repelir moedas
-					partial_combined_coins_heat = UHeat.sum_heatmaps(partial_combined_coins_heat, room_portals_heatmap)
+					partial_combined_coins_heat = UHeat.sum_heatmaps(partial_combined_coins_heat, room_entry_portals_heatmap)
 					
 					var lowest_tiles = _get_lowest_tiles(partial_combined_coins_heat, available_spots)
 					lowest_tiles.shuffle()
@@ -340,7 +347,7 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					var partial_combined_heat = UHeat.create_combined_heatmap([room_coins_heatmap])
 					
 					# Subtrai heatmap do portal de entrada para repelir inimigos
-					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_portals_heatmap)
+					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_entry_portals_heatmap)
 					
 					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
 					greatest_tiles.shuffle()
@@ -351,7 +358,7 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					var partial_combined_heat = UHeat.create_combined_heatmap([partial_combined_enemies_heat, room_coins_heatmap])
 					
 					# Subtrai heatmap do portal de entrada para repelir inimigos
-					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_portals_heatmap)
+					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_entry_portals_heatmap)
 					
 					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
 					greatest_tiles.shuffle()
@@ -373,6 +380,8 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 
 # Posiciona estandartes na sala
 func _handle_room_banners_spawn(gridmap: GridMap, room_elements_quantity: Dictionary, available_spots: Array[Vector3i]):
+	var room_portals_heatmap = UHeat.sum_heatmaps(room_entry_portals_heatmap, room_exit_portals_heatmap)
+	
 	var last_banner_heat
 	var banners_heats = []
 	var banner_pos
@@ -392,7 +401,6 @@ func _handle_room_banners_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					available_spots.erase(banner_pos)
 				else:
 					var partial_combined_banners_heat = UHeat.create_same_element_type_combined_heatmap(banners_heats)
-					#var partial_combined_heat = UHeat.create_combined_heatmap([partial_combined_banners_heat])
 					
 					# Soma heatmap do portal de entrada para repelir estandartes
 					partial_combined_banners_heat = UHeat.sum_heatmaps(partial_combined_banners_heat, room_portals_heatmap)
