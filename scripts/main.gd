@@ -22,7 +22,7 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
-@export var max_life_time := 20.0
+@export var max_life_time := 10.0
 var life_time := max_life_time
 var life_active := false
 
@@ -39,7 +39,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE = Pathfing.STRAIGHT
+const PATH_TYPE = Pathfing.EXPLORER
 
 var player_walked_paths: Array = [] # Array[Array[Vector3i]]
 
@@ -112,12 +112,22 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		var arrival = UGen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
+			
+			life_time = max_life_time
+			_set_life_smooth(life_time)
+			life_active = false
+
+func _on_portal_body_exited(body: Node3D, portal_pos: Vector3i):
+	life_active = true # Descongela timer
+
+	if body.name == "Player":
+		print("Saiu do portal:", portal_pos)
 
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
 	_set_life_smooth(life_time)
-	life_active = false # Congela timer	
+	life_active = false # Congela timer
 
 func _on_banner_player_exit():
 	life_active = true # Descongela timer
@@ -376,6 +386,7 @@ func spawn_play_objects_from_gridmap():
 				5: 
 					obj.add_to_group("Portals")
 					obj.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
+					obj.get_node("Area3D").body_exited.connect(_on_portal_body_exited.bind(cell))
 				6: 
 					obj.add_to_group("Players")
 					obj.name = "Player"
