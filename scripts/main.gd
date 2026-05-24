@@ -331,11 +331,11 @@ func _unhandled_input(event):
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
 		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
-		
+
 	# Captura evento de exibir heatmap de portais
 	if event.is_action_pressed("show_recharges_heatmaps"):
 		UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
-	
+
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
 		UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
@@ -344,12 +344,12 @@ func _unhandled_input(event):
 	if event.is_action_pressed("recalculate_heatmaps"):
 		UGen.update_elements_pos(gridmap)
 		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
-	
+
 	# Calcula caminho entre portais das salas
 	if event.is_action_pressed("pathfinding"):
 		print("Calculando caminhos...")
 		_on_pathfinding_pressed()
-		
+
 	# Escolhe sala e exibe grafico apenas dela
 	if event.is_action_pressed("select_room"):
 		print("Calculando caminho...")

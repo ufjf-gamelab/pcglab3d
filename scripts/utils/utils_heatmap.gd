@@ -101,17 +101,6 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, positive_influen
 				
 	return heatmap
 
-## Cria heatmap combinando elementos da sala
-#func create_combined_heatmap(banners_heat, enemies_heat, coins_heat):
-	#var combined_heat = {}
-	#
-	#for key in coins_heat.keys():
-		#var b = banners_heat.get(key, 0)
-		#var e = enemies_heat.get(key, 0)
-		#combined_heat[key] = coins_heat[key] + e + b
-	#
-	#return combined_heat
-
 # Cria heatmap combinando de N heatmaps
 func create_combined_heatmap(heatmap_array: Array[Dictionary]) -> Dictionary:
 	var combined: Dictionary = {}
@@ -295,6 +284,12 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	
 	for i in range(UGen.rooms.size()):
 		var elements_pos = UGen.rooms_elements_pos[i]
+		
+		# Recria heatmaps de portais (portais nao mudam de posicao)
+		var portal1_heat = create_heatmap_bfs(gridmap, elements_pos["portal1_pos"], true, ENTRY_PORTALS)
+		heatmaps[ENTRY_PORTALS].append(portal1_heat)
+		var portal2_heat = create_heatmap_bfs(gridmap, elements_pos["portal2_pos"], true, EXIT_PORTALS)
+		heatmaps[EXIT_PORTALS].append(portal2_heat)
 		
 		room_enemies_heatmaps = []
 		room_coins_heatmaps = []
