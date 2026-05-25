@@ -113,6 +113,11 @@ func _on_player_dead():
 	var player = world.get_node_or_null("Player")
 	life_active = false
 	
+	# Para todos os inimigos imediatamente
+	for enemy in get_tree().get_nodes_in_group("Enemies"):
+		enemy.state = enemy.State.IDLE
+		#enemy.player = null
+	
 	if player:
 		player.dying = true
 		var anim_player = player.get_node("Model/AnimationPlayer")
@@ -155,6 +160,9 @@ func _on_player_collect_coin():
 func _on_player_update_life(curr_life):
 	life_hearts.update_hearts(curr_life)
 	if (curr_life <= 0):
+		# Se life_active já é false, _on_player_dead já foi chamado
+		if not life_active:
+			return
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
 
@@ -557,7 +565,6 @@ func enter_play_mode():
 			life_hearts.update_hearts(player.life)
 			
 		life_active = true
-		
 
 func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()
