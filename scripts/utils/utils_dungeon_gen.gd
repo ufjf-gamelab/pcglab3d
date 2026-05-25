@@ -430,9 +430,9 @@ func _calculate_elements_quantity(room_index: int, tile_count: int):
 		"coins":   max(1, tile_count / rate_element_tiles["coins"]),
 		"banners": max(1, tile_count / rate_element_tiles["banners"])
 	}
-	print("Sala %d | Tiles: %d | Inimigos: %d | Moedas: %d | Estandartes: %d" % [
-		room_index, tile_count,
-		rooms_elements_quantity[room_index]["enemies"],
-		rooms_elements_quantity[room_index]["coins"],
-		rooms_elements_quantity[room_index]["banners"]
-	])
+	#print("Sala %d | Tiles: %d | Inimigos: %d | Moedas: %d | Estandartes: %d" % [
+		#room_index, tile_count,
+		#rooms_elements_quantity[room_index]["enemies"],
+		#rooms_elements_quantity[room_index]["coins"],
+		#rooms_elements_quantity[room_index]["banners"]
+	#])

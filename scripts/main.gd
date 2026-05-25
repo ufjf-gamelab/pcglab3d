@@ -41,7 +41,12 @@ var plane:Plane # Used for raycasting mouse
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
 const PATH_TYPE = Pathfing.EXPLORER
 
+const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
+var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
+
 var player_walked_paths: Array = [] # Array[Array[Vector3i]]
+
+var saved_life: int = 0  # vidas do player (corações)
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
@@ -57,6 +62,16 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		_update_life_timer(delta)
+
+func _take_gridmap_snapshot():
+	gridmap_snapshot.clear()
+	for cell in gridmap.get_used_cells():
+		gridmap_snapshot[cell] = gridmap.get_cell_item(cell)
+
+func _recover_gridmap_snapshot():
+	gridmap.clear()
+	for cell in gridmap_snapshot.keys():
+		gridmap.set_cell_item(cell, gridmap_snapshot[cell])
 
 func show_selector():
 	builder.selector.visible = true
@@ -105,6 +120,7 @@ func _on_player_dead():
 		await anim_player.animation_finished
 		await get_tree().create_timer(1.0).timeout
 	
+	saved_life = 0
 	toggle_mode()
 
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
@@ -463,11 +479,18 @@ func enter_creation_mode():
 	if player and player.walked_tiles.size() > 0:
 		_split_walked_path_by_room(player.walked_tiles)
 	
+	# Salva vida atual antes de destruir o player
+	if player:
+		saved_life = player.life
+	
 	sun.visible = true
 
 	builder.set_process(true)
 	
-	recover_gridmap()
+	if RESET_ON_TOGGLE_OR_DIE and not gridmap_snapshot.is_empty():
+		_recover_gridmap_snapshot()
+	else:
+		recover_gridmap()
 	
 	for child in world.get_children():
 		child.queue_free()
@@ -495,6 +518,9 @@ func enter_play_mode():
 	env.ambient_light_energy = 0.2
 
 	builder.set_process(false)
+	
+	_take_gridmap_snapshot()
+	
 	spawn_play_objects_from_gridmap()
 
 	edit_camera.current = false
@@ -511,9 +537,27 @@ func enter_play_mode():
 		player_camera.look_at(player.global_position)
 		player.update_life.connect(_on_player_update_life)
 		
-		if life_time <= 0:
+		# Reseta contadores
+		if RESET_ON_TOGGLE_OR_DIE:
+			collected_coins = 0
+			coins_ui.update_coin_count(0)
+			player.life = player.max_life
+			life_hearts.update_hearts(player.life)
 			life_time = max_life_time
+			used_banners.clear()
+		else:
+			coins_ui.update_coin_count(collected_coins)
+			
+			if saved_life <= 0 or life_time <= 0:
+				life_time = max_life_time
+				player.life = player.max_life
+			else:
+				player.life = saved_life
+			
+			life_hearts.update_hearts(player.life)
+			
 		life_active = true
+		
 
 func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()
