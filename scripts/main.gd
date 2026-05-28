@@ -186,6 +186,8 @@ func _handle_chart(influences):
 	var x = []
 	for influence in influences:
 		x.append(range(influence.size()))
+		
+	chart_plotter.current_seed = used_seed
 	chart_plotter.show_charts(x, influences)
 
 func _on_pathfinding_pressed():
@@ -322,6 +324,8 @@ func _on_select_room_path():
 			
 			builder.set_process(false)
 			
+			chart_plotter.current_seed = used_seed
+			chart_plotter.current_room_index = i
 			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
 			
 			var path_3d: Array[Vector3i] = []
