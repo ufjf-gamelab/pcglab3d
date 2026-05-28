@@ -22,6 +22,9 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
+@export var dungeon_seed: int = 0
+var used_seed: int = 0
+
 @export var max_life_time := 10.0
 var life_time := max_life_time
 var life_active := false
@@ -62,6 +65,16 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		_update_life_timer(delta)
+
+func _handle_seed():
+	# Se seed for 0, gera uma aleatória c.c. usa a definida
+	if dungeon_seed == 0:
+		used_seed = randi()  # gera seed
+	else:
+		used_seed = dungeon_seed
+		
+	seed(used_seed)
+	print("\nSeed usada: ", used_seed)
 
 func _take_gridmap_snapshot():
 	gridmap_snapshot.clear()
@@ -229,6 +242,7 @@ func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 	return [path_cell_influ, path_influences]
 
 func _on_ca_generate_dungeon_pressed():
+	_handle_seed()
 	UHeat.deactivate_heatmaps()
 	heatmap_panel.clear()
 	UHeat.clear_heatmaps()
@@ -238,6 +252,7 @@ func _on_ca_generate_dungeon_pressed():
 	rebuild_navigation_mesh()
 
 func _on_generate_dungeon_pressed():
+	_handle_seed()
 	UHeat.deactivate_heatmaps()
 	UHeat.clear_heatmaps()
 	heatmap_panel.clear()
