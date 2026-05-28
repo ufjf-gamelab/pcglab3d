@@ -168,9 +168,19 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	var combined_heat = UHeat.create_combined_heatmap([room_banners_heatmap, room_enemies_heatmap, room_coins_heatmap])
 	UHeat.heatmaps["combined"].append(combined_heat) 
 
-	# Posiciona o spawn do player se for nesta sala
+	# Posiciona o spawn do player se for nesta sala no tile com influência combinada mais próxima de zero
 	if spawn_player and available_spots.size() > 0:
-		gridmap.set_cell_item(available_spots.pop_front(), UGen.PLAYER_SPAWN_ID)
+		var best_tile = available_spots[0]
+		var best_value = abs(combined_heat.get(available_spots[0], INF))
+		
+		for tile in available_spots:
+			var val = abs(combined_heat.get(tile, INF))
+			if val < best_value:
+				best_value = val
+				best_tile = tile
+		
+		available_spots.erase(best_tile)
+		gridmap.set_cell_item(best_tile, UGen.PLAYER_SPAWN_ID)
 
 # Retorna lista de posicoes com menores valores de influencia
 func _get_lowest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
