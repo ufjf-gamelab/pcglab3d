@@ -388,22 +388,6 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 	
 	return room_enemies_pos
 
-func _has_neighbor_with_value(tile: Vector3i, heatmap: Dictionary, neighbor_value: float) -> bool:
-	for dir in UHeat.DIRECTIONS:
-		var neighbor = tile + dir
-		if heatmap.has(neighbor) and heatmap[neighbor] == neighbor_value:
-			return true
-	return false
-	
-func _get_banner_tiles(heatmap: Dictionary, available_spots: Array[Vector3i], neighbor_value: float) -> Array[Vector3i]:
-	var selected: Array[Vector3i] = []
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		if heatmap[tile] == 0 and _has_neighbor_with_value(tile, heatmap, neighbor_value):
-			selected.append(tile)
-	return selected
-
 # Posiciona estandartes na sala
 func _handle_room_banners_spawn(gridmap: GridMap, room_elements_quantity: Dictionary, available_spots: Array[Vector3i]):
 	var room_portals_heatmap = UHeat.sum_heatmaps(room_entry_portals_heatmap, room_exit_portals_heatmap)
@@ -427,7 +411,7 @@ func _handle_room_banners_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 			else:
 				if banners_heats.size() == 0:
 					# Pega posições repelidas pelos portais
-					var selected_tiles = _get_banner_tiles(room_portals_heatmap, available_spots, 1)
+					var selected_tiles = UHeat.filter_tiles_by_value_and_neighbor_value(room_portals_heatmap, available_spots, 0, 1)
 					if selected_tiles.is_empty():
 						break
 					selected_tiles.shuffle()
@@ -439,7 +423,7 @@ func _handle_room_banners_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					# Soma heatmap do portal de entrada para repelir estandartes
 					partial_combined_banners_heat = UHeat.sum_heatmaps(partial_combined_banners_heat, room_portals_heatmap)
 
-					var selected_tiles = _get_banner_tiles(partial_combined_banners_heat, available_spots, 1)
+					var selected_tiles = UHeat.filter_tiles_by_value_and_neighbor_value(partial_combined_banners_heat, available_spots, 0, 1)
 
 					if selected_tiles.is_empty():
 						break
