@@ -358,3 +358,67 @@ func filter_tiles_by_value_and_neighbor_value(heatmap: Dictionary, available_spo
 		if heatmap[tile] == tile_value and _has_neighbor_with_value(tile, heatmap, neighbor_value):
 			selected.append(tile)
 	return selected
+
+# Retorna lista de posicoes com menores valores de influencia
+func get_lowest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
+	var lowest = 10000
+	var lowest_pos: Array[Vector3i] = []
+	for tile in available_spots:
+		if not heatmap.has(tile):
+			continue
+		
+		var value = heatmap[tile]
+		if value < lowest:
+			lowest_pos.clear()
+			lowest_pos.append(tile)
+			lowest = value
+		elif value == lowest:
+			lowest_pos.append(tile)
+	return lowest_pos
+
+# Retorna lista de posicoes com maiores valores de influencia
+func get_greatest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
+	var greatest = -10000
+	var greatest_pos: Array[Vector3i] = []
+	for tile in available_spots:
+		if not heatmap.has(tile):
+			continue
+		
+		var value = heatmap[tile]
+		if value > greatest:
+			greatest_pos.clear()
+			greatest_pos.append(tile)
+			greatest = value
+		elif value == greatest:
+			greatest_pos.append(tile)
+	return greatest_pos
+
+# Retorna lista posicoes cujo valor esteja dentro do intervalo fechado [min_value, max_value]
+func get_tiles_in_range(heatmap: Dictionary, available_spots: Array[Vector3i], min_value: float, max_value: float) -> Array[Vector3i]:
+	var selected_tiles: Array[Vector3i] = []
+	
+	for tile in available_spots:
+		if not heatmap.has(tile):
+			continue
+		
+		var value = heatmap[tile]
+		
+		if value >= min_value and value <= max_value:
+			selected_tiles.append(tile)
+	
+	return selected_tiles
+
+# Retorna lista de posicoes cujo valor seja exatamente igual a target_value
+func get_tiles_with_exact_value(heatmap: Dictionary, available_spots: Array[Vector3i], target_value: float) -> Array[Vector3i]:
+	var selected_tiles: Array[Vector3i] = []
+	
+	for tile in available_spots:
+		if not heatmap.has(tile):
+			continue
+		
+		var value = heatmap[tile]
+		
+		if value == target_value:
+			selected_tiles.append(tile)
+	
+	return selected_tiles

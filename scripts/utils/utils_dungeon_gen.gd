@@ -182,70 +182,6 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		available_spots.erase(best_tile)
 		gridmap.set_cell_item(best_tile, UGen.PLAYER_SPAWN_ID)
 
-# Retorna lista de posicoes com menores valores de influencia
-func _get_lowest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
-	var lowest = 10000
-	var lowest_pos: Array[Vector3i] = []
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		
-		var value = heatmap[tile]
-		if value < lowest:
-			lowest_pos.clear()
-			lowest_pos.append(tile)
-			lowest = value
-		elif value == lowest:
-			lowest_pos.append(tile)
-	return lowest_pos
-
-# Retorna lista de posicoes com maiores valores de influencia
-func _get_greatest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
-	var greatest = -10000
-	var greatest_pos: Array[Vector3i] = []
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		
-		var value = heatmap[tile]
-		if value > greatest:
-			greatest_pos.clear()
-			greatest_pos.append(tile)
-			greatest = value
-		elif value == greatest:
-			greatest_pos.append(tile)
-	return greatest_pos
-
-# Retorna lista posicoes cujo valor esteja dentro do intervalo fechado [min_value, max_value]
-func _get_tiles_in_range(heatmap: Dictionary, available_spots: Array[Vector3i], min_value: float, max_value: float) -> Array[Vector3i]:
-	var selected_tiles: Array[Vector3i] = []
-	
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		
-		var value = heatmap[tile]
-		
-		if value >= min_value and value <= max_value:
-			selected_tiles.append(tile)
-	
-	return selected_tiles
-
-# Retorna lista de posicoes cujo valor seja exatamente igual a target_value
-func _get_tiles_with_exact_value(heatmap: Dictionary, available_spots: Array[Vector3i], target_value: float) -> Array[Vector3i]:
-	var selected_tiles: Array[Vector3i] = []
-	
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		
-		var value = heatmap[tile]
-		
-		if value == target_value:
-			selected_tiles.append(tile)
-	
-	return selected_tiles
-
 # Posiciona portais em uma sala
 func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3i]) -> Array[Vector3i]:
 	var portal1_pos = Vector3i()
@@ -312,7 +248,7 @@ func _handle_room_coins_spawn(gridmap: GridMap, room_elements_quantity: Dictiona
 			else:
 				if coins_heats.size() == 0:
 					# Pega posições repelidas pela entrada
-					var lowest_tiles = _get_lowest_tiles(room_entry_portals_heatmap, available_spots)
+					var lowest_tiles = UHeat.get_lowest_tiles(room_entry_portals_heatmap, available_spots)
 					lowest_tiles.shuffle()
 					coin_pos = lowest_tiles.pop_front()
 					available_spots.erase(coin_pos)
@@ -322,7 +258,7 @@ func _handle_room_coins_spawn(gridmap: GridMap, room_elements_quantity: Dictiona
 					# Soma heatmap do portal de entrada para repelir moedas
 					partial_combined_coins_heat = UHeat.sum_heatmaps(partial_combined_coins_heat, room_entry_portals_heatmap)
 					
-					var lowest_tiles = _get_lowest_tiles(partial_combined_coins_heat, available_spots)
+					var lowest_tiles = UHeat.get_lowest_tiles(partial_combined_coins_heat, available_spots)
 					lowest_tiles.shuffle()
 					coin_pos = lowest_tiles.pop_front()
 					available_spots.erase(coin_pos)
@@ -359,7 +295,7 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					# Subtrai heatmap do portal de entrada para repelir inimigos
 					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_entry_portals_heatmap)
 					
-					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
+					var greatest_tiles = UHeat.get_greatest_tiles(partial_combined_heat, available_spots)
 					greatest_tiles.shuffle()
 					enemy_pos = greatest_tiles.pop_front()
 					available_spots.erase(enemy_pos)
@@ -370,7 +306,7 @@ func _handle_room_enemies_spawn(gridmap: GridMap, room_elements_quantity: Dictio
 					# Subtrai heatmap do portal de entrada para repelir inimigos
 					partial_combined_heat = UHeat.subtract_heatmaps(partial_combined_heat, room_entry_portals_heatmap)
 					
-					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
+					var greatest_tiles = UHeat.get_greatest_tiles(partial_combined_heat, available_spots)
 					greatest_tiles.shuffle()
 					enemy_pos = greatest_tiles.pop_front()
 					available_spots.erase(enemy_pos)
