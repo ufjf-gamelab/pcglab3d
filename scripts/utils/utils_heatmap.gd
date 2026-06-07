@@ -342,7 +342,7 @@ func subtract_heatmaps(a: Dictionary, b: Dictionary) -> Dictionary:
 	return result
 
 # Verifica se o tile tem vizinhos com valor X em um heatmap
-func _has_neighbor_with_value(tile: Vector3i, heatmap: Dictionary, neighbor_value: float) -> bool:
+func has_neighbor_with_value(tile: Vector3i, heatmap: Dictionary, neighbor_value: float) -> bool:
 	for dir in UHeat.DIRECTIONS:
 		var neighbor = tile + dir
 		if heatmap.has(neighbor) and heatmap[neighbor] == neighbor_value:
@@ -355,7 +355,7 @@ func filter_tiles_by_value_and_neighbor_value(heatmap: Dictionary, available_spo
 	for tile in available_spots:
 		if not heatmap.has(tile):
 			continue
-		if heatmap[tile] == tile_value and _has_neighbor_with_value(tile, heatmap, neighbor_value):
+		if heatmap[tile] == tile_value and has_neighbor_with_value(tile, heatmap, neighbor_value):
 			selected.append(tile)
 	return selected
 

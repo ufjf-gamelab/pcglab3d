@@ -22,7 +22,7 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
-@export var dungeon_seed: int = 0
+@export var dungeon_seed: int = 3
 var used_seed: int = 0
 
 @export var max_life_time := 10.0
