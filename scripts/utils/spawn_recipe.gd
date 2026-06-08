@@ -2,7 +2,7 @@ extends Node
 class_name SpawnRecipe
 
 # Critérios de seleção de tile
-enum Selection { GREATEST, LOWEST }
+enum Selection { GREATEST, LOWEST, BALANCED }
 
 # Tipos de spawn dos elementos
 enum SpawnMode {
@@ -13,7 +13,6 @@ enum SpawnMode {
 # Dados da receita
 var element_key: String          # Chave no UHeat.heatmaps
 var tile_id: int                 # ID do tile no GridMap
-var positive_influence: bool     # Se o heatmap gerado é positivo ou negativo
 var selection: Selection         # Critério de seleção do tile
 var add_maps: Array              # Heatmaps somados na receita (Array[Dictionary])
 var subtract_maps: Array         # Heatmaps subtraídos na receita (Array[Dictionary])
@@ -24,7 +23,6 @@ var tile_validator: Callable     # Função que valida o tile selecionado
 func _init(
 	p_element_key: String,
 	p_tile_id: int,
-	p_positive_influence: bool,
 	p_selection: Selection,
 	p_add_maps: Array,
 	p_subtract_maps: Array,
@@ -34,7 +32,6 @@ func _init(
 ):
 	element_key = p_element_key
 	tile_id = p_tile_id
-	positive_influence = p_positive_influence
 	selection = p_selection
 	add_maps = p_add_maps
 	subtract_maps = p_subtract_maps
@@ -111,7 +108,6 @@ func _place_element(gridmap: GridMap, pos, placed_positions: Array, placed_heats
 	var heat = UHeat.create_heatmap_bfs(
 		gridmap,
 		pos,
-		positive_influence,
 		element_key
 	)
 
@@ -132,6 +128,8 @@ func _pick_tile(available_spots: Array, placed_heats: Array):
 			candidates = UHeat.get_greatest_tiles(working_heatmap, available_spots)
 		Selection.LOWEST:
 			candidates = UHeat.get_lowest_tiles(working_heatmap, available_spots)
+		Selection.BALANCED:
+			candidates = UHeat.get_balanced_tiles(working_heatmap, available_spots)
 
 	# Caso exista uma função validadora, filtra tiles
 	if tile_validator.is_valid():
@@ -161,12 +159,6 @@ func _build_working_heatmap(placed_heats: Array) -> Dictionary:
 	# Elementos do mesmo tipo se afastam entre si
 	if self_repulsion and placed_heats.size() > 0:
 		var self_combined = UHeat.create_same_element_type_combined_heatmap(placed_heats)
-		var self_repulsion_map := {}
-		for key in self_combined:
-			if selection == Selection.GREATEST:
-				self_repulsion_map[key] = -abs(self_combined[key])
-			else:
-				self_repulsion_map[key] = abs(self_combined[key])
-		working_heatmap = UHeat.sum_heatmaps(working_heatmap, self_repulsion_map)
+		working_heatmap = UHeat.subtract_heatmaps(working_heatmap, self_combined)
  
 	return working_heatmap

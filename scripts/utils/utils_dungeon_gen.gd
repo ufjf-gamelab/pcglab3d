@@ -151,9 +151,8 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	
 	# Moedas: longe da entrada, espalhadas entre si
 	var coins_recipe = SpawnRecipe.new(
-		UHeat.COINS, UGen.COIN_ID,
-		true,                              
-		SpawnRecipe.Selection.LOWEST,      
+		UHeat.COINS, UGen.COIN_ID,                             
+		SpawnRecipe.Selection.GREATEST,      
 		[],                                
 		[room_entry_portals_heatmap],      
 		true,                              
@@ -165,8 +164,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
  
 	# Inimigos: longe da entrada, próximos às moedas, espalhados entre si
 	var enemies_recipe = SpawnRecipe.new(
-		UHeat.ENEMIES, UGen.NPC_ID,
-		false,                            
+		UHeat.ENEMIES, UGen.NPC_ID,                           
 		SpawnRecipe.Selection.GREATEST,    
 		[room_coins_heatmap],             
 		[room_entry_portals_heatmap],      
@@ -180,16 +178,15 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	# Estandartes: longe de ambos os portais, espalhados entre si
 	var room_portals_heatmap = UHeat.sum_heatmaps(room_entry_portals_heatmap, room_exit_portals_heatmap)
 	var banners_recipe = SpawnRecipe.new(
-		UHeat.BANNERS, UGen.BANNER_ID,
-		true,                                            
-		SpawnRecipe.Selection.LOWEST,                   
+		UHeat.BANNERS, UGen.BANNER_ID,                                            
+		SpawnRecipe.Selection.GREATEST,                   
 		[],                                             
 		[room_portals_heatmap],                          
 		true,                                            
 		SpawnRecipe.SpawnMode.UNTIL_NO_VALID_TILE,       
 		func(tile, heatmap):                             
 			return (heatmap[tile] == 0 and 
-			UHeat.has_neighbor_with_value(tile, heatmap, 1))
+			UHeat.has_neighbor_with_value(tile, heatmap, -1))
 	)
 
 	var room_banners_pos = banners_recipe.execute(gridmap, room_elements_quantity[UHeat.BANNERS], available_spots)
@@ -206,22 +203,20 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	rooms_elements_pos.append(elements_pos)
 	
 	# Cria heatmap combinado de todos os elementos da sala
-	var combined_heat = UHeat.create_combined_heatmap([room_banners_heatmap, room_enemies_heatmap, room_coins_heatmap])
+	var combined_heat = UHeat.create_combined_heatmap([room_coins_heatmap], [room_enemies_heatmap])
 	UHeat.heatmaps["combined"].append(combined_heat) 
 
-	# Posiciona o spawn do player se for nesta sala no tile com influência combinada mais próxima de zero
+	# Posiciona o spawn do player se for nesta sala 
 	if spawn_player and available_spots.size() > 0:
-		var best_tile = available_spots[0]
-		var best_value = abs(combined_heat.get(available_spots[0], INF))
-		
-		for tile in available_spots:
-			var val = abs(combined_heat.get(tile, INF))
-			if val < best_value:
-				best_value = val
-				best_tile = tile
-		
-		available_spots.erase(best_tile)
-		gridmap.set_cell_item(best_tile, UGen.PLAYER_SPAWN_ID)
+		var player_recipe = SpawnRecipe.new(
+			UHeat.PLAYER, UGen.PLAYER_SPAWN_ID,
+			SpawnRecipe.Selection.BALANCED,
+			[room_coins_heatmap, room_banners_heatmap],
+			[room_entry_portals_heatmap, room_exit_portals_heatmap, room_enemies_heatmap],
+			false,
+			SpawnRecipe.SpawnMode.FIXED_QUANTITY
+		)
+		player_recipe.execute(gridmap, 1, available_spots)
 
 # Posiciona portais em uma sala
 func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3i]) -> Array[Vector3i]:
@@ -262,11 +257,11 @@ func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3
 		available_spots.erase(portal2_pos)
 		
 		# Cria heatmap do portal de entrada (portal1)
-		var portal1_heat = UHeat.create_heatmap_bfs(gridmap, portal1_pos, true, UHeat.ENTRY_PORTALS)
+		var portal1_heat = UHeat.create_heatmap_bfs(gridmap, portal1_pos, UHeat.ENTRY_PORTALS)
 		UHeat.heatmaps[UHeat.ENTRY_PORTALS].append(portal1_heat)
 		
 		# Cria heatmap do portal de saída (portal2)
-		var portal2_heat = UHeat.create_heatmap_bfs(gridmap, portal2_pos, true, UHeat.EXIT_PORTALS)
+		var portal2_heat = UHeat.create_heatmap_bfs(gridmap, portal2_pos, UHeat.EXIT_PORTALS)
 		UHeat.heatmaps[UHeat.EXIT_PORTALS].append(portal2_heat)
 		
 		return [portal1_pos, portal2_pos]
