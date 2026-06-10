@@ -42,7 +42,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE = Pathfing.EXPLORER
+const PATH_TYPE = Pathfing.STRAIGHT
 
 const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
 var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
