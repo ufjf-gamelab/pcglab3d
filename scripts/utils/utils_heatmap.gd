@@ -258,7 +258,7 @@ func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 		curr_visible_heatmap[COMBINED] = true
 		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
 		{
-			"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT[ENEMIES],
+			"Influência de um Inimigo": -START_CELL_ELEMENT_WEIGHT[ENEMIES],
 			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT[COINS],
 		})
 
