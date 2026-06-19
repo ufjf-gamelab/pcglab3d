@@ -22,12 +22,20 @@ const COMBINED = "combined"
 const RECHARGES = "recharges"
 const PLAYER = "player"
 
-const START_CELL_ELEMENT_WEIGHT = {
-	ENEMIES: 5,
-	COINS: 5,
-	BANNERS: 5,
-	ENTRY_PORTALS: 5,
-	EXIT_PORTALS: 5,
+const MAX_VALUE = {
+	ENEMIES: 1.0,
+	COINS: 1.0,
+	BANNERS: 1.0,
+	ENTRY_PORTALS: 1.0,
+	EXIT_PORTALS: 1.0,
+	PLAYER: 1.0
+}
+const MAX_DISTANCE = {
+	ENEMIES: 5, 
+	COINS: 5, 
+	BANNERS: 5, 
+	ENTRY_PORTALS: 5, 
+	EXIT_PORTALS: 5, 
 	PLAYER: 5
 }
 
