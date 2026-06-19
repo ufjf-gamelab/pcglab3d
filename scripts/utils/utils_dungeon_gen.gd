@@ -25,15 +25,26 @@ var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
 
-var room_elements_quantity = {
-	"enemies": 3,
-	"coins": 3,
-	"banners": 1
+var ENEMIES_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES]
+var COINS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS]
+var BANNERS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS]
+
+# 1 elemento a mais a cada N tiles
+var rate_element_tiles = {
+	UHeat.ENEMIES: ENEMIES_RATE,
+	UHeat.COINS: COINS_RATE,
+	UHeat.BANNERS: BANNERS_RATE
 }
+
+# Quantidade de elementos em cada sala
+var rooms_elements_quantity = {}
 
 var room_coins_heatmap = {}
 var room_banners_heatmap = {}
 var room_enemies_heatmap = {}
+
+var room_entry_portals_heatmap = {}
+var room_exit_portals_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
@@ -101,15 +112,111 @@ func is_touching_floor(grid: GridMap, x: int, z: int) -> bool:
 
 # Posiciona elementos na dungeon
 func spawn_dungeon_elements(gridmap: GridMap):
+	rooms_elements_quantity.clear()
+	
 	# Inicia true para spawnar player na primeira sala
 	var spawn_player = true
-	for room in UGen.rooms:
-		spawn_room_elements(gridmap, room.duplicate(), spawn_player)
+	
+	for i in range(UGen.rooms.size()):
+		spawn_room_elements(gridmap, UGen.rooms[i].duplicate(), i, spawn_player)
 		spawn_player = false
 		
 	# Linka os dois últimos portais
 	UGen.portal_links[UGen.lastPortal] = UGen.firstPortal
 	UGen.portal_links[UGen.firstPortal] = UGen.lastPortal
+
+# Posiciona elementos na sala
+func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], room_index: int, spawn_player: bool = false):
+	room_coins_heatmap = {}
+	room_banners_heatmap = {}
+	room_enemies_heatmap = {}
+	room_entry_portals_heatmap = {}
+	room_exit_portals_heatmap = {}
+	
+	var room_portals = _handle_room_portals_spawn(gridmap, available_spots)
+	if room_portals.size() == 0:
+		print("Posicionamento de elementos não pôde continuar devido à falta de espaços livres.")
+		return
+	# Captura o heatmap do portal de entrada recém criado
+	room_entry_portals_heatmap = UHeat.heatmaps[UHeat.ENTRY_PORTALS].back()
+	# Captura o heatmap do portal de saída recém criado
+	room_exit_portals_heatmap = UHeat.heatmaps[UHeat.EXIT_PORTALS].back()
+	
+	# Caulcula a quantidade de elementos da sala
+	_calculate_elements_quantity(room_index, available_spots.size())
+	var room_elements_quantity = rooms_elements_quantity[room_index]
+	
+	# Embaralha os locais disponíveis
+	available_spots.shuffle()
+	
+	# Moedas: longe da entrada, espalhadas entre si
+	var coins_recipe = SpawnRecipe.new(
+		UHeat.COINS, UGen.COIN_ID,                             
+		SpawnRecipe.Selection.GREATEST,      
+		[],                                
+		[room_entry_portals_heatmap],      
+		true,                              
+		SpawnRecipe.SpawnMode.FIXED_QUANTITY
+	)
+	
+	var room_coins_pos = coins_recipe.execute(gridmap, room_elements_quantity[UHeat.COINS], available_spots)
+	room_coins_heatmap = UHeat.heatmaps[UHeat.COINS].back()
+ 
+	# Inimigos: longe da entrada, próximos às moedas, espalhados entre si
+	var enemies_recipe = SpawnRecipe.new(
+		UHeat.ENEMIES, UGen.NPC_ID,                           
+		SpawnRecipe.Selection.GREATEST,    
+		[room_coins_heatmap],             
+		[room_entry_portals_heatmap],      
+		true,                              
+		SpawnRecipe.SpawnMode.FIXED_QUANTITY
+	)
+
+	var room_enemies_pos = enemies_recipe.execute(gridmap, room_elements_quantity[UHeat.ENEMIES], available_spots)
+	room_enemies_heatmap = UHeat.heatmaps[UHeat.ENEMIES].back()
+ 
+	# Estandartes: longe de ambos os portais, espalhados entre si
+	var room_portals_heatmap = UHeat.sum_heatmaps(room_entry_portals_heatmap, room_exit_portals_heatmap)
+	var banners_recipe = SpawnRecipe.new(
+		UHeat.BANNERS, UGen.BANNER_ID,                                            
+		SpawnRecipe.Selection.GREATEST,                   
+		[],                                             
+		[room_portals_heatmap],                          
+		true,                                            
+		SpawnRecipe.SpawnMode.UNTIL_NO_VALID_TILE,       
+		func(tile, heatmap):                             
+			return (heatmap[tile] == 0 and 
+			UHeat.has_neighbor_with_value(tile, heatmap, -1))
+	)
+
+	var room_banners_pos = banners_recipe.execute(gridmap, room_elements_quantity[UHeat.BANNERS], available_spots)
+	room_banners_heatmap = UHeat.heatmaps[UHeat.BANNERS].back()
+	
+	# Salva posições dos elementos da sala
+	var elements_pos = {
+		"portal1_pos": room_portals[0],
+		"portal2_pos": room_portals[1],
+		"coin_pos": room_coins_pos,
+		"npc_pos": room_enemies_pos,
+		"banner_pos": room_banners_pos
+	}
+	rooms_elements_pos.append(elements_pos)
+	
+	# Cria heatmap combinado de todos os elementos da sala
+	var combined_heat = UHeat.create_combined_heatmap([room_coins_heatmap], [room_enemies_heatmap])
+	UHeat.heatmaps["combined"].append(combined_heat) 
+
+	# Posiciona o spawn do player se for nesta sala 
+	if spawn_player and available_spots.size() > 0:
+		var player_recipe = SpawnRecipe.new(
+			UHeat.PLAYER, UGen.PLAYER_SPAWN_ID,
+			SpawnRecipe.Selection.BALANCED,
+			[room_coins_heatmap, room_banners_heatmap],
+			[room_entry_portals_heatmap, room_exit_portals_heatmap, room_enemies_heatmap],
+			false,
+			SpawnRecipe.SpawnMode.FIXED_QUANTITY
+		)
+		player_recipe.execute(gridmap, 1, available_spots)
 
 # Posiciona portais em uma sala
 func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3i]) -> Array[Vector3i]:
@@ -149,191 +256,29 @@ func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3
 		available_spots.erase(portal1_pos)
 		available_spots.erase(portal2_pos)
 		
+		# Cria heatmap do portal de entrada (portal1)
+		var portal1_heat = UHeat.create_heatmap_bfs(gridmap, portal1_pos, UHeat.ENTRY_PORTALS)
+		UHeat.heatmaps[UHeat.ENTRY_PORTALS].append(portal1_heat)
+		
+		# Cria heatmap do portal de saída (portal2)
+		var portal2_heat = UHeat.create_heatmap_bfs(gridmap, portal2_pos, UHeat.EXIT_PORTALS)
+		UHeat.heatmaps[UHeat.EXIT_PORTALS].append(portal2_heat)
+		
 		return [portal1_pos, portal2_pos]
 	else:
 		print("Sem dois espaços livres para posicionar os portais.")
 		return []
 
-# Retorna lista de posicoes com menores valores de influencia
-func _get_lowest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
-	var lowest = 10000
-	var lowest_pos : Array[Vector3i] = []
-	for tile in available_spots:
-		var value = heatmap[tile]
-		if value < lowest:
-			lowest_pos.clear()
-			lowest_pos.append(tile)
-			lowest = value
-		elif value == lowest:
-			lowest_pos.append(tile)
-	return lowest_pos
-
-# Retorna lista de posicoes com maiores valores de influencia
-func _get_greatest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
-	var greatest = -10000
-	var greatest_pos : Array[Vector3i] = []
-	for tile in available_spots:
-		var value = heatmap[tile]
-		if value > greatest:
-			greatest_pos.clear()
-			greatest_pos.append(tile)
-			greatest = value
-		elif value == greatest:
-			greatest_pos.append(tile)
-	return greatest_pos
-
-# Posiciona moedas na sala
-func _handle_room_coins_spawn(gridmap: GridMap, available_spots: Array[Vector3i]):
-	var last_coin_heat
-	var coins_heats = []
-	var coin_pos
-	var room_coins_pos = []
-	for _n in range(room_elements_quantity["coins"]):
-		if available_spots.size() > 0:
-			# Posiciona a moeda no primeiro espaço disponivel
-			if SPAWN == Spawn.RANDOM:
-				coin_pos = available_spots.pop_front()
-			# Posiciona a moeda baseado em heatmaps parciais
-			else:
-				if coins_heats.size() == 0:
-					coin_pos = available_spots.pop_front()
-				else:
-					var partial_combined_coins_heat = UHeat.create_same_element_type_combined_heatmap(coins_heats)
-					var lowest_tiles = _get_lowest_tiles(partial_combined_coins_heat, available_spots)
-					lowest_tiles.shuffle()
-					coin_pos = lowest_tiles.pop_front()
-					available_spots.erase(coin_pos)
-			
-			room_coins_pos.append(coin_pos)
-			gridmap.set_cell_item(coin_pos, UGen.COIN_ID)
-			# Cria heatmap da moeda
-			var heat = UHeat.create_heatmap_bfs(gridmap, coin_pos, true, "coins")
-			# Adiciona na lista de heatmaps de moedas
-			last_coin_heat = heat
-			coins_heats.append(last_coin_heat)
-	# Cria heatmap combinado de moedas da sala
-	var final_combined_coins_heat = UHeat.create_same_element_type_combined_heatmap(coins_heats)
-	UHeat.heatmaps["coins"].append(final_combined_coins_heat)
-	
-	return room_coins_pos
-
-# Posiciona estandartes na sala
-func _handle_room_banners_spawn(gridmap: GridMap, available_spots: Array[Vector3i]):
-	var last_banner_heat
-	var banners_heats = []
-	var banner_pos
-	var room_banners_pos = []
-	for _n in range(room_elements_quantity["banners"]):
-		if available_spots.size() > 0:
-			# Posiciona o estandarte no primeiro espaço disponivel
-			if SPAWN == Spawn.RANDOM:
-				banner_pos = available_spots.pop_front()
-			# Posiciona o estandarte baseado em heatmaps parciais
-			else:
-				if banners_heats.size() == 0:
-					var lowest_tiles = _get_lowest_tiles(room_coins_heatmap, available_spots)
-					lowest_tiles.shuffle()
-					banner_pos = lowest_tiles.pop_front()
-					available_spots.erase(banner_pos)
-				else:
-					var partial_combined_banners_heat = UHeat.create_same_element_type_combined_heatmap(banners_heats)
-					var partial_combined_heat = UHeat.create_combined_heatmap(partial_combined_banners_heat, {}, room_coins_heatmap)
-					var lowest_tiles = _get_lowest_tiles(partial_combined_heat, available_spots)
-					lowest_tiles.shuffle()
-					banner_pos = lowest_tiles.pop_front()
-					available_spots.erase(banner_pos)
-					banner_pos = available_spots.pop_front()
-					
-			room_banners_pos.append(banner_pos)
-			gridmap.set_cell_item(banner_pos, UGen.BANNER_ID)
-			# Cria heatmap do estandarte
-			var heat = UHeat.create_heatmap_bfs(gridmap, banner_pos, true, "banners")
-			# Adiciona na lista de heatmaps de estandartes
-			last_banner_heat = heat
-			banners_heats.append(last_banner_heat)
-	# Cria heatmap combinado de banners da sala			
-	var combined_banners_heat = UHeat.create_same_element_type_combined_heatmap(banners_heats)
-	UHeat.heatmaps["banners"].append(combined_banners_heat)
-	
-	return room_banners_pos
-
-# Posiciona inimigos na sala
-func _handle_room_enemies_spawn(gridmap: GridMap, available_spots: Array[Vector3i]):
-	var last_enemy_heat
-	var enemies_heats = []
-	var enemy_pos
-	var room_enemies_pos = []
-	for _n in range(room_elements_quantity["enemies"]):
-		if available_spots.size() > 0:
-			# Posiciona o inimigo no primeiro espaço disponivel
-			if SPAWN == Spawn.RANDOM:
-				enemy_pos = available_spots.pop_front()
-			# Posiciona o inimigo baseado em heatmaps parciais
-			else:
-				if enemies_heats.size() == 0:
-					var partial_combined_heat = UHeat.create_combined_heatmap(room_banners_heatmap, {}, room_coins_heatmap)
-					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
-					greatest_tiles.shuffle()
-					enemy_pos = greatest_tiles.pop_front()
-					available_spots.erase(enemy_pos)
-				else:
-					var partial_combined_enemies_heat = UHeat.create_same_element_type_combined_heatmap(enemies_heats)
-					var partial_combined_heat = UHeat.create_combined_heatmap(room_banners_heatmap, partial_combined_enemies_heat, room_coins_heatmap)
-					var greatest_tiles = _get_greatest_tiles(partial_combined_heat, available_spots)
-					greatest_tiles.shuffle()
-					enemy_pos = greatest_tiles.pop_front()
-					available_spots.erase(enemy_pos)
-					
-			room_enemies_pos.append(enemy_pos)
-			gridmap.set_cell_item(enemy_pos, UGen.NPC_ID)
-			# Cria heatmap do inimigo
-			var heat = UHeat.create_heatmap_bfs(gridmap, enemy_pos, false, "enemies")
-			# Adiciona na lista de heatmaps de inimigos
-			last_enemy_heat = heat
-			enemies_heats.append(last_enemy_heat)
-	# Cria heatmap combinado de inimigos da sala			
-	var combined_enemies_heat = UHeat.create_same_element_type_combined_heatmap(enemies_heats)
-	UHeat.heatmaps["enemies"].append(combined_enemies_heat)
-	
-	return room_enemies_pos
-
-# Posiciona elementos na sala
-func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], spawn_player: bool = false):
-	room_coins_heatmap = {}
-	room_banners_heatmap = {}
-	room_enemies_heatmap = {}
-	
-	var room_portals = _handle_room_portals_spawn(gridmap, available_spots)
-	if room_portals.size() == 0:
-		print("Posicionamento de elementos não pôde continuar devido à falta de espaços livres.")
-		return
-	
-	# Embaralha os locais disponíveis
-	available_spots.shuffle()
-	
-	var room_coins_pos = _handle_room_coins_spawn(gridmap, available_spots)
-	room_coins_heatmap = UHeat.heatmaps["coins"][UHeat.heatmaps["coins"].size()-1]
-	
-	var room_banners_pos = _handle_room_banners_spawn(gridmap, available_spots)
-	room_banners_heatmap = UHeat.heatmaps["banners"][UHeat.heatmaps["banners"].size()-1]
-	
-	var room_enemies_pos = _handle_room_enemies_spawn(gridmap, available_spots)
-	room_enemies_heatmap = UHeat.heatmaps["enemies"][UHeat.heatmaps["enemies"].size()-1]
-
-	# Salva posições dos elementos da sala
-	var elements_pos = {
-		"portal1_pos": room_portals[0],
-		"portal2_pos": room_portals[1],
-		"coin_pos": room_coins_pos,
-		"npc_pos": room_enemies_pos,
-		"banner_pos": room_banners_pos
+# Calcula a quantidade de elementos em cada sala
+func _calculate_elements_quantity(room_index: int, tile_count: int):
+	rooms_elements_quantity[room_index] = {
+		UHeat.ENEMIES: max(1, tile_count / rate_element_tiles[UHeat.ENEMIES]),
+		UHeat.COINS:   max(1, tile_count / rate_element_tiles[UHeat.COINS]),
+		UHeat.BANNERS: max(1, tile_count / rate_element_tiles[UHeat.BANNERS])
 	}
-	rooms_elements_pos.append(elements_pos)
-	
-	# Cria heatmap combinado de todos os elementos da sala
-	var combined_heat = UHeat.create_combined_heatmap(room_banners_heatmap, room_enemies_heatmap, room_coins_heatmap)
-	UHeat.heatmaps["combined"].append(combined_heat) 
-
-	# Posiciona o spawn do player se for nesta sala
-	if spawn_player and available_spots.size() > 0:
-		gridmap.set_cell_item(available_spots.pop_front(), UGen.PLAYER_SPAWN_ID)	
+	#print("Sala %d | Tiles: %d | Inimigos: %d | Moedas: %d | Estandartes: %d" % [
+		#room_index, tile_count,
+		#rooms_elements_quantity[room_index][UHeat.ENEMIES],
+		#rooms_elements_quantity[room_index][UHeat.COINS],
+		#rooms_elements_quantity[room_index][UHeat.BANNERS]
+	#])

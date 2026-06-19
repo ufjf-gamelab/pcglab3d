@@ -18,9 +18,9 @@ size = Vector3(0.25, 0.25, 0.125)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.96, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2112364611]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.063, 0.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.063, -0.4)
 mesh = SubResource("BoxMesh_ony2j")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=719943301]
-transform = Transform3D(0.99999994, 0, 0, 0, -4.371139e-08, -0.99999994, 0, 1, -4.3711385e-08, 0, 0.063, 0.924)
+transform = Transform3D(-0.99999994, -8.742278e-08, 3.8213705e-15, 0, -4.371139e-08, -0.99999994, 8.742277e-08, -1, 4.3711385e-08, 0, 0.063, -0.924)
 mesh = SubResource("PrismMesh_ony2j")

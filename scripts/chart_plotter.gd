@@ -2,9 +2,14 @@ extends Control
 
 @onready var chart: Chart = $VBoxContainer/Chart
 @onready var next_button: Button = $VBoxContainer/HBoxContainer/Next
+@onready var download_button: Button = $VBoxContainer/HBoxContainer/Download
 
 signal close_button_pressed
 signal next_button_pressed(chart_pos)
+
+var current_seed: int = 0
+
+var current_room_index: int = 0
 
 var f: Function
 
@@ -56,6 +61,70 @@ func _ready():
 		return str(int(round(value)))
 
 	visible = false
+	
+	download_button.pressed.connect(_on_download_pressed)
+
+func _get_heatmap_name() -> String:
+	var names = {
+		UHeat.ENEMIES: "inimigos",
+		UHeat.COINS: "moedas",
+		UHeat.BANNERS: "estandartes",
+		UHeat.COMBINED: "combinado",
+		UHeat.RECHARGES: "recargas"
+	}
+	for key in UHeat.curr_visible_heatmap.keys():
+		if UHeat.curr_visible_heatmap[key]:
+			return names[key]
+	return "desconhecido"
+
+func _on_download_pressed():
+	var heatmap_name = _get_heatmap_name()
+	if rooms_x_values.is_empty():
+		# Modo sala única (show_chart externo)
+		_save_csv_single(x, y, "sala%d_influ_%s" % [current_room_index, heatmap_name])
+	else:
+		# Modo todas as salas (show_charts)
+		_save_csv_all(rooms_x_values, rooms_y_values, "todas_salas_influ_%s" % heatmap_name)
+
+func _save_csv_single(x_val: Array, y_val: Array, filename: String):
+	var folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d/seed_%d" % current_seed
+
+	# Cria a pasta se não existir
+	if not DirAccess.dir_exists_absolute(folder):
+		DirAccess.make_dir_absolute(folder)
+	
+	var path = folder + "/%s.csv" % filename
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	
+	if file == null:
+		print("Erro ao abrir arquivo: ", FileAccess.get_open_error())
+		return
+	
+	file.store_line("tile,influencia")
+	for i in range(x_val.size()):
+		file.store_line("%s,%s" % [x_val[i], y_val[i]])
+	file.close()
+	print("CSV salvo em: ", ProjectSettings.globalize_path(path))
+	
+func _save_csv_all(x_values: Array, y_values: Array, filename: String):
+	var folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d/seed_%d" % current_seed
+	# Cria a pasta se não existir
+	if not DirAccess.dir_exists_absolute(folder):
+		DirAccess.make_dir_absolute(folder)
+	
+	var path = folder + "/%s.csv" % filename
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	
+	if file == null:
+		print("Erro ao abrir arquivo: ", FileAccess.get_open_error())
+		return
+	
+	file.store_line("sala,tile,influencia")
+	for i in range(x_values.size()):
+		for j in range(x_values[i].size()):
+			file.store_line("%d,%s,%s" % [i, x_values[i][j], y_values[i][j]])
+	file.close()
+	print("CSV salvo em: ", path)
 
 func _togle_chart():
 	if visible == true:

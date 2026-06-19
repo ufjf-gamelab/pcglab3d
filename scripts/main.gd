@@ -22,7 +22,10 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
-@export var max_life_time := 20.0
+@export var dungeon_seed: int = 3
+var used_seed: int = 0
+
+@export var max_life_time := 10.0
 var life_time := max_life_time
 var life_active := false
 
@@ -38,8 +41,15 @@ var paths_influences = []
 
 var plane:Plane # Used for raycasting mouse
 
-enum Pathfing {STRAIGHT, EXPLORER}
+enum Pathfing {STRAIGHT, EXPLORER, FREE}
 const PATH_TYPE = Pathfing.STRAIGHT
+
+const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
+var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
+
+var player_walked_paths: Array = [] # Array[Array[Vector3i]]
+
+var saved_life: int = 0  # vidas do player (corações)
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
@@ -55,6 +65,26 @@ func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
 		_update_life_timer(delta)
+
+func _handle_seed():
+	# Se seed for 0, gera uma aleatória c.c. usa a definida
+	if dungeon_seed == 0:
+		used_seed = randi()  # gera seed
+	else:
+		used_seed = dungeon_seed
+		
+	seed(used_seed)
+	print("\nSeed usada: ", used_seed)
+
+func _take_gridmap_snapshot():
+	gridmap_snapshot.clear()
+	for cell in gridmap.get_used_cells():
+		gridmap_snapshot[cell] = gridmap.get_cell_item(cell)
+
+func _recover_gridmap_snapshot():
+	gridmap.clear()
+	for cell in gridmap_snapshot.keys():
+		gridmap.set_cell_item(cell, gridmap_snapshot[cell])
 
 func show_selector():
 	builder.selector.visible = true
@@ -96,6 +126,11 @@ func _on_player_dead():
 	var player = world.get_node_or_null("Player")
 	life_active = false
 	
+	# Para todos os inimigos imediatamente
+	for enemy in get_tree().get_nodes_in_group("Enemies"):
+		enemy.state = enemy.State.IDLE
+		#enemy.player = null
+	
 	if player:
 		player.dying = true
 		var anim_player = player.get_node("Model/AnimationPlayer")
@@ -103,6 +138,7 @@ func _on_player_dead():
 		await anim_player.animation_finished
 		await get_tree().create_timer(1.0).timeout
 	
+	saved_life = 0
 	toggle_mode()
 
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
@@ -110,12 +146,22 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		var arrival = UGen.portal_links[portal_pos]
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
+			
+			life_time = max_life_time
+			_set_life_smooth(life_time)
+			life_active = false
+
+func _on_portal_body_exited(body: Node3D, portal_pos: Vector3i):
+	life_active = true # Descongela timer
+
+	if body.name == "Player":
+		print("Saiu do portal:", portal_pos)
 
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
 	life_time = max_life_time
 	_set_life_smooth(life_time)
-	life_active = false # Congela timer	
+	life_active = false # Congela timer
 
 func _on_banner_player_exit():
 	life_active = true # Descongela timer
@@ -127,6 +173,9 @@ func _on_player_collect_coin():
 func _on_player_update_life(curr_life):
 	life_hearts.update_hearts(curr_life)
 	if (curr_life <= 0):
+		# Se life_active já é false, _on_player_dead já foi chamado
+		if not life_active:
+			return
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
 
@@ -137,9 +186,15 @@ func _handle_chart(influences):
 	var x = []
 	for influence in influences:
 		x.append(range(influence.size()))
+		
+	chart_plotter.current_seed = used_seed
 	chart_plotter.show_charts(x, influences)
 
 func _on_pathfinding_pressed():
+	if PATH_TYPE == Pathfing.FREE and player_walked_paths.is_empty():
+		print("Nenhum caminho livre registrado. Jogue primeiro.")
+		return
+		
 	var pathfinder = _pathfinder_init()
 	
 	paths = []
@@ -148,6 +203,9 @@ func _on_pathfinding_pressed():
 	
 	for i in range((UGen.rooms).size()):
 		var path = _get_room_path(i, pathfinder)
+		
+		if path == []:
+			continue
 		
 		paths.append(path)
 		
@@ -186,15 +244,19 @@ func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 	return [path_cell_influ, path_influences]
 
 func _on_ca_generate_dungeon_pressed():
+	_handle_seed()
 	UHeat.deactivate_heatmaps()
 	heatmap_panel.clear()
+	UHeat.clear_heatmaps()
 	var ca_generator = CA_GENERATOR.new()
 	ca_generator.generate_dungeon_ca(gridmap)
 	ca_generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
 
 func _on_generate_dungeon_pressed():
+	_handle_seed()
 	UHeat.deactivate_heatmaps()
+	UHeat.clear_heatmaps()
 	heatmap_panel.clear()
 	var generator = GENERATOR.new()
 	generator.generate_dungeon(gridmap)
@@ -209,6 +271,13 @@ func _pathfinder_init():
 	return pathfinder
 
 func _get_room_path(room_index, pathfinder):
+	# FREE, retorna o caminho livre do jogador
+	if PATH_TYPE == Pathfing.FREE:
+		if room_index < player_walked_paths.size():
+			return player_walked_paths[room_index].map(func(t): return Vector2i(t.x, t.z))
+		else:
+			return []
+	
 	var elem_pos = UGen.rooms_elements_pos[room_index]
 	
 	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
@@ -242,6 +311,11 @@ func _on_select_room_path():
 		var room = UGen.rooms[i]
 		if gridmap_position in room:
 			path = _get_room_path(i, pathfinder)
+			
+			if path == []:
+				print("Jogador não passou por essa sala!")
+				return
+			
 			var influ = _get_path_influences(i, path)
 			
 			if influ[1] == []:
@@ -250,6 +324,8 @@ func _on_select_room_path():
 			
 			builder.set_process(false)
 			
+			chart_plotter.current_seed = used_seed
+			chart_plotter.current_room_index = i
 			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
 			
 			var path_3d: Array[Vector3i] = []
@@ -259,6 +335,18 @@ func _on_select_room_path():
 			
 			path_visualizer.draw_path(path_3d)
 			hide_selector()
+
+func _split_walked_path_by_room(all_tiles: Array[Vector3i]):
+	player_walked_paths.clear()
+
+	for i in range(UGen.rooms.size()):
+		var room = UGen.rooms[i]
+		var room_path: Array[Vector3i] = []
+
+		for tile in all_tiles:
+			if tile in room and (room_path.is_empty() or room_path.back() != tile):
+				room_path.append(tile)
+		player_walked_paths.append(room_path)
 
 func _unhandled_input(event):
 	# Captura evento de geração da dungeon com automatos celulares
@@ -286,7 +374,11 @@ func _unhandled_input(event):
 	# Captura evento de exibir heatmap de estandartes
 	if event.is_action_pressed("show_banners_heatmaps"):
 		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
-	
+
+	# Captura evento de exibir heatmap de portais
+	if event.is_action_pressed("show_recharges_heatmaps"):
+		UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
+
 	# Captura evento de exibir heatmap combinando influências
 	if event.is_action_pressed("show_combined_heatmaps"):
 		UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
@@ -295,12 +387,12 @@ func _unhandled_input(event):
 	if event.is_action_pressed("recalculate_heatmaps"):
 		UGen.update_elements_pos(gridmap)
 		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
-	
+
 	# Calcula caminho entre portais das salas
 	if event.is_action_pressed("pathfinding"):
 		print("Calculando caminhos...")
 		_on_pathfinding_pressed()
-		
+
 	# Escolhe sala e exibe grafico apenas dela
 	if event.is_action_pressed("select_room"):
 		print("Calculando caminho...")
@@ -337,6 +429,7 @@ func spawn_play_objects_from_gridmap():
 				5: 
 					obj.add_to_group("Portals")
 					obj.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
+					obj.get_node("Area3D").body_exited.connect(_on_portal_body_exited.bind(cell))
 				6: 
 					obj.add_to_group("Players")
 					obj.name = "Player"
@@ -408,11 +501,23 @@ func recover_gridmap():
 func enter_creation_mode():
 	mode = Mode.CREATION
 	
+	# Coleta e separa o caminho livre antes de destruir o player
+	var player = world.get_node_or_null("Player")
+	if player and player.walked_tiles.size() > 0:
+		_split_walked_path_by_room(player.walked_tiles)
+	
+	# Salva vida atual antes de destruir o player
+	if player:
+		saved_life = player.life
+	
 	sun.visible = true
 
 	builder.set_process(true)
 	
-	recover_gridmap()
+	if RESET_ON_TOGGLE_OR_DIE and not gridmap_snapshot.is_empty():
+		_recover_gridmap_snapshot()
+	else:
+		recover_gridmap()
 	
 	for child in world.get_children():
 		child.queue_free()
@@ -440,6 +545,9 @@ func enter_play_mode():
 	env.ambient_light_energy = 0.2
 
 	builder.set_process(false)
+	
+	_take_gridmap_snapshot()
+	
 	spawn_play_objects_from_gridmap()
 
 	edit_camera.current = false
@@ -456,8 +564,25 @@ func enter_play_mode():
 		player_camera.look_at(player.global_position)
 		player.update_life.connect(_on_player_update_life)
 		
-		if life_time <= 0:
+		# Reseta contadores
+		if RESET_ON_TOGGLE_OR_DIE:
+			collected_coins = 0
+			coins_ui.update_coin_count(0)
+			player.life = player.max_life
+			life_hearts.update_hearts(player.life)
 			life_time = max_life_time
+			used_banners.clear()
+		else:
+			coins_ui.update_coin_count(collected_coins)
+			
+			if saved_life <= 0 or life_time <= 0:
+				life_time = max_life_time
+				player.life = player.max_life
+			else:
+				player.life = saved_life
+			
+			life_hearts.update_hearts(player.life)
+			
 		life_active = true
 
 func rebuild_navigation_mesh():
