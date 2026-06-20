@@ -25,9 +25,9 @@ var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
 
-var ENEMIES_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES]
-var COINS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS]
-var BANNERS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS]
+var ENEMIES_RATE = UHeat.MAX_DISTANCE[UHeat.ENEMIES] * UHeat.MAX_DISTANCE[UHeat.ENEMIES]
+var COINS_RATE = UHeat.MAX_DISTANCE[UHeat.COINS] * UHeat.MAX_DISTANCE[UHeat.COINS]
+var BANNERS_RATE = UHeat.MAX_DISTANCE[UHeat.BANNERS] * UHeat.MAX_DISTANCE[UHeat.BANNERS]
 
 # 1 elemento a mais a cada N tiles
 var rate_element_tiles = {
@@ -185,8 +185,8 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		true,                                            
 		SpawnRecipe.SpawnMode.UNTIL_NO_VALID_TILE,       
 		func(tile, heatmap):                             
-			return (heatmap[tile] == 0 and 
-			UHeat.has_neighbor_with_value(tile, heatmap, -1))
+			return (is_zero_approx(heatmap[tile]) and
+				UHeat.has_neighbor_below_zero(tile, heatmap))
 	)
 
 	var room_banners_pos = banners_recipe.execute(gridmap, room_elements_quantity[UHeat.BANNERS], available_spots)

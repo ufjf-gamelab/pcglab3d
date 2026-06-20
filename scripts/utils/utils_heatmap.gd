@@ -23,13 +23,14 @@ const RECHARGES = "recharges"
 const PLAYER = "player"
 
 const MAX_VALUE = {
-	ENEMIES: 1.0,
-	COINS: 1.0,
-	BANNERS: 1.0,
-	ENTRY_PORTALS: 1.0,
-	EXIT_PORTALS: 1.0,
-	PLAYER: 1.0
+	ENEMIES: 5.0,
+	COINS: 5.0,
+	BANNERS: 5.0,
+	ENTRY_PORTALS: 5.0,
+	EXIT_PORTALS: 5.0,
+	PLAYER: 5.0
 }
+
 const MAX_DISTANCE = {
 	ENEMIES: 5, 
 	COINS: 5, 
@@ -63,10 +64,13 @@ var curr_visible_heatmap = {
 	RECHARGES: false
 }
 
-func switch_decay_func(curr_heatmap_tile):
+func switch_decay_func(max_value: float, distance: int, max_distance: int) -> float:
 	match decay_func_type:
 		"linear":
-			return curr_heatmap_tile - 1
+			return max(0.0, max_value * (1.0 - float(distance) / float(max_distance)))
+		_:
+			print("Nenhuma função de decaimento válida!")
+			return 0.0
 
 func create_same_element_type_combined_heatmap(type_heatmaps):
 	var combined_type_heat = {}
@@ -79,22 +83,28 @@ func create_same_element_type_combined_heatmap(type_heatmaps):
 	return combined_type_heat
 
 func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, element: String):
-	# Estruturas para o BFS
+	var max_value = MAX_VALUE[element]
+	var max_distance = MAX_DISTANCE[element]
+	
+	# Fila para o BFS
 	var queue: Array[Vector3i] = [start_cell]
+	var distances := { start_cell: 0 }
 	
 	# Define o mapa de influência com célula inicial
-	var heatmap = { start_cell: START_CELL_ELEMENT_WEIGHT[element] }
-
+	var heatmap = { start_cell: max_value }
+	
 	# Loop da Busca em Largura
 	while queue.size() > 0:
-		# Remove o primeiro da fila
+		# Remove a primeira célula da fila
 		var current = queue.pop_front()
+		# Guarda a distância da célula atual
+		var current_dist = distances[current]
 		
-		# Verificar vizinhos
+		# Verifica os vizinhos
 		for direction in DIRECTIONS:
 			var neighbor = current + direction
 			
-			# Se já visitamos, pula
+			# Se o vizinho já foi visitado, pula
 			if heatmap.has(neighbor):
 				continue
 			
@@ -103,13 +113,15 @@ func create_heatmap_bfs(gridmap: GridMap, start_cell: Vector3i, element: String)
 			
 			# Verifica se o vizinho não é parede
 			if neighbor_id != UGen.WALL_ID and neighbor_id != UGen.SOLID_ID:
-				# Adiciona vizinho no mapa de calor
-				if heatmap[current] != 0:
-					heatmap[neighbor] = switch_decay_func(heatmap[current])
-				else:
-					heatmap[neighbor] = 0
+				# Distância do vizinho é a distância atual + 1 tile
+				var neighbor_dist = current_dist + 1
+				# Registra distância do vizinho no dicionário de distâncias
+				distances[neighbor] = neighbor_dist
+				# Registra no heatmap o valor de influência na célula vizinha
+				heatmap[neighbor] = switch_decay_func(max_value, neighbor_dist, max_distance)
+				# Adiciona vizinho na fila
 				queue.append(neighbor)
-				
+	
 	return heatmap
 
 # Cria heatmap combinando de N heatmaps
@@ -165,7 +177,7 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0, bipolar
 			var intensity
 			# mapeia negativo->(0.0-0.5), zero->(0.5), positivo->(0.5-1.0)
 			if bipolar:
-				if ((heatmap[cell]) == 0):
+				if is_zero_approx(heatmap[cell]):
 					# Zero fica no centro
 					intensity = 0.5
 				if ((heatmap[cell]) < 0):
@@ -197,7 +209,13 @@ func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		var enemies_heatmaps = heatmaps[ENEMIES]
 		show_heatmaps(gridmap, enemies_heatmaps)
 		curr_visible_heatmap[ENEMIES] = true
-		heatmap_panel.show_heatmap_info("Mapas de Influência de Inimigos", {"Influência de um Inimigo": START_CELL_ELEMENT_WEIGHT["enemies"]})
+		heatmap_panel.show_heatmap_info(
+			"Mapas de Influência de Inimigos", 
+			{
+				"Influência Máxima de um Inimigo": MAX_VALUE[ENEMIES],
+				"Alcance Máximo da Influência de um Inimigo": MAX_DISTANCE[ENEMIES]
+			}
+		)
 
 func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if curr_visible_heatmap[COINS]:
@@ -209,7 +227,13 @@ func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		var coins_heatmaps = heatmaps[COINS]
 		show_heatmaps(gridmap, coins_heatmaps)
 		curr_visible_heatmap[COINS] = true
-		heatmap_panel.show_heatmap_info("Mapas de Influência de Moedas", {"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT["coins"]})
+		heatmap_panel.show_heatmap_info(
+			"Mapas de Influência de Moedas", 
+			{
+				"Influência Máxima de uma Moeda": MAX_VALUE[COINS],
+				"Alcance Máximo da Influência de uma Moeda": MAX_DISTANCE[COINS]
+			}
+		)
 
 func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	if curr_visible_heatmap[BANNERS]:
@@ -223,7 +247,10 @@ func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 		curr_visible_heatmap[BANNERS] = true
 		heatmap_panel.show_heatmap_info(
 			"Mapas de Influência de Estandartes", 
-			{"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT["banners"]}
+			{
+				"Influência Máxima de um Estandarte": MAX_VALUE[BANNERS],
+				"Alcance Máximo da Influência de um Estandarte": MAX_DISTANCE[BANNERS]
+			}
 		)
 
 func toggle_recharge_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
@@ -248,9 +275,14 @@ func toggle_recharge_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 		heatmap_panel.show_heatmap_info(
 			"Mapas de Influência de Recargas de Energia",
 			{
-				"Influência do Portal de Entrada": START_CELL_ELEMENT_WEIGHT[ENTRY_PORTALS],
-				"Influência do Portal de Saída": START_CELL_ELEMENT_WEIGHT[EXIT_PORTALS],
-				"Influência de um Estandarte": START_CELL_ELEMENT_WEIGHT[BANNERS]
+				"Influência Máxima do Portal de Entrada": MAX_VALUE[ENTRY_PORTALS],
+				"Alcance Máximo da Influência do Portal de Entrada": MAX_DISTANCE[ENTRY_PORTALS],
+				
+				"Influência Máxima do Portal de Saída": MAX_VALUE[EXIT_PORTALS],
+				"Alcance Máximo da Influência do Portal de Saída": MAX_DISTANCE[EXIT_PORTALS],
+				
+				"Influência Máxima de um Estandarte": MAX_VALUE[BANNERS],
+				"Alcance Máximo da Influência de um Estandarte": MAX_DISTANCE[BANNERS]
 			}
 		)
 
@@ -264,11 +296,15 @@ func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 		var combined_heatmaps = heatmaps[COMBINED]
 		show_heatmaps(gridmap, combined_heatmaps, 1, true) 
 		curr_visible_heatmap[COMBINED] = true
-		heatmap_panel.show_heatmap_info("Mapas de Influência Combinados", 
-		{
-			"Influência de um Inimigo": -START_CELL_ELEMENT_WEIGHT[ENEMIES],
-			"Influência de uma Moeda": START_CELL_ELEMENT_WEIGHT[COINS],
-		})
+		heatmap_panel.show_heatmap_info(
+			"Mapas de Influência Combinados", 
+			{
+				"Influência Máxima de um Inimigo": -MAX_VALUE[ENEMIES],
+				"Alcance Máximo da Influência de um Inimigo": MAX_DISTANCE[BANNERS],
+				"Influência Máxima de uma Moeda": MAX_VALUE[COINS],
+				"Alcance Máximo da Influência de uma Moeda": MAX_DISTANCE[BANNERS]
+			}
+		)
 
 func deactivate_heatmaps():
 	heatmap_multimesh.visible = false
@@ -359,7 +395,15 @@ func subtract_heatmaps(a: Dictionary, b: Dictionary) -> Dictionary:
 func has_neighbor_with_value(tile: Vector3i, heatmap: Dictionary, neighbor_value: float) -> bool:
 	for dir in UHeat.DIRECTIONS:
 		var neighbor = tile + dir
-		if heatmap.has(neighbor) and heatmap[neighbor] == neighbor_value:
+		if heatmap.has(neighbor) and is_equal_approx(heatmap[neighbor], neighbor_value):
+			return true
+	return false
+
+# Verifica se o tile tem algum vizinho com valor negativo
+func has_neighbor_below_zero(tile: Vector3i, heatmap: Dictionary) -> bool:
+	for dir in UHeat.DIRECTIONS:
+		var neighbor = tile + dir
+		if heatmap.has(neighbor) and heatmap[neighbor] < 0 and not is_zero_approx(heatmap[neighbor]):
 			return true
 	return false
 
@@ -369,7 +413,7 @@ func filter_tiles_by_value_and_neighbor_value(heatmap: Dictionary, available_spo
 	for tile in available_spots:
 		if not heatmap.has(tile):
 			continue
-		if heatmap[tile] == tile_value and has_neighbor_with_value(tile, heatmap, neighbor_value):
+		if is_equal_approx(heatmap[tile], tile_value) and has_neighbor_with_value(tile, heatmap, neighbor_value):
 			selected.append(tile)
 	return selected
 
@@ -386,7 +430,7 @@ func get_lowest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> 
 			lowest_pos.clear()
 			lowest_pos.append(tile)
 			lowest = value
-		elif value == lowest:
+		elif is_equal_approx(value, lowest):
 			lowest_pos.append(tile)
 	return lowest_pos
 
@@ -397,30 +441,15 @@ func get_greatest_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -
 	for tile in available_spots:
 		if not heatmap.has(tile):
 			continue
-		
+
 		var value = heatmap[tile]
 		if value > greatest:
 			greatest_pos.clear()
 			greatest_pos.append(tile)
 			greatest = value
-		elif value == greatest:
+		elif is_equal_approx(value, greatest):
 			greatest_pos.append(tile)
 	return greatest_pos
-
-# Retorna lista posicoes cujo valor esteja dentro do intervalo fechado [min_value, max_value]
-func get_tiles_in_range(heatmap: Dictionary, available_spots: Array[Vector3i], min_value: float, max_value: float) -> Array[Vector3i]:
-	var selected_tiles: Array[Vector3i] = []
-	
-	for tile in available_spots:
-		if not heatmap.has(tile):
-			continue
-		
-		var value = heatmap[tile]
-		
-		if value >= min_value and value <= max_value:
-			selected_tiles.append(tile)
-	
-	return selected_tiles
 
 # Retorna lista de posicoes com menores valores de influencia em módulo
 func get_balanced_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -> Array[Vector3i]:
@@ -436,7 +465,7 @@ func get_balanced_tiles(heatmap: Dictionary, available_spots: Array[Vector3i]) -
 			selected_tiles.clear()
 			selected_tiles.append(tile)
 			closest_value = val
-		elif val == closest_value:
+		elif is_equal_approx(val, closest_value):
 			selected_tiles.append(tile)
 	
 	return selected_tiles
@@ -451,7 +480,22 @@ func get_tiles_with_exact_value(heatmap: Dictionary, available_spots: Array[Vect
 		
 		var value = heatmap[tile]
 		
-		if value == target_value:
+		if is_equal_approx(value, target_value):
+			selected_tiles.append(tile)
+	
+	return selected_tiles
+
+# Retorna lista posicoes cujo valor esteja dentro do intervalo fechado [min_value, max_value]
+func get_tiles_in_range(heatmap: Dictionary, available_spots: Array[Vector3i], min_value: float, max_value: float) -> Array[Vector3i]:
+	var selected_tiles: Array[Vector3i] = []
+	
+	for tile in available_spots:
+		if not heatmap.has(tile):
+			continue
+		
+		var value = heatmap[tile]
+		
+		if value >= min_value and value <= max_value:
 			selected_tiles.append(tile)
 	
 	return selected_tiles
