@@ -21,6 +21,22 @@ var rooms_y_values: Array
 var chart_pos
 var scale_y
 
+const HEATMAP_NAMES = {
+	UHeat.ENEMIES: "inimigos",
+	UHeat.COINS: "moedas",
+	UHeat.BANNERS: "estandartes",
+	UHeat.COMBINED: "combinado",
+	UHeat.RECHARGES: "recargas"
+}
+
+const ONLY_POSITIVE_INFLUENCE_VALUES = {
+	UHeat.ENEMIES: true,
+	UHeat.COINS: true,
+	UHeat.BANNERS: true,
+	UHeat.COMBINED: false,
+	UHeat.RECHARGES: true
+}
+
 func _ready():
 	x = []
 	y = []
@@ -54,9 +70,6 @@ func _ready():
 	
 	chart.plot([f], cp)
 	
-	chart.y_labels_function = func(value):
-		return str(int(round(value)))
-		
 	chart.x_labels_function = func(value):
 		return str(int(round(value)))
 
@@ -65,16 +78,9 @@ func _ready():
 	download_button.pressed.connect(_on_download_pressed)
 
 func _get_heatmap_name() -> String:
-	var names = {
-		UHeat.ENEMIES: "inimigos",
-		UHeat.COINS: "moedas",
-		UHeat.BANNERS: "estandartes",
-		UHeat.COMBINED: "combinado",
-		UHeat.RECHARGES: "recargas"
-	}
 	for key in UHeat.curr_visible_heatmap.keys():
 		if UHeat.curr_visible_heatmap[key]:
-			return names[key]
+			return HEATMAP_NAMES[key]
 	return "desconhecido"
 
 func _on_download_pressed():
@@ -149,28 +155,43 @@ func show_charts(x_values, y_values):
 
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos], false)
 
-func get_max_abs_from_array(array) -> int:
-	var max_val = 0
-	for i in range(array.size()):
-		if (abs(array[i]) > max_val):
-			max_val = abs(array[i])
+func get_max_abs_from_array(array) -> float:
+	var max_val := 0.0
+
+	for value in array:
+		max_val = max(max_val, abs(value))
+
 	return max_val
-	
+
+func _has_only_positive_influence() -> bool:
+	for key in UHeat.curr_visible_heatmap.keys():
+		if UHeat.curr_visible_heatmap[key]:
+			return ONLY_POSITIVE_INFLUENCE_VALUES[key]
+	return false
+
+func _define_chart_domain(value: float):
+	if _has_only_positive_influence():
+		chart.set_y_domain(0, value)
+	else:
+		chart.set_y_domain(-value, value)
+
 func show_chart(x_val, y_val, external_call: bool):
 	x = x_val
 	y = y_val
+	var nice_max
 	
 	if external_call:
 		_togle_chart()
 		next_button.visible = false
 		
 		var max_y := get_max_abs_from_array(y)
-		chart.set_y_domain(-max_y, max_y)
-		cp.y_scale = int((max_y))
+		nice_max = _get_nice_max(max_y)
 	else:
-		chart.set_y_domain(-scale_y, scale_y)
-		cp.y_scale = int((scale_y))
-		
+		nice_max = _get_nice_max(scale_y)
+	
+	_define_chart_domain(nice_max)
+	cp.y_scale = 8
+	
 	var max_x = x[x.size()-1]
 	cp.x_scale = int(max_x/2)
 	chart.set_x_domain(0, max_x)
@@ -183,6 +204,22 @@ func show_chart(x_val, y_val, external_call: bool):
 		f.add_point(x[i], y[i])
 
 	chart.queue_redraw()
+
+func _get_nice_max(value: float) -> float:
+	if value <= 0:
+		return 1.0
+
+	var magnitude = pow(10.0, floor(log(value) / log(10.0)))
+	var normalized = value / magnitude
+
+	if normalized <= 1.0:
+		return 1.0 * magnitude
+	elif normalized <= 2.0:
+		return 2.0 * magnitude
+	elif normalized <= 5.0:
+		return 5.0 * magnitude
+	else:
+		return 10.0 * magnitude
 
 func _on_close_pressed() -> void:
 	if next_button.visible == false:

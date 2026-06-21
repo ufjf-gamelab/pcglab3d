@@ -46,6 +46,7 @@ func _on_point_entered(point: Point, function: Function, props: Dictionary = {})
 		else function.get_gradient().sample(props.interpolation_index)
 	tooltip.show()
 	tooltip.update_values(x_value, y_value, function.name, color)
+	await get_tree().process_frame
 	tooltip.update_position(point.position)
 	emit_signal("function_point_entered", point, function)
 
