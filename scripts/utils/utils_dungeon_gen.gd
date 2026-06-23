@@ -154,7 +154,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		UHeat.COINS, UGen.COIN_ID,                             
 		SpawnRecipe.Selection.GREATEST,      
 		[],                                
-		[room_entry_portals_heatmap],      
+		[room_entry_portals_heatmap, room_exit_portals_heatmap],      
 		true,                              
 		SpawnRecipe.SpawnMode.FIXED_QUANTITY
 	)
@@ -167,7 +167,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		UHeat.ENEMIES, UGen.NPC_ID,                           
 		SpawnRecipe.Selection.GREATEST,    
 		[room_coins_heatmap],             
-		[room_entry_portals_heatmap],      
+		[room_entry_portals_heatmap, room_exit_portals_heatmap],      
 		true,                              
 		SpawnRecipe.SpawnMode.FIXED_QUANTITY
 	)
@@ -211,7 +211,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		var player_recipe = SpawnRecipe.new(
 			UHeat.PLAYER, UGen.PLAYER_SPAWN_ID,
 			SpawnRecipe.Selection.BALANCED,
-			[room_coins_heatmap, room_banners_heatmap],
+			[room_banners_heatmap],
 			[room_entry_portals_heatmap, room_exit_portals_heatmap, room_enemies_heatmap],
 			false,
 			SpawnRecipe.SpawnMode.FIXED_QUANTITY
