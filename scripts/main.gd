@@ -3,6 +3,7 @@ extends Node3D
 const CA_GENERATOR = preload("res://scripts/generators/ca_dungeon_generator.gd")
 const GENERATOR = preload("res://scripts/generators/dungeon_generator.gd")
 const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
+const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 
 @onready var gridmap := $NavigationRegion3D/GridMap
 @onready var builder := $Builder
@@ -22,7 +23,7 @@ const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
-@export var dungeon_seed: int = 3
+@export var dungeon_seed: int = 0
 var used_seed: int = 0
 
 @export var max_life_time := 10.0
@@ -397,6 +398,11 @@ func _unhandled_input(event):
 	if event.is_action_pressed("select_room"):
 		print("Calculando caminho...")
 		_on_select_room_path()
+		
+	# Roda script de experimento/teste externo à main:
+	if event.is_action_pressed("run_quantitative_experiment"):
+		var experiment = EXPERIMENT.new()
+		experiment.run(gridmap, chart_plotter)
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais

@@ -23,12 +23,12 @@ const RECHARGES = "recharges"
 const PLAYER = "player"
 
 const MAX_VALUE = {
-	ENEMIES: 5.0,
-	COINS: 5.0,
-	BANNERS: 5.0,
-	ENTRY_PORTALS: 5.0,
-	EXIT_PORTALS: 5.0,
-	PLAYER: 5.0
+	ENEMIES: 1.0,
+	COINS: 1.0,
+	BANNERS: 1.0,
+	ENTRY_PORTALS: 1.0,
+	EXIT_PORTALS: 1.0,
+	PLAYER: 1.0
 }
 
 const MAX_DISTANCE = {

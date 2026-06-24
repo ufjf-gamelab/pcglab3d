@@ -12,7 +12,7 @@ const BANNER_ID = 7
 
 const ATTEMPTS = 200 # Número de tentativas de geração de salas
 
-const MAP_SIZE = 50 * SCALE_FACTOR # Tamanho do mapa
+const MAP_SIZE = 70 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
 
 # Fator de escala
@@ -48,7 +48,7 @@ var room_exit_portals_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
-const SPAWN = Spawn.SMART
+var SPAWN: Spawn = Spawn.SMART
 
 func update_elements_pos(gridmap: GridMap):
 	clear_elements_pos()

@@ -1,9 +1,9 @@
 extends Node
 
-const ROOM_MIN_WIDTH = 6 * UGen.SCALE_FACTOR
-const ROOM_MAX_WIDTH = 12 * UGen.SCALE_FACTOR
-const ROOM_MIN_LENGTH = 6 * UGen.SCALE_FACTOR
-const ROOM_MAX_LENGTH = 12 * UGen.SCALE_FACTOR
+var ROOM_MIN_WIDTH = 12 * UGen.SCALE_FACTOR
+var ROOM_MAX_WIDTH = 14 * UGen.SCALE_FACTOR
+var ROOM_MIN_LENGTH = 12 * UGen.SCALE_FACTOR
+var ROOM_MAX_LENGTH = 14 * UGen.SCALE_FACTOR
 
 const P_WALL := 0.45
 const GEN_CA := 5
@@ -225,3 +225,9 @@ func create_corridor(main_tile, sec_tile, room_tiles):
 		current.y += sign(sec_tile.y - current.y)
 		if not room_tiles.has(current):
 			room_tiles.append(current)
+
+func set_room_size(min_size: int, max_size: int):
+	ROOM_MIN_WIDTH = min_size
+	ROOM_MAX_WIDTH = max_size
+	ROOM_MIN_LENGTH = min_size
+	ROOM_MAX_LENGTH = max_size

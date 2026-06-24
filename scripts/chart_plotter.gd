@@ -95,6 +95,8 @@ func _on_download_pressed():
 func _save_csv_single(x_val: Array, y_val: Array, filename: String):
 	var folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d/seed_%d" % current_seed
 
+	print(y_val)
+
 	# Cria a pasta se não existir
 	if not DirAccess.dir_exists_absolute(folder):
 		DirAccess.make_dir_absolute(folder)
@@ -111,7 +113,7 @@ func _save_csv_single(x_val: Array, y_val: Array, filename: String):
 		file.store_line("%s,%s" % [x_val[i], y_val[i]])
 	file.close()
 	print("CSV salvo em: ", ProjectSettings.globalize_path(path))
-	
+
 func _save_csv_all(x_values: Array, y_values: Array, filename: String):
 	var folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d/seed_%d" % current_seed
 	# Cria a pasta se não existir
