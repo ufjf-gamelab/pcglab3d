@@ -12,7 +12,7 @@ const BANNER_ID = 7
 
 const ATTEMPTS = 200 # Número de tentativas de geração de salas
 
-const MAP_SIZE = 50 * SCALE_FACTOR # Tamanho do mapa
+const MAP_SIZE = 40 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
 
 # Fator de escala
@@ -25,9 +25,9 @@ var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
 
-var ENEMIES_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.ENEMIES]
-var COINS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.COINS]
-var BANNERS_RATE = UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS] * UHeat.START_CELL_ELEMENT_WEIGHT[UHeat.BANNERS]
+var ENEMIES_RATE = UHeat.MAX_DISTANCE[UHeat.ENEMIES] * UHeat.MAX_DISTANCE[UHeat.ENEMIES]
+var COINS_RATE = UHeat.MAX_DISTANCE[UHeat.COINS] * UHeat.MAX_DISTANCE[UHeat.COINS]
+var BANNERS_RATE = UHeat.MAX_DISTANCE[UHeat.BANNERS] * UHeat.MAX_DISTANCE[UHeat.BANNERS]
 
 # 1 elemento a mais a cada N tiles
 var rate_element_tiles = {
@@ -48,7 +48,7 @@ var room_exit_portals_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
-const SPAWN = Spawn.SMART
+var SPAWN: Spawn = Spawn.SMART
 
 func update_elements_pos(gridmap: GridMap):
 	clear_elements_pos()
@@ -154,7 +154,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		UHeat.COINS, UGen.COIN_ID,                             
 		SpawnRecipe.Selection.GREATEST,      
 		[],                                
-		[room_entry_portals_heatmap],      
+		[room_entry_portals_heatmap, room_exit_portals_heatmap],      
 		true,                              
 		SpawnRecipe.SpawnMode.FIXED_QUANTITY
 	)
@@ -167,7 +167,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		UHeat.ENEMIES, UGen.NPC_ID,                           
 		SpawnRecipe.Selection.GREATEST,    
 		[room_coins_heatmap],             
-		[room_entry_portals_heatmap],      
+		[room_entry_portals_heatmap, room_exit_portals_heatmap],      
 		true,                              
 		SpawnRecipe.SpawnMode.FIXED_QUANTITY
 	)
@@ -185,8 +185,8 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		true,                                            
 		SpawnRecipe.SpawnMode.UNTIL_NO_VALID_TILE,       
 		func(tile, heatmap):                             
-			return (heatmap[tile] == 0 and 
-			UHeat.has_neighbor_with_value(tile, heatmap, -1))
+			return (is_zero_approx(heatmap[tile]) and
+				UHeat.has_neighbor_below_zero(tile, heatmap))
 	)
 
 	var room_banners_pos = banners_recipe.execute(gridmap, room_elements_quantity[UHeat.BANNERS], available_spots)
@@ -211,7 +211,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		var player_recipe = SpawnRecipe.new(
 			UHeat.PLAYER, UGen.PLAYER_SPAWN_ID,
 			SpawnRecipe.Selection.BALANCED,
-			[room_coins_heatmap, room_banners_heatmap],
+			[],
 			[room_entry_portals_heatmap, room_exit_portals_heatmap, room_enemies_heatmap],
 			false,
 			SpawnRecipe.SpawnMode.FIXED_QUANTITY
