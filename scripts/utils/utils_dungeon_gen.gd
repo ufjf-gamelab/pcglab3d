@@ -12,7 +12,7 @@ const BANNER_ID = 7
 
 const ATTEMPTS = 200 # Número de tentativas de geração de salas
 
-const MAP_SIZE = 70 * SCALE_FACTOR # Tamanho do mapa
+const MAP_SIZE = 40 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
 
 # Fator de escala
@@ -211,7 +211,7 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		var player_recipe = SpawnRecipe.new(
 			UHeat.PLAYER, UGen.PLAYER_SPAWN_ID,
 			SpawnRecipe.Selection.BALANCED,
-			[room_banners_heatmap],
+			[],
 			[room_entry_portals_heatmap, room_exit_portals_heatmap, room_enemies_heatmap],
 			false,
 			SpawnRecipe.SpawnMode.FIXED_QUANTITY

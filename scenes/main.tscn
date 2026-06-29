@@ -29,6 +29,8 @@
 [ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
+glow_enabled = true
+glow_intensity = 0.4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yc10j"]
 content_margin_left = 10.0

@@ -23,7 +23,8 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 
-@export var dungeon_seed: int = 0
+@export var dungeon_seed: int = 857648141
+
 var used_seed: int = 0
 
 @export var max_life_time := 10.0
@@ -43,7 +44,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE = Pathfing.STRAIGHT
+const PATH_TYPE: Pathfing = Pathfing.EXPLORER
 
 const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
 var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
@@ -145,6 +146,13 @@ func _on_player_dead():
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 	if body.name == "Player":
 		var arrival = UGen.portal_links[portal_pos]
+		
+		for i in range(UGen.rooms_elements_pos.size()):
+			var room = UGen.rooms_elements_pos[i]
+			if (room.portal1_pos == arrival or 
+				room.portal2_pos == arrival):
+					_activate_room_portals(i)
+		
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
 			
@@ -152,11 +160,8 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 			_set_life_smooth(life_time)
 			life_active = false
 
-func _on_portal_body_exited(body: Node3D, portal_pos: Vector3i):
+func _on_portal_body_exited(_body: Node3D, _portal_pos: Vector3i):
 	life_active = true # Descongela timer
-
-	if body.name == "Player":
-		print("Saiu do portal:", portal_pos)
 
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
@@ -436,6 +441,8 @@ func spawn_play_objects_from_gridmap():
 					obj.add_to_group("Portals")
 					obj.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
 					obj.get_node("Area3D").body_exited.connect(_on_portal_body_exited.bind(cell))
+					# Portal recebe célula em que se encontra
+					obj.portal_cell = cell
 				6: 
 					obj.add_to_group("Players")
 					obj.name = "Player"
@@ -536,6 +543,19 @@ func enter_creation_mode():
 	creation_ui.visible = true
 	game_hud.visible = false
 
+func _activate_room_portals(room_index: int):
+	var room = UGen.rooms_elements_pos[room_index]
+
+	for portal in get_tree().get_nodes_in_group("Portals"):
+		# if portal.portal_cell == room.portal1_pos:
+			#portal.set_active(true)
+
+		if portal.portal_cell == room.portal2_pos:
+			portal.set_active(true)
+			
+		else:
+			portal.set_active(false)
+
 func enter_play_mode():
 	mode = Mode.PLAY
 	
@@ -555,6 +575,9 @@ func enter_play_mode():
 	_take_gridmap_snapshot()
 	
 	spawn_play_objects_from_gridmap()
+	
+	# ativa portal de saída da sala 0
+	_activate_room_portals(0)
 
 	edit_camera.current = false
 	player_camera.current = true
