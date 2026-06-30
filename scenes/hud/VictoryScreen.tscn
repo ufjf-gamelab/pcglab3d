@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://d1qtixd4ty5d3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qyb06"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.15294118, 0.6, 0.6, 1)
+
+[node name="VictoryScreen" type="Control" unique_id=663587506]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="." unique_id=1235356382]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_default_cursor_shape = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[node name="Content" type="VBoxContainer" parent="." unique_id=391007306]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="Content" unique_id=818146530]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Vitória! Você coletou todas as moedas!"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="Content" unique_id=329687104]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_qyb06")
+text = "Voltar ao modo de edição"
