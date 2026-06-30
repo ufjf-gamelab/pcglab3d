@@ -1,6 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://vgwrcfy1qawf"]
+[gd_scene format=3 uid="uid://vgwrcfy1qawf"]
 
 [ext_resource type="Script" uid="uid://76g8ejmdibal" path="res://scripts/builder.gd" id="1_jybm7"]
+[ext_resource type="Script" uid="uid://jatc8o6cw38x" path="res://scripts/main.gd" id="1_yc10j"]
 [ext_resource type="Environment" uid="uid://jbptgqvstei3" path="res://scenes/main-environment.tres" id="1_yndf3"]
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="2_eb6dy"]
 [ext_resource type="Resource" uid="uid://dkj23sxu68lq2" path="res://dungeon/structures/wall.tres" id="3_dp3eg"]
@@ -16,100 +17,220 @@
 [ext_resource type="Resource" uid="uid://caeruhpql1m5n" path="res://dungeon/structures/floor_trap.tres" id="11_yc10j"]
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://dungeon/structures/floor.tres" id="12_gqmmt"]
 [ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://dungeon/structures/floor_chest.tres" id="13_yc10j"]
-[ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="16_vlub6"]
-[ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="17_cjamx"]
+[ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://dungeon/structures/floor_banner.tres" id="15_jscy8"]
+[ext_resource type="PackedScene" uid="uid://ukcepkmtkcxw" path="res://scenes/hud/ChartPlotter.tscn" id="21_2wyq8"]
+[ext_resource type="Texture2D" uid="uid://cdy6l6u51msrw" path="res://sprites/spritesheet-tiles-default.png" id="21_jscy8"]
+[ext_resource type="Script" uid="uid://d3tqf4ubckujf" path="res://scripts/life_hearts.gd" id="21_pm3ni"]
+[ext_resource type="PackedScene" uid="uid://dmlb8aff62tne" path="res://scenes/hud/HeatmapInfoPanel.tscn" id="22_jscy8"]
 [ext_resource type="Texture2D" uid="uid://ciwbdik3tmxtp" path="res://sprites/instructions.png" id="22_pm3ni"]
+[ext_resource type="Script" uid="uid://iinemfi6cdva" path="res://scripts/coins_ui.gd" id="23_og1vs"]
+[ext_resource type="Texture2D" uid="uid://bng0d1sou7c8a" path="res://sprites/coin.png" id="23_y6deb"]
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
+[ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_q176i"]
-font = ExtResource("16_vlub6")
-font_size = 24
-shadow_color = Color(0, 0, 0, 0.392157)
+[sub_resource type="Environment" id="Environment_og1vs"]
+glow_enabled = true
+glow_intensity = 0.4
 
-[node name="Main" type="Node3D"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yc10j"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.627451)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_blend = true
+corner_radius_bottom_right = 8
 
-[node name="Builder" type="Node3D" parent="." node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "cash_display")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jscy8"]
+bg_color = Color(0.01223816, 0.0003895802, 4.3376334e-05, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+corner_detail = 12
+expand_margin_left = 4.0
+expand_margin_top = 4.0
+expand_margin_right = 4.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pm3ni"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.9372549, 0.6117647, 0, 1)
+border_color = Color(0.33333334, 0.38431373, 0.4117647, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 12
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yc10j"]
+atlas = ExtResource("21_jscy8")
+region = Rect2(527, 270, 49, 45)
+
+[node name="Main" type="Node3D" unique_id=1635729911]
+script = ExtResource("1_yc10j")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1201926833]
+environment = SubResource("Environment_og1vs")
+
+[node name="Builder" type="Node3D" parent="." unique_id=1826473606 node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap")]
 script = ExtResource("1_jybm7")
-structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("3_trceg"), ExtResource("4_a8y0u"), ExtResource("5_jkv2x"), ExtResource("6_a8y0u"), ExtResource("7_jkv2x"), ExtResource("10_gqmmt"), ExtResource("11_yc10j"), ExtResource("12_gqmmt"), ExtResource("13_yc10j")])
+structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("15_jscy8"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
-view_camera = NodePath("../View/Camera")
-gridmap = NodePath("../GridMap")
-cash_display = NodePath("../CanvasLayer/Top/Cash")
+view_camera = NodePath("../View/EditCamera")
+gridmap = NodePath("../NavigationRegion3D/GridMap")
 
-[node name="Selector" type="Node3D" parent="Builder"]
+[node name="Selector" type="Node3D" parent="Builder" unique_id=726130398]
 
-[node name="Sprite" type="Sprite3D" parent="Builder/Selector"]
+[node name="Sprite" type="Sprite3D" parent="Builder/Selector" unique_id=540221858]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.06, 0)
 texture = ExtResource("4_wr1wv")
 
-[node name="Container" type="Node3D" parent="Builder/Selector"]
+[node name="Container" type="Node3D" parent="Builder/Selector" unique_id=2118534125]
 
-[node name="View" type="Node3D" parent="."]
+[node name="View" type="Node3D" parent="." unique_id=1192072978]
 transform = Transform3D(0.707107, -0.40558, 0.579228, 0, 0.819152, 0.573576, -0.707107, -0.40558, 0.579228, 0, 0, 0)
 script = ExtResource("8_yovpv")
 
-[node name="Camera" type="Camera3D" parent="View"]
+[node name="EditCamera" type="Camera3D" parent="View" unique_id=1633495106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
 environment = ExtResource("1_yndf3")
 fov = 20.0
 
-[node name="GridMap" type="GridMap" parent="."]
+[node name="PlayerCamera" type="Camera3D" parent="View" unique_id=95896271]
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1963124758]
+transform = Transform3D(-0.422618, -0.694272, 0.582563, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
+shadow_enabled = true
+shadow_opacity = 0.75
+
+[node name="World" type="Node3D" parent="." unique_id=1064644955]
+
+[node name="HeatmapVisualizer" type="Node3D" parent="." unique_id=72363053]
+
+[node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer" unique_id=1177631106]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=2029804297]
+
+[node name="GridMap" type="GridMap" parent="NavigationRegion3D" unique_id=873056231]
 cell_size = Vector3(1, 1, 1)
 cell_center_x = false
 cell_center_y = false
 cell_center_z = false
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.422618, -0.694272, 0.582563, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
-shadow_enabled = true
-shadow_opacity = 0.75
+[node name="PathVisualizer" parent="." unique_id=1976440335 node_paths=PackedStringArray("grid_map") instance=ExtResource("27_vxglm")]
+grid_map = NodePath("../NavigationRegion3D/GridMap")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1624123558]
 
-[node name="Top" type="Control" parent="CanvasLayer"]
+[node name="CreationUI" type="Control" parent="UI" unique_id=627118002]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Top" type="Control" parent="UI/CreationUI" unique_id=1856101939]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HeatmapInfoPanel" parent="UI/CreationUI/Top" unique_id=1933536118 instance=ExtResource("22_jscy8")]
+layout_mode = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_yc10j")
+
+[node name="Bottom" type="Control" parent="UI/CreationUI" unique_id=28570854]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = -40.0
+grow_vertical = 0
+
+[node name="Instructions" type="TextureRect" parent="UI/CreationUI/Bottom" unique_id=1948111088]
+layout_mode = 0
+offset_left = 18.0
+offset_top = -232.0
+offset_right = 338.0
+offset_bottom = 280.0
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("22_pm3ni")
+
+[node name="ChartPlotter" parent="UI/CreationUI" unique_id=791246719 instance=ExtResource("21_2wyq8")]
+layout_mode = 1
+
+[node name="GameHUD" type="Control" parent="UI" unique_id=709230869]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="CashIcon" type="TextureRect" parent="CanvasLayer/Top"]
+[node name="LightBar" type="ProgressBar" parent="UI/GameHUD" unique_id=1666987954]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 24.0
-offset_right = 148.0
-offset_bottom = 152.0
-scale = Vector2(0.3, 0.3)
-texture = ExtResource("17_cjamx")
+offset_left = 357.0
+offset_top = 15.0
+offset_right = 508.0
+offset_bottom = 34.0
+theme_override_styles/background = SubResource("StyleBoxFlat_jscy8")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pm3ni")
+step = 0.0
+value = 100.0
+show_percentage = false
 
-[node name="Cash" type="Label" parent="CanvasLayer/Top"]
+[node name="LifeHearts" type="HBoxContainer" parent="UI/GameHUD" unique_id=250787039]
 layout_mode = 0
-offset_left = 69.0
-offset_top = 27.0
-offset_right = 270.0
-offset_bottom = 101.0
-text = "$10,000"
-label_settings = SubResource("LabelSettings_q176i")
+offset_left = 4.0
+offset_top = 3.0
+offset_right = 108.0
+offset_bottom = 48.0
+script = ExtResource("21_pm3ni")
 
-[node name="Bottom" type="Control" parent="CanvasLayer"]
-layout_mode = 3
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -648.0
-offset_bottom = -648.0
-grow_vertical = 0
+[node name="Heart1" type="TextureRect" parent="UI/GameHUD/LifeHearts" unique_id=791317673]
+layout_mode = 2
+texture = SubResource("AtlasTexture_yc10j")
 
-[node name="Instructions" type="TextureRect" parent="CanvasLayer/Bottom"]
+[node name="Heart2" type="TextureRect" parent="UI/GameHUD/LifeHearts" unique_id=2073187984]
+layout_mode = 2
+texture = SubResource("AtlasTexture_yc10j")
+
+[node name="Coins" type="HBoxContainer" parent="UI/GameHUD" unique_id=37196413]
 layout_mode = 0
-offset_left = 24.0
-offset_top = 375.0
-offset_right = 344.0
-offset_bottom = 887.0
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("22_pm3ni")
+offset_left = 186.0
+offset_top = 4.0
+offset_right = 262.0
+offset_bottom = 48.0
+script = ExtResource("23_og1vs")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="TextureRect" type="TextureRect" parent="UI/GameHUD/Coins" unique_id=1418426503]
+layout_mode = 2
+texture = ExtResource("23_y6deb")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="UI/GameHUD/Coins" unique_id=1805333060]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=2042514993]
 stream = ExtResource("24_y6deb")
 volume_db = -30.0
 autoplay = true

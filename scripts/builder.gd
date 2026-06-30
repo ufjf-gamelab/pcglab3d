@@ -23,20 +23,46 @@ func _ready():
 	# See: https://docs.godotengine.org/en/stable/tutorials/3d/using_gridmaps.html
 	
 	var mesh_library = MeshLibrary.new()
-	
-	for structure in structures:
 		
+	for structure in structures:
 		var id = mesh_library.get_last_unused_item_id()
 		
 		mesh_library.create_item(id)
-		mesh_library.set_item_mesh(id, get_mesh(structure.model))
-		mesh_library.set_item_mesh_transform(id, Transform3D())
 		
+		# Instancia a cena
+		var scene_instance = structure.model.instantiate()
+		
+		# Percorre os filhos do nó raiz
+		for child in scene_instance.get_children():
+			
+			# Caso encontre a mesh filha direta do nó raiz
+			if child is MeshInstance3D:
+				# Adiciona a mesh ao item
+				mesh_library.set_item_mesh(id, child.mesh)
+				mesh_library.set_item_mesh_transform(id, child.transform)
+				
+			# Caso encontre colisão filha direta do nó raiz
+			elif child is CollisionShape3D:
+#				# Adiciona forma ao item
+				mesh_library.set_item_shapes(id, [child.shape, child.transform])
+				
+			# Caso seja uma cena com colisão, a mesh fica dentro do glb
+			elif child is Node3D:
+				# Procura a mesh dentro do Model do .tscn
+				for grandchild in child.get_children():
+					if grandchild is MeshInstance3D:
+						mesh_library.set_item_mesh(id, grandchild.mesh)
+						mesh_library.set_item_mesh_transform(id, child.transform)
+						break
+		
+		# Remove a instância da memória
+		scene_instance.queue_free()
+	
+	# Adiciona a meshLibrary criada à meshLibrary do GridMap
 	gridmap.mesh_library = mesh_library
 	
 	update_structure()
-	update_cash()
-
+	
 func _process(delta):
 	
 	# Controls
@@ -79,7 +105,6 @@ func action_build(gridmap_position):
 		
 		if previous_tile != index:
 			map.cash -= structures[index].price
-			update_cash()
 			
 			Audio.play("sounds/placement-a.ogg, sounds/placement-b.ogg, sounds/placement-c.ogg, sounds/placement-d.ogg", -20)
 
@@ -120,9 +145,6 @@ func update_structure():
 	var _model = structures[index].model.instantiate()
 	selector_container.add_child(_model)
 	_model.position.y += 0.25
-	
-func update_cash():
-	cash_display.text = "$" + str(map.cash)
 
 # Saving/load
 func action_save():
@@ -150,8 +172,6 @@ func action_load():
 			map = DataMap.new()
 		for cell in map.structures:
 			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
-			
-		update_cash()
 
 func action_load_resources():
 	if Input.is_action_just_pressed("load_resources"):
@@ -164,5 +184,3 @@ func action_load_resources():
 			map = DataMap.new()
 		for cell in map.structures:
 			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
-			
-		update_cash()
