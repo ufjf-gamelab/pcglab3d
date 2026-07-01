@@ -24,7 +24,7 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var path_visualizer: Node3D = $PathVisualizer
 @onready var victory_screen: Control = $UI/VictoryScreen
 
-@export var dungeon_seed: int = 857648141
+@export var dungeon_seed: int = 1464125454
 var used_seed: int = 0
 
 @export var max_life_time := 10.0
@@ -44,7 +44,7 @@ var paths_influences = []
 var plane:Plane # Used for raycasting mouse
 
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE: Pathfing = Pathfing.EXPLORER
+const PATH_TYPE: Pathfing = Pathfing.FREE
 
 const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
 var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
