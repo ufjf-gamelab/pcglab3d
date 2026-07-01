@@ -25,6 +25,7 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var victory_screen: Control = $UI/VictoryScreen
 
 @export var dungeon_seed: int = 1464125454
+
 var used_seed: int = 0
 
 @export var max_life_time := 10.0
