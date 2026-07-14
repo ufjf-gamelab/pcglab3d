@@ -48,7 +48,7 @@ var room_exit_portals_heatmap = {}
 
 enum Spawn { RANDOM, SMART }
 
-var SPAWN: Spawn = Spawn.SMART
+var SPAWN: Spawn = Spawn.RANDOM
 
 func update_elements_pos(gridmap: GridMap):
 	clear_elements_pos()
