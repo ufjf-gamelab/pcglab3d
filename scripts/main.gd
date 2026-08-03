@@ -22,8 +22,9 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var sun := $Sun
 @onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
+@onready var victory_screen: Control = $UI/VictoryScreen
 
-@export var dungeon_seed: int = 857648141
+@export var dungeon_seed: int = 1464125454
 
 var used_seed: int = 0
 
@@ -53,6 +54,8 @@ var player_walked_paths: Array = [] # Array[Array[Vector3i]]
 
 var saved_life: int = 0  # vidas do player (corações)
 
+var total_coins: int = 0
+
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
@@ -60,8 +63,13 @@ func _ready():
 	health_bar.value = max_life_time
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
 	chart_plotter.next_button_pressed.connect(_on_chart_next_button_pressed)
-	
+	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	plane = Plane(Vector3.UP, Vector3.ZERO)
+
+func _on_back_button_pressed():
+	get_tree().paused = false
+	victory_screen.visible = false
+	toggle_mode()
 
 func _process(delta):
 	if mode == Mode.PLAY:
@@ -175,6 +183,9 @@ func _on_banner_player_exit():
 func _on_player_collect_coin():
 	collected_coins += 1
 	coins_ui.update_coin_count(collected_coins)
+	if collected_coins >= total_coins:
+		victory_screen.visible = true
+		get_tree().paused = true
 
 func _on_player_update_life(curr_life):
 	life_hearts.update_hearts(curr_life)
@@ -514,6 +525,8 @@ func recover_gridmap():
 func enter_creation_mode():
 	mode = Mode.CREATION
 	
+	victory_screen.visible = false
+	
 	# Coleta e separa o caminho livre antes de destruir o player
 	var player = world.get_node_or_null("Player")
 	if player and player.walked_tiles.size() > 0:
@@ -575,6 +588,12 @@ func enter_play_mode():
 	_take_gridmap_snapshot()
 	
 	spawn_play_objects_from_gridmap()
+	
+	total_coins = 0
+	for room in UGen.rooms_elements_pos:
+		total_coins += room["coin_pos"].size()
+	
+	print(total_coins)
 	
 	# ativa portal de saída da sala 0
 	_activate_room_portals(0)
