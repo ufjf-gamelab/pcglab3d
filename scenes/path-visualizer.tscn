@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dovpdhaqw8ym0"]
 
-[ext_resource type="Script" uid="uid://digrcl6oqs3xm" path="res://scripts/path_visualizer.gd" id="1_6y2kk"]
+[ext_resource type="Script" uid="uid://digrcl6oqs3xm" path="res://scripts/utils/path_visualizer.gd" id="1_6y2kk"]
 [ext_resource type="PackedScene" uid="uid://cl0gdk1bd7sk1" path="res://scenes/arrow.tscn" id="2_5k8nm"]
 
 [node name="PathVisualizer" type="Node3D" unique_id=1976440335]

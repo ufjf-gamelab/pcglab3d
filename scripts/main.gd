@@ -24,43 +24,57 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var path_visualizer: Node3D = $PathVisualizer
 @onready var victory_screen: Control = $UI/VictoryScreen
 
+# Seed predefinida
 @export var dungeon_seed: int = 1464125454
-
+# Seed utilizada
 var used_seed: int = 0
 
-@export var max_life_time := 10.0
-var life_time := max_life_time
-var life_active := false
+# Máximo de energia
+@export var max_energy_time := 10.0
+# Energia atual
+var energy_time := max_energy_time
+# Decaimento de energia ativo
+var energy_active := false
 
+# Total de moedas na dungeon
+var total_coins: int = 0
+# Moedas coletadas
 var collected_coins = 0
 
+# Estandartes utilizados
 var used_banners := []
 
+# Caminhos do tipo atual encontrados na dungeon
+var paths = []
+# Valores de influência do tipo atual exibido ao longo dos caminhos
+var paths_influences = []
+
+# Used for raycasting mouse (aproveitado do builder)
+var plane: Plane
+
+# Define se ao sair do modo jogável, restaura o gridmap original ou não
+const RESET_ON_TOGGLE_OR_DIE := true
+var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
+
+# Caminho percorrido pelo jogador
+var player_walked_paths: Array = [] # Array[Array[Vector3i]]
+
+# Vidas do player (corações)
+var saved_life: int = 0  
+
+# Modo de jogo
 enum Mode { CREATION, PLAY }
 var mode = Mode.CREATION
 
-var paths = []
-var paths_influences = []
-
-var plane:Plane # Used for raycasting mouse
-
+# Tipo de caminho
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
 const PATH_TYPE: Pathfing = Pathfing.EXPLORER
-
-const RESET_ON_TOGGLE_OR_DIE := true  # Define se ao sair do modo jogável, restaura o gridmap original ou não
-var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
-
-var player_walked_paths: Array = [] # Array[Array[Vector3i]]
-
-var saved_life: int = 0  # vidas do player (corações)
-
-var total_coins: int = 0
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
-	health_bar.max_value = max_life_time
-	health_bar.value = max_life_time
+	health_bar.max_value = max_energy_time
+	health_bar.value = max_energy_time
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
 	chart_plotter.next_button_pressed.connect(_on_chart_next_button_pressed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
@@ -74,7 +88,7 @@ func _on_back_button_pressed():
 func _process(delta):
 	if mode == Mode.PLAY:
 		update_player_camera(delta)
-		_update_life_timer(delta)
+		_update_energy_timer(delta)
 
 func _handle_seed():
 	# Se seed for 0, gera uma aleatória c.c. usa a definida
@@ -117,24 +131,24 @@ func _set_life_smooth(new_value):
 	var tween = create_tween()
 	tween.tween_property(health_bar, "value", new_value, 0.4)
 
-func _update_life_timer(delta):
+func _update_energy_timer(delta):
 	if mode != Mode.PLAY:
 		return
 		
-	if not life_active:
+	if not energy_active:
 		return
 		
-	life_time -= delta
-	life_time = max(life_time, 0.0)
+	energy_time -= delta
+	energy_time = max(energy_time, 0.0)
 	
-	health_bar.value = life_time
+	health_bar.value = energy_time
 
-	if life_time <= 0:
+	if energy_time <= 0:
 		_on_player_dead()
 
 func _on_player_dead():
 	var player = world.get_node_or_null("Player")
-	life_active = false
+	energy_active = false
 	
 	# Para todos os inimigos imediatamente
 	for enemy in get_tree().get_nodes_in_group("Enemies"):
@@ -164,21 +178,21 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
 			
-			life_time = max_life_time
-			_set_life_smooth(life_time)
-			life_active = false
+			energy_time = max_energy_time
+			_set_life_smooth(energy_time)
+			energy_active = false
 
 func _on_portal_body_exited(_body: Node3D, _portal_pos: Vector3i):
-	life_active = true # Descongela timer
+	energy_active = true # Descongela timer
 
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
-	life_time = max_life_time
-	_set_life_smooth(life_time)
-	life_active = false # Congela timer
+	energy_time = max_energy_time
+	_set_life_smooth(energy_time)
+	energy_active = false # Congela timer
 
 func _on_banner_player_exit():
-	life_active = true # Descongela timer
+	energy_active = true # Descongela timer
 
 func _on_player_collect_coin():
 	collected_coins += 1
@@ -190,8 +204,8 @@ func _on_player_collect_coin():
 func _on_player_update_life(curr_life):
 	life_hearts.update_hearts(curr_life)
 	if (curr_life <= 0):
-		# Se life_active já é false, _on_player_dead já foi chamado
-		if not life_active:
+		# Se energy_active já é false, _on_player_dead já foi chamado
+		if not energy_active:
 			return
 		await get_tree().create_timer(2.0).timeout
 		toggle_mode()
@@ -618,20 +632,20 @@ func enter_play_mode():
 			coins_ui.update_coin_count(0)
 			player.life = player.max_life
 			life_hearts.update_hearts(player.life)
-			life_time = max_life_time
+			energy_time = max_energy_time
 			used_banners.clear()
 		else:
 			coins_ui.update_coin_count(collected_coins)
 			
-			if saved_life <= 0 or life_time <= 0:
-				life_time = max_life_time
+			if saved_life <= 0 or energy_time <= 0:
+				energy_time = max_energy_time
 				player.life = player.max_life
 			else:
 				player.life = saved_life
 			
 			life_hearts.update_hearts(player.life)
 			
-		life_active = true
+		energy_active = true
 
 func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()

@@ -1,7 +1,9 @@
 extends Node
 
+# Referência ao multimesh para renderização dos mapas
 var heatmap_multimesh: MultiMeshInstance3D
 
+# Direções de propagação de influência
 const DIRECTIONS := [
 	Vector3i(1, 0, 0),
 	Vector3i(-1, 0, 0),
@@ -13,6 +15,7 @@ const DIRECTIONS := [
 	#Vector3i(-1, 0, -1),
 ]
 
+# Constantes de nomes dos elementos
 const ENEMIES = "enemies"
 const COINS = "coins"
 const BANNERS = "banners"
@@ -22,6 +25,7 @@ const COMBINED = "combined"
 const RECHARGES = "recharges"
 const PLAYER = "player"
 
+# Valor máximo de influência dos elementos
 const MAX_VALUE = {
 	ENEMIES: 1.0,
 	COINS: 1.0,
@@ -31,6 +35,7 @@ const MAX_VALUE = {
 	PLAYER: 1.0
 }
 
+# Range máximo de influência dos elementos
 const MAX_DISTANCE = {
 	ENEMIES: 5, 
 	COINS: 5, 
@@ -40,6 +45,7 @@ const MAX_DISTANCE = {
 	PLAYER: 5
 }
 
+# Mapas de influência
 var heatmaps = {
 	ENEMIES: [],
 	COINS: [],
@@ -50,12 +56,15 @@ var heatmaps = {
 	PLAYER: []
 }
 
+# Função de decaimento atual
 var decay_func_type = "linear"
 
+# Funções de decaimento
 var decay_func_types = {
 	"linear": "Linear"
 }
 
+# Visibilidade dos mapas de calor
 var curr_visible_heatmap = {
 	ENEMIES: false,
 	COINS: false,

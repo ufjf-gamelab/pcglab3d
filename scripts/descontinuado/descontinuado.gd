@@ -7,7 +7,7 @@
 #func _build_light_aware_global_path(gen_paths: Array, pathfinder) -> Array:
 	#var safe_paths: Array = []
 	#
-	#var sim_life := max_life_time
+	#var sim_life := max_energy_time
 	#var cell_time := 1.0 / 2.5 # speed = 2.5m/s ; cell_size = 1m
 	#
 	#for room_index in range(gen_paths.size()):
@@ -54,7 +54,7 @@
 			#room_coins_pos.erase(current_pos)
 		#
 		#if (banners.has(current_pos)):
-			#sim_light = max_life_time + cell_time
+			#sim_light = max_energy_time + cell_time
 		#
 		#new_room_path.append(current_pos)
 		#
@@ -88,7 +88,7 @@
 					#sim_light -= time_to_banner
 					#
 					## Recarrega
-					#sim_light = max_life_time
+					#sim_light = max_energy_time
 					#
 					#var curr_pos = new_room_path[new_room_path.size()-1]
 					#if PATH_TYPE == Pathfing.STRAIGHT:

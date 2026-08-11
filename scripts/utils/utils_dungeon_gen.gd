@@ -18,18 +18,22 @@ const ROOM_COUNT = 8 # Número de salas
 # Fator de escala
 const SCALE_FACTOR = 1
 
-var rooms = [] # Array[Array[Vector3i]]
+# Posições dos tiles que compõe as salas
+var rooms = [] # Array[Array[Vector3i]
+# Posições dos elementos de cada sala
 var rooms_elements_pos = []
 
+# Conexão entre portais
 var portal_links: Dictionary = {}
 var firstPortal: Vector3i
 var lastPortal: Vector3i
 
+# Proporção de elemento e número de tiles
 var ENEMIES_RATE = UHeat.MAX_DISTANCE[UHeat.ENEMIES] * UHeat.MAX_DISTANCE[UHeat.ENEMIES]
 var COINS_RATE = UHeat.MAX_DISTANCE[UHeat.COINS] * UHeat.MAX_DISTANCE[UHeat.COINS]
 var BANNERS_RATE = UHeat.MAX_DISTANCE[UHeat.BANNERS] * UHeat.MAX_DISTANCE[UHeat.BANNERS]
 
-# 1 elemento a mais a cada N tiles
+# Um elemento a mais a cada N tiles
 var rate_element_tiles = {
 	UHeat.ENEMIES: ENEMIES_RATE,
 	UHeat.COINS: COINS_RATE,
@@ -39,15 +43,15 @@ var rate_element_tiles = {
 # Quantidade de elementos em cada sala
 var rooms_elements_quantity = {}
 
+# Mapas de influência dos elementos
 var room_coins_heatmap = {}
 var room_banners_heatmap = {}
 var room_enemies_heatmap = {}
-
 var room_entry_portals_heatmap = {}
 var room_exit_portals_heatmap = {}
 
+# Tipo de posicionamento de elementos
 enum Spawn { RANDOM, SMART }
-
 var SPAWN: Spawn = Spawn.RANDOM
 
 func update_elements_pos(gridmap: GridMap):

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Structure" format=3 uid="uid://l5v6s0nxs2mi"]
 
-[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_poqsk"]
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/data/structure.gd" id="1_poqsk"]
 [ext_resource type="PackedScene" uid="uid://b022m3l0wbnxt" path="res://dungeon/assets/floor_banner.glb" id="1_r2s04"]
 
 [resource]

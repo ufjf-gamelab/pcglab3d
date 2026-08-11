@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dmlb8aff62tne"]
 
-[ext_resource type="Script" uid="uid://c27iauyf3sug" path="res://scripts/utils/heatmap_info_panel.gd" id="1_145pq"]
+[ext_resource type="Script" uid="uid://c27iauyf3sug" path="res://scripts/ui/heatmap_info_panel.gd" id="1_145pq"]
 
 [node name="HeatmapInfoPanel" type="PanelContainer" unique_id=1933536118]
 script = ExtResource("1_145pq")

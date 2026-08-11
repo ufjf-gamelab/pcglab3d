@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://dbww7vvrtfp7m"]
+[gd_resource type="Resource" script_class="Structure" format=3 uid="uid://dbww7vvrtfp7m"]
 
-[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_48dlp"]
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/data/structure.gd" id="1_48dlp"]
 [ext_resource type="PackedScene" uid="uid://dkg860s7qup42" path="res://dungeon/assets/floor_coin.glb" id="1_b1b55"]
 
 [resource]
