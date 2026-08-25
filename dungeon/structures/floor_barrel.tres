@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="Structure" load_steps=3 format=3 uid="uid://c60oqn5n05d7b"]
+[gd_resource type="Resource" script_class="Structure" format=3 uid="uid://c60oqn5n05d7b"]
 
 [ext_resource type="PackedScene" uid="uid://cn0skmj5hhqd" path="res://dungeon/assets/floor_barrel.glb" id="1_ly7xr"]
-[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/structure.gd" id="1_u6a8m"]
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://scripts/data/structure.gd" id="1_u6a8m"]
 
 [resource]
 script = ExtResource("1_u6a8m")
