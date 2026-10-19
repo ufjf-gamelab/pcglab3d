@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://spwcbjyxsldx"]
+
+[ext_resource type="Script" uid="uid://bv3oehmoeiqet" path="res://scripts/playable/enemy.gd" id="1_c20yv"]
+[ext_resource type="PackedScene" uid="uid://cie6y5pvn7hji" path="res://scenes/playable/enemy-model.tscn" id="2_c20yv"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rsqi7"]
+radius = 0.24902344
+height = 0.8041687
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_c20yv"]
+height = 0.38964844
+radius = 2.996582
+
+[node name="Enemy" type="CharacterBody3D" unique_id=114424575]
+collision_layer = 2
+collision_mask = 11
+script = ExtResource("1_c20yv")
+
+[node name="Model" parent="." unique_id=2094598437 instance=ExtResource("2_c20yv")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1036546370]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37986755, 0)
+shape = SubResource("CapsuleShape3D_rsqi7")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=999561415]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=1649908621]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.123535156, 0)
+shape = SubResource("CylinderShape3D_c20yv")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=138644439]
+
+[connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
+[connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]

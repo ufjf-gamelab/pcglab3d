@@ -5,7 +5,9 @@ var camera_rotation:Vector3
 
 var zoom:float = 30.0 # 30 = Standard zoom level, in meters
 
-@onready var camera = $Camera
+var active := true
+
+@onready var camera = $EditCamera
 
 func _ready():
 	
@@ -14,6 +16,8 @@ func _ready():
 	pass
 
 func _process(delta):
+	if not active:
+		return
 	
 	# Set position and rotation to targets
 	
@@ -30,12 +34,15 @@ func _process(delta):
 
 func handle_input(_delta):
 	
+	if not active:
+		return
+	
 	# Rotation
 	
 	var input := Vector3.ZERO
 	
-	input.x = Input.get_axis("camera_left", "camera_right")
-	input.z = Input.get_axis("camera_forward", "camera_back")
+	input.x = Input.get_axis("move_left", "move_right")
+	input.z = Input.get_axis("move_forward", "move_back")
 	
 	input = input.rotated(Vector3.UP, rotation.y).normalized()
 	
@@ -55,6 +62,9 @@ func handle_input(_delta):
 		camera_position = Vector3()
 
 func _input(event):
+	
+	if not active:
+		return
 	
 	# Rotate camera using mouse (hold 'middle' mouse button)
 	

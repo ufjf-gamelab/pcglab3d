@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://cie6y5pvn7hji"]
+
+[ext_resource type="PackedScene" uid="uid://bq3oalkvr3ppm" path="res://dungeon/assets/character-orc.glb" id="1_iqn54"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ibwjo"]
+size = Vector3(0.18041992, 0.124801636, 0.144907)
+
+[node name="enemy-model" unique_id=2094598437 instance=ExtResource("1_iqn54")]
+
+[node name="Skeleton3D" parent="character-orc" parent_id_path=PackedInt32Array(1677159372) index="0" unique_id=1297129701]
+bones/4/rotation = Quaternion(0, 0, -0.38268346, 0.9238795)
+bones/5/rotation = Quaternion(0, 0, 0.3826835, 0.92387956)
+
+[node name="RightHand" type="BoneAttachment3D" parent="character-orc/Skeleton3D" index="2" unique_id=1771263372]
+transform = Transform3D(0.7071067, -0.70710677, 0, 0.70710677, 0.7071067, 0, 0, 0, 1, -0.09989677, 0.28775, -0.01225)
+bone_name = "arm-right"
+bone_idx = 5
+
+[node name="Area3D" type="Area3D" parent="character-orc/Skeleton3D/RightHand" index="0" unique_id=1500435208]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="character-orc/Skeleton3D/RightHand/Area3D" index="0" unique_id=551706842]
+transform = Transform3D(0.911983, 0.08830023, 0.4006111, -0.08904302, 0.9958861, -0.016801924, -0.40044647, -0.020348556, 0.9160941, -0.25156784, 0.017364651, 0.07455586)
+shape = SubResource("BoxShape3D_ibwjo")

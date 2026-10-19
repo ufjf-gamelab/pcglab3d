@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dyfwjf4jammp7"]
+
+[ext_resource type="Script" uid="uid://dqqybftahfc7x" path="res://scripts/playable/banner.gd" id="1_dnrjv"]
+[ext_resource type="PackedScene" uid="uid://b3e7n0y7urnmh" path="res://dungeon/assets/banner.glb" id="1_mglwu"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mglwu"]
+size = Vector3(0.6656265, 1.0468597, 0.2992859)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dnrjv"]
+size = Vector3(1.2741699, 0.50042725, 1.1819458)
+
+[node name="Banner" type="StaticBody3D" unique_id=879912778]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+script = ExtResource("1_dnrjv")
+
+[node name="Model" parent="." unique_id=1808365595 instance=ExtResource("1_mglwu")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1605326435]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0017662048, 0.5194168, 0.0061798096)
+shape = SubResource("BoxShape3D_mglwu")
+
+[node name="ResetTimerArea" type="Area3D" parent="." unique_id=289290388]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ResetTimerArea" unique_id=1679532509]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0001220703, 0.24978638, -0.00033569336)
+shape = SubResource("BoxShape3D_dnrjv")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1920386100]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86094916, 0)
+light_color = Color(1, 0.78431374, 0.52156866, 1)
+
+[connection signal="body_entered" from="ResetTimerArea" to="." method="_on_reset_timer_area_body_entered"]
+[connection signal="body_exited" from="ResetTimerArea" to="." method="_on_reset_timer_area_body_exited"]
