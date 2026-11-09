@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://v4c2f17q8a1o"]
+[gd_scene format=3 uid="uid://v4c2f17q8a1o"]
 
 [ext_resource type="Script" path="res://addons/easy_charts/examples/simple_chart/Control.gd" id="1"]
 

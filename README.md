@@ -6,7 +6,7 @@ gerada com um personagem).
 
 ## Requisitos
 
-- Godot Engine 4.6 ou superior
+- Godot Engine 4.7 ou superior
 
 ## Controles
 
