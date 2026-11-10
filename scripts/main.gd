@@ -552,7 +552,9 @@ func enter_creation_mode():
 	
 	sun.visible = true
 
+	builder.process_mode = Node.PROCESS_MODE_INHERIT
 	builder.set_process(true)
+	show_selector()
 	
 	if RESET_ON_TOGGLE_OR_DIE and not gridmap_snapshot.is_empty():
 		_recover_gridmap_snapshot()
@@ -597,7 +599,8 @@ func enter_play_mode():
 	env.ambient_light_color = Color(0.05, 0.05, 0.2)
 	env.ambient_light_energy = 0.2
 
-	builder.set_process(false)
+	builder.process_mode = Node.PROCESS_MODE_DISABLED
+	hide_selector()
 	
 	_take_gridmap_snapshot()
 	
