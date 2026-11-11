@@ -6,6 +6,13 @@ var life := max_life
 @export var speed := 2.5
 @export var attack_damage := 1
 
+# Tempo de transição das animações
+@export var anim_blend_time := 0.15
+# Tempo de transição das animações de ataque pra não ficar muito lento
+@export var attack_blend_time := 0.05
+# Velocidade que o modelo gira
+@export var turn_speed := 15.0
+
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
@@ -41,6 +48,7 @@ func take_damage(amount):
 		on_die()
 
 func _ready():
+	anim.playback_default_blend_time = anim_blend_time
 	anim.play("idle")
 	
 	attack_area.monitoring = false
@@ -74,7 +82,7 @@ func disable_attack():
 func attack():
 	enemies_hit.clear()
 	velocity = Vector3.ZERO
-	anim.play("attack-melee-right")
+	anim.play("attack-melee-right", attack_blend_time)
 
 # Algum corpo entrou na area de ataque do player
 func _on_attack_area_body_entered(body: Node3D) -> void:
@@ -95,7 +103,7 @@ func teleport_to(pos: Vector3):
 	await get_tree().create_timer(0.2).timeout
 	portal_cooldown = false
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if attacking or dying:
 		return
 	
@@ -123,7 +131,9 @@ func _physics_process(_delta):
 			anim.play("walk")
 
 		# Gira só o modelo, para a câmera não girar junto
-		model.look_at(global_position + Vector3(-dir.x, 0, -dir.z), Vector3.UP)
+		# Pra girar suavemente preciso transformar um vetor em um ângulo, e encontrei essa função que faz isso usando só os eixos X e Z
+		var target_yaw := atan2(dir.x, dir.z)
+		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
