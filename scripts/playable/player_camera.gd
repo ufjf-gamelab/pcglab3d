@@ -9,7 +9,7 @@ class_name PlayerCamera
 @export var zoom_step := 1.0
 @export var smoothing := 10.0
 
-@onready var camera: Camera3D = $Camera3D
+@onready var camera: Camera3D = $Camera
 
 # Copei o offset antigo que estavam usando
 var target_yaw := 180.0

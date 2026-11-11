@@ -9,7 +9,7 @@ var life := max_life
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
-@onready var camera_pivot: PlayerCamera = $CameraPivot
+@onready var camera_pivot: PlayerCamera = $Pivot
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
