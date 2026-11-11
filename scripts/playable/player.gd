@@ -8,6 +8,8 @@ var life := max_life
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
+@onready var model: Node3D = $Model
+@onready var camera_pivot: PlayerCamera = $CameraPivot
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
@@ -103,16 +105,11 @@ func _physics_process(_delta):
 		walked_tiles.append(current_tile)
 		last_tile = current_tile
 	
-	var dir = Vector3.ZERO
+	# Movimento relativo à câmera orbital
+	var input_x := Input.get_axis("move_left", "move_right")
+	var input_z := Input.get_axis("move_back", "move_forward")
+	var dir: Vector3 = camera_pivot.get_right() * input_x + camera_pivot.get_forward() * input_z
 
-	if Input.is_action_pressed("move_back"):
-		dir.z -= 1
-	if Input.is_action_pressed("move_forward"):
-		dir.z += 1
-	if Input.is_action_pressed("move_right"):
-		dir.x -= 1
-	if Input.is_action_pressed("move_left"):
-		dir.x += 1
 	if Input.is_action_just_pressed("attack"):
 		attack()
 		return
@@ -125,7 +122,8 @@ func _physics_process(_delta):
 		if anim.current_animation != "walk":
 			anim.play("walk")
 
-		look_at(global_transform.origin + Vector3(-dir.x, 0, -dir.z), Vector3.UP)
+		# Gira só o modelo, para a câmera não girar junto
+		model.look_at(global_position + Vector3(-dir.x, 0, -dir.z), Vector3.UP)
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
