@@ -9,7 +9,6 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var builder := $Builder
 @onready var world := $World
 @onready var edit_camera := $View/EditCamera
-@onready var player_camera := $View/PlayerCamera
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
@@ -87,7 +86,6 @@ func _on_back_button_pressed():
 
 func _process(delta):
 	if mode == Mode.PLAY:
-		update_player_camera(delta)
 		_update_energy_timer(delta)
 
 func _handle_seed():
@@ -565,7 +563,6 @@ func enter_creation_mode():
 		child.queue_free()
 		
 	edit_camera.current = true
-	player_camera.current = false
 
 	view.active = true
 
@@ -616,7 +613,6 @@ func enter_play_mode():
 	_activate_room_portals(0)
 
 	edit_camera.current = false
-	player_camera.current = true
 	
 	view.active = false
 
@@ -625,8 +621,6 @@ func enter_play_mode():
 	
 	var player = world.get_node_or_null("Player")
 	if player:
-		player_camera.global_position = player.global_position + Vector3(0, 3, -5)
-		player_camera.look_at(player.global_position)
 		player.update_life.connect(_on_player_update_life)
 		
 		# Reseta contadores
@@ -663,12 +657,3 @@ func rebuild_navigation_mesh():
 	NavigationServer3D.bake_from_source_geometry_data(navigation_mesh, source)
 
 	$NavigationRegion3D.navigation_mesh = navigation_mesh
-
-func update_player_camera(delta):
-	var player = world.get_node_or_null("Player")
-	if not player:
-		return
-
-	# Camera jogavel atras do player
-	var target_pos = player.global_position + Vector3(0, 3, -5)
-	player_camera.global_position = player_camera.global_position.lerp(target_pos, delta * 5)
