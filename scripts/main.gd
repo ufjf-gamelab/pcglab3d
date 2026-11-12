@@ -476,6 +476,10 @@ func spawn_play_objects_from_gridmap():
 					if cell in used_banners:
 						obj.active = false
 						
+			# Feedback visual de dano
+			if id == 4 or id == 6:
+				obj.add_child(HitFlash.new())
+
 			world.add_child(obj)
 			obj.global_position = world_pos
 			
