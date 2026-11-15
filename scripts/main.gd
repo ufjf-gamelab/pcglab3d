@@ -77,7 +77,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"select_room", &"run_quantitative_experiment",
-	&"save", &"load", &"load_resources",
+	&"save", &"load",
 ]
 
 # Se tá tendo o experimento, pra bloquear
@@ -438,8 +438,6 @@ func _run_action(action: StringName):
 			builder.save_map()
 		&"load":
 			builder.load_map()
-		&"load_resources":
-			builder.load_sample_map()
 		&"toggle_build":
 			_set_build_mode(not build_mode)
 

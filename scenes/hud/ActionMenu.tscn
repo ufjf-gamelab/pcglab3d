@@ -136,12 +136,6 @@ size_flags_horizontal = 3
 text = "Carregar (F2)"
 metadata/action = &"load"
 
-[node name="Sample" type="Button" parent="Panel/Margin/VBox/MapGrid" unique_id=1694140022]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Exemplo (F3)"
-metadata/action = &"load_resources"
-
 [node name="Sep4" type="HSeparator" parent="Panel/Margin/VBox" unique_id=354339097]
 layout_mode = 2
 

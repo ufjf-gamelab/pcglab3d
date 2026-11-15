@@ -157,17 +157,11 @@ func save_map():
 	ResourceSaver.save(map, "user://map.res")
 
 func load_map():
-	_load_from("user://map.res")
-
-func load_sample_map():
-	_load_from("res://sample map/map.res")
-
-func _load_from(path: String):
 	print("Loading map...")
 	
 	gridmap.clear()
 	
-	map = ResourceLoader.load(path)
+	map = ResourceLoader.load("user://map.res")
 	if not map:
 		map = DataMap.new()
 	for cell in map.structures:
