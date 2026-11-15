@@ -13,15 +13,17 @@ const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 @onready var game_hud := $UI/GameHUD
 @onready var view := $View
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
-@onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/Top/HeatmapInfoPanel
+@onready var heatmap_panel: HeatmapInfoPanel = $UI/CreationUI/LeftColumn/HeatmapInfoPanel
 @onready var health_bar: ProgressBar = $UI/GameHUD/LightBar
 @onready var coins_ui: HBoxContainer = $UI/GameHUD/Coins
 @onready var life_hearts: HBoxContainer = $UI/GameHUD/LifeHearts
 @onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var sun := $Sun
-@onready var chart_plotter: Control = $UI/CreationUI/ChartPlotter
+@onready var chart_plotter: Control = $UI/CreationUI/LeftColumn/ChartPlotter
 @onready var path_visualizer: Node3D = $PathVisualizer
 @onready var victory_screen: Control = $UI/VictoryScreen
+@onready var action_menu: ActionMenu = $ActionMenu
+@onready var experiment_overlay: ExperimentOverlay = $ExperimentOverlay
 
 # Seed predefinida
 @export var dungeon_seed: int = 1464125454
@@ -69,6 +71,22 @@ var mode = Mode.CREATION
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
 const PATH_TYPE: Pathfing = Pathfing.EXPLORER
 
+# Ações do menu lateral
+const INPUT_ACTIONS: Array[StringName] = [
+	&"ca_generate_dungeon", &"generate_dungeon", &"toggle_mode",
+	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
+	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
+	&"pathfinding", &"select_room", &"run_quantitative_experiment",
+	&"save", &"load", &"load_resources",
+]
+
+# Se tá tendo o experimento, pra bloquear
+var experiment_running := false
+
+# Modo construção
+var build_mode := false
+var _experiment = null
+
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
 	enter_creation_mode()
@@ -78,6 +96,7 @@ func _ready():
 	chart_plotter.next_button_pressed.connect(_on_chart_next_button_pressed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	plane = Plane(Vector3.UP, Vector3.ZERO)
+	action_menu.action_pressed.connect(_run_action)
 
 func _on_back_button_pressed():
 	get_tree().paused = false
@@ -120,10 +139,9 @@ func _on_chart_next_button_pressed(curr_room_chart):
 	_visualize_path_by_room_index(curr_room_chart)
 
 func _on_chart_close_button_pressed():
-	builder.set_process(true)
+	_apply_builder_state()
 	view.active = true
 	path_visualizer.clear_path()
-	show_selector()
 
 func _set_life_smooth(new_value):
 	var tween = create_tween()
@@ -378,59 +396,92 @@ func _split_walked_path_by_room(all_tiles: Array[Vector3i]):
 		player_walked_paths.append(room_path)
 
 func _unhandled_input(event):
-	# Captura evento de geração da dungeon com automatos celulares
-	if event.is_action_pressed("ca_generate_dungeon"):
-		_on_ca_generate_dungeon_pressed()
+	for action in INPUT_ACTIONS:
+		if event.is_action_pressed(action):
+			_run_action(action)
 
-	# Captura evento de geração da dungeon com salas em X, T e +
-	if event.is_action_pressed("generate_dungeon"):
-		_on_generate_dungeon_pressed()
+func _run_action(action: StringName):
+	if experiment_running:
+		return
 
-	# Captura evento de mudança de modo e chama a toggle_mode()
-	if event.is_action_pressed("toggle_mode"):
-		UHeat.deactivate_heatmaps()
-		heatmap_panel.clear()
-		toggle_mode()
+	match action:
+		&"ca_generate_dungeon":
+			_on_ca_generate_dungeon_pressed()
+		&"generate_dungeon":
+			_on_generate_dungeon_pressed()
+		&"toggle_mode":
+			UHeat.deactivate_heatmaps()
+			heatmap_panel.clear()
+			toggle_mode()
+		&"show_enemies_heatmaps":
+			UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
+		&"show_coins_heatmaps":
+			UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
+		&"show_banners_heatmaps":
+			UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
+		&"show_recharges_heatmaps":
+			UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
+		&"show_combined_heatmaps":
+			UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
+		&"recalculate_heatmaps":
+			UGen.update_elements_pos(gridmap)
+			UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+		&"pathfinding":
+			print("Calculando caminhos...")
+			_on_pathfinding_pressed()
+		&"select_room":
+			print("Calculando caminho...")
+			_on_select_room_path()
+		&"run_quantitative_experiment":
+			_run_experiment()
+		&"save":
+			builder.save_map()
+		&"load":
+			builder.load_map()
+		&"load_resources":
+			builder.load_sample_map()
+		&"toggle_build":
+			_set_build_mode(not build_mode)
 
-	# Captura evento de exibir heatmap de inimigos
-	if event.is_action_pressed("show_enemies_heatmaps"):
-		UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
+func _run_experiment():
+	if mode != Mode.CREATION:
+		return
+	experiment_running = true
+	_apply_builder_state()
 
-	# Captura evento de exibir heatmap de moedas
-	if event.is_action_pressed("show_coins_heatmaps"):
-		UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
+	view.go_home()
+	view.input_locked = true
 
-	# Captura evento de exibir heatmap de estandartes
-	if event.is_action_pressed("show_banners_heatmaps"):
-		UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
+	_experiment = EXPERIMENT.new()
+	_experiment.progress.connect(experiment_overlay.update_progress)
+	experiment_overlay.cancel_pressed.connect(_experiment.cancel)
+	experiment_overlay.start()
 
-	# Captura evento de exibir heatmap de portais
-	if event.is_action_pressed("show_recharges_heatmaps"):
-		UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
+	await _experiment.run(gridmap, chart_plotter)
 
-	# Captura evento de exibir heatmap combinando influências
-	if event.is_action_pressed("show_combined_heatmaps"):
-		UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
+	experiment_overlay.cancel_pressed.disconnect(_experiment.cancel)
+	var output_folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d"
+	experiment_overlay.finish(_experiment.cancelled, output_folder)
+	_experiment = null
 
-	# Captura evento de exibir heatmap combinando influências
-	if event.is_action_pressed("recalculate_heatmaps"):
-		UGen.update_elements_pos(gridmap)
-		UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+	experiment_running = false
+	view.input_locked = false
+	_apply_builder_state()
 
-	# Calcula caminho entre portais das salas
-	if event.is_action_pressed("pathfinding"):
-		print("Calculando caminhos...")
-		_on_pathfinding_pressed()
+func _set_build_mode(enabled: bool):
+	build_mode = enabled
+	action_menu.set_build_mode(enabled)
+	_apply_builder_state()
 
-	# Escolhe sala e exibe grafico apenas dela
-	if event.is_action_pressed("select_room"):
-		print("Calculando caminho...")
-		_on_select_room_path()
-		
-	# Roda script de experimento/teste externo à main:
-	if event.is_action_pressed("run_quantitative_experiment"):
-		var experiment = EXPERIMENT.new()
-		experiment.run(gridmap, chart_plotter)
+func _apply_builder_state():
+	var active := build_mode and mode == Mode.CREATION and not experiment_running
+	if active:
+		builder.process_mode = Node.PROCESS_MODE_INHERIT
+		builder.set_process(true)
+		show_selector()
+	else:
+		builder.process_mode = Node.PROCESS_MODE_DISABLED
+		hide_selector()
 
 func spawn_play_objects_from_gridmap():
 	# Mapeamento dos IDs do GridMap para cenas reais
@@ -554,9 +605,7 @@ func enter_creation_mode():
 	
 	sun.visible = true
 
-	builder.process_mode = Node.PROCESS_MODE_INHERIT
-	builder.set_process(true)
-	show_selector()
+	_apply_builder_state()
 	
 	if RESET_ON_TOGGLE_OR_DIE and not gridmap_snapshot.is_empty():
 		_recover_gridmap_snapshot()
@@ -571,6 +620,7 @@ func enter_creation_mode():
 	view.active = true
 
 	creation_ui.visible = true
+	action_menu.visible = true
 	game_hud.visible = false
 
 func _activate_room_portals(room_index: int):
@@ -600,8 +650,7 @@ func enter_play_mode():
 	env.ambient_light_color = Color(0.05, 0.05, 0.2)
 	env.ambient_light_energy = 0.2
 
-	builder.process_mode = Node.PROCESS_MODE_DISABLED
-	hide_selector()
+	_apply_builder_state()
 	
 	_take_gridmap_snapshot()
 	
@@ -621,6 +670,7 @@ func enter_play_mode():
 	view.active = false
 
 	creation_ui.visible = false
+	action_menu.visible = false
 	game_hud.visible = true
 	
 	var player = world.get_node_or_null("Player")

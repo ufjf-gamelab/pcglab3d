@@ -43,7 +43,7 @@ func _ready():
 				
 			# Caso encontre colisão filha direta do nó raiz
 			elif child is CollisionShape3D:
-#				# Adiciona forma ao item
+				# Adiciona forma ao item
 				mesh_library.set_item_shapes(id, [child.shape, child.transform])
 				
 			# Caso seja uma cena com colisão, a mesh fica dentro do glb
@@ -68,10 +68,6 @@ func _process(delta):
 	# Controls
 	action_rotate() # Rotates selection 90 degrees
 	action_structure_toggle() # Toggles between structures
-	
-	action_save() # Saving
-	action_load() # Loading
-	action_load_resources() # Loading from resources
 	
 	# Map position based on mouse
 	var world_position = plane.intersects_ray(
@@ -98,7 +94,7 @@ func get_mesh(packed_scene):
 
 # Build (place) a structure
 func action_build(gridmap_position):
-	if Input.is_action_just_pressed("build"):
+	if Input.is_action_just_pressed("build") and not _mouse_over_ui():
 		
 		var previous_tile = gridmap.get_cell_item(gridmap_position)
 		gridmap.set_cell_item(gridmap_position, index, gridmap.get_orthogonal_index_from_basis(selector.basis))
@@ -110,7 +106,7 @@ func action_build(gridmap_position):
 
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):
-	if Input.is_action_just_pressed("demolish"):
+	if Input.is_action_just_pressed("demolish") and not _mouse_over_ui():
 		if gridmap.get_cell_item(gridmap_position) != -1:
 			gridmap.set_cell_item(gridmap_position, -1)
 			
@@ -118,7 +114,7 @@ func action_demolish(gridmap_position):
 
 # Rotates the 'cursor' 90 degrees
 func action_rotate():
-	if Input.is_action_just_pressed("rotate"):
+	if Input.is_action_just_pressed("rotate") and not _mouse_over_ui():
 		selector.rotate_y(deg_to_rad(90))
 		
 		Audio.play("sounds/rotate.ogg", -30)
@@ -147,40 +143,39 @@ func update_structure():
 	_model.position.y += 0.25
 
 # Saving/load
-func action_save():
-	if Input.is_action_just_pressed("save"):
-		print("Saving map...")
-		
-		map.structures.clear()
-		for cell in gridmap.get_used_cells():
-			var data_structure:DataStructure = DataStructure.new()
-			data_structure.position = Vector2i(cell.x, cell.z)
-			data_structure.orientation = gridmap.get_cell_item_orientation(cell)
-			data_structure.structure = gridmap.get_cell_item(cell)
-			map.structures.append(data_structure)
-			
-		ResourceSaver.save(map, "user://map.res")
+func save_map():
+	print("Saving map...")
 	
-func action_load():
-	if Input.is_action_just_pressed("load"):
-		print("Loading map...")
+	map.structures.clear()
+	for cell in gridmap.get_used_cells():
+		var data_structure:DataStructure = DataStructure.new()
+		data_structure.position = Vector2i(cell.x, cell.z)
+		data_structure.orientation = gridmap.get_cell_item_orientation(cell)
+		data_structure.structure = gridmap.get_cell_item(cell)
+		map.structures.append(data_structure)
 		
-		gridmap.clear()
-		
-		map = ResourceLoader.load("user://map.res")
-		if not map:
-			map = DataMap.new()
-		for cell in map.structures:
-			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+	ResourceSaver.save(map, "user://map.res")
 
-func action_load_resources():
-	if Input.is_action_just_pressed("load_resources"):
-		print("Loading map...")
-		
-		gridmap.clear()
-		
-		map = ResourceLoader.load("res://sample map/map.res")
-		if not map:
-			map = DataMap.new()
-		for cell in map.structures:
-			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+func load_map():
+	_load_from("user://map.res")
+
+func load_sample_map():
+	_load_from("res://sample map/map.res")
+
+func _load_from(path: String):
+	print("Loading map...")
+	
+	gridmap.clear()
+	
+	map = ResourceLoader.load(path)
+	if not map:
+		map = DataMap.new()
+	for cell in map.structures:
+		gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+
+func _mouse_over_ui() -> bool:
+	var mouse := get_viewport().get_mouse_position()
+	for control: Control in get_tree().get_nodes_in_group("blocking_ui"):
+		if control.is_visible_in_tree() and control.get_global_rect().has_point(mouse):
+			return true
+	return false

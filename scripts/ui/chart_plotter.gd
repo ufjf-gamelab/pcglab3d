@@ -1,8 +1,10 @@
 extends Control
 
-@onready var chart: Chart = $VBoxContainer/Chart
-@onready var next_button: Button = $VBoxContainer/HBoxContainer/Next
-@onready var download_button: Button = $VBoxContainer/HBoxContainer/Download
+@onready var chart: LineChart = %LineChart
+@onready var title_label: Label = %Title
+@onready var close_button: Button = %Close
+@onready var next_button: Button = %Next
+@onready var download_button: Button = %Download
 
 signal close_button_pressed
 signal next_button_pressed(chart_pos)
@@ -11,9 +13,6 @@ var current_seed: int = 0
 
 var current_room_index: int = 0
 
-var f: Function
-
-var cp: ChartProperties
 var x: Array
 var y: Array
 var rooms_x_values: Array
@@ -44,38 +43,13 @@ func _ready():
 	rooms_y_values = []
 	chart_pos = 0
 
-	cp = ChartProperties.new()
-	cp.colors.frame = Color("#161a1d")
-	cp.colors.background = Color.TRANSPARENT
-	cp.colors.grid = Color("#283442")
-	cp.colors.ticks = Color("#283442")
-	cp.colors.text = Color.WHITE_SMOKE
-	cp.draw_bounding_box = false
-	cp.title = "Valores de influência ao longo do caminho"
-	cp.x_label = "Tile"
-	cp.y_label = "Influência"
-	cp.x_scale = 5
-	cp.y_scale = 5
-	cp.interactive = true
-
-	f = Function.new(
-		x, y, "Influência",
-		{ 
-			color = Color("#36a2eb"),
-			marker = Function.Marker.CIRCLE,
-			type = Function.Type.LINE,
-			interpolation = Function.Interpolation.LINEAR
-		}
-	)
-	
-	chart.plot([f], cp)
-	
-	chart.x_labels_function = func(value):
-		return str(int(round(value)))
-
 	visible = false
 	
+	close_button.pressed.connect(_on_close_pressed)
+	next_button.pressed.connect(_on_next_pressed)
 	download_button.pressed.connect(_on_download_pressed)
+	for button in [close_button, next_button, download_button]:
+		button.focus_mode = Control.FOCUS_NONE
 
 func _get_heatmap_name() -> String:
 	for key in UHeat.curr_visible_heatmap.keys():
@@ -171,11 +145,10 @@ func _has_only_positive_influence() -> bool:
 			return ONLY_POSITIVE_INFLUENCE_VALUES[key]
 	return false
 
-func _define_chart_domain(value: float):
+func _chart_y_domain(value: float) -> Vector2:
 	if _has_only_positive_influence():
-		chart.set_y_domain(0, value)
-	else:
-		chart.set_y_domain(-value, value)
+		return Vector2(0, value)
+	return Vector2(-value, value)
 
 func show_chart(x_val, y_val, external_call: bool):
 	x = x_val
@@ -191,21 +164,12 @@ func show_chart(x_val, y_val, external_call: bool):
 	else:
 		nice_max = _get_nice_max(scale_y)
 	
-	_define_chart_domain(nice_max)
-	cp.y_scale = 8
-	
-	var max_x = x[x.size()-1]
-	cp.x_scale = int(max_x/2)
-	chart.set_x_domain(0, max_x)
-	
-	if f.__x.size() > 0:
-		for i in range(f.__x.size()):
-			f.pop_front_point()
-
-	for i in range(x.size()):
-		f.add_point(x[i], y[i])
-
-	chart.queue_redraw()
+	var domain := _chart_y_domain(nice_max)
+	chart.set_data(x, y, domain.x, domain.y)
+	if rooms_x_values.is_empty():
+		title_label.text = "Influência ao longo do caminho da sala %d" % (current_room_index + 1)
+	else:
+		title_label.text = "Influência ao longo do caminho da sala %d de %d" % [chart_pos + 1, rooms_x_values.size()]
 
 func _get_nice_max(value: float) -> float:
 	if value <= 0:
