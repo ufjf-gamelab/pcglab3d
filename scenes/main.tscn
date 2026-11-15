@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
 [ext_resource type="PackedScene" path="res://scenes/hud/ActionMenu.tscn" id="28_menu"]
 [ext_resource type="PackedScene" path="res://scenes/hud/ExperimentOverlay.tscn" id="29_overlay"]
+[ext_resource type="Script" path="res://scripts/edit_tools.gd" id="30_edit"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
 glow_enabled = true
@@ -219,3 +220,14 @@ autoplay = true
 [node name="ActionMenu" parent="." unique_id=212369987 instance=ExtResource("28_menu")]
 
 [node name="ExperimentOverlay" parent="." unique_id=971121760 instance=ExtResource("29_overlay")]
+
+[node name="EditTools" type="Node" parent="." node_paths=PackedStringArray("gridmap", "nav_region", "heatmap_panel", "chart_plotter", "path_visualizer", "edit_camera", "view", "experiment_overlay")]
+script = ExtResource("30_edit")
+gridmap = NodePath("../NavigationRegion3D/GridMap")
+nav_region = NodePath("../NavigationRegion3D")
+heatmap_panel = NodePath("../UI/CreationUI/LeftColumn/HeatmapInfoPanel")
+chart_plotter = NodePath("../UI/CreationUI/LeftColumn/ChartPlotter")
+path_visualizer = NodePath("../PathVisualizer")
+edit_camera = NodePath("../View/EditCamera")
+view = NodePath("../View")
+experiment_overlay = NodePath("../ExperimentOverlay")
