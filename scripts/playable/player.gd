@@ -10,11 +10,13 @@ var life := max_life
 @export var anim_blend_time := 0.15
 # Tempo de transição das animações de ataque pra não ficar muito lento
 @export var attack_blend_time := 0.05
+@export var attack_speed := 1.5
+@export var attack_cancel_time := 0.45
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
-@onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
+@onready var attack_area: Area3D = $"Model/Rig_Medium/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
 @onready var camera_pivot: PlayerCamera = $Pivot
 
@@ -82,7 +84,7 @@ func disable_attack():
 func attack():
 	enemies_hit.clear()
 	velocity = Vector3.ZERO
-	anim.play("attack-melee-right", attack_blend_time)
+	anim.play("attack-melee-right", attack_blend_time, attack_speed)
 
 # Algum corpo entrou na area de ataque do player
 func _on_attack_area_body_entered(body: Node3D) -> void:
@@ -104,6 +106,13 @@ func teleport_to(pos: Vector3):
 	portal_cooldown = false
 
 func _physics_process(delta):
+	if attacking and not (anim.is_playing() and anim.current_animation == "attack-melee-right"):
+		disable_attack()
+
+	var wants_move := Input.get_axis("move_left", "move_right") != 0 or Input.get_axis("move_back", "move_forward") != 0
+	if attacking and wants_move and anim.current_animation_position >= attack_cancel_time:
+		disable_attack()
+
 	if attacking or dying:
 		return
 	

@@ -5,10 +5,12 @@ extends CharacterBody3D
 @export var attack_distance := 0.6
 @export var attack_cooldown := 0.5
 @export var attack_damage := 1
+@export var attack_speed := 1.5
 
 var player : Node3D = null
 var life := max_life
 var state : State = State.IDLE
+var has_hit := false
 
 enum State {
 	IDLE,
@@ -19,7 +21,7 @@ enum State {
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
-@onready var attack_area := $"Model/character-orc/Skeleton3D/RightHand/Area3D"
+@onready var attack_area := $"Model/Rig_Medium/Skeleton3D/RightHand/Area3D"
 
  
 func _ready():
@@ -92,12 +94,13 @@ func attack():
 	if state == State.DEAD:
 		return
 
-	anim.play("attack-melee-right")
+	anim.play("attack-melee-right", -1, attack_speed)
 
 func _on_animation_started(anim_name):
 	if state == State.DEAD:
 		return
 	if anim_name == "attack-melee-right":
+		has_hit = false
 		attack_area.monitoring = true
 
 func _on_animation_finished(anim_name):
@@ -130,7 +133,11 @@ func _on_attack_area_body_entered(body):
 	if state == State.DEAD:
 		return
 
+	if has_hit:
+		return
+
 	if body.name == "Player" and body.life > 0:
+		has_hit = true
 		body.take_damage(attack_damage)
 
 func take_damage(amount):

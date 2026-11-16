@@ -1,0 +1,16 @@
+[gd_resource type="AnimationLibrary" format=3 uid="uid://xnhpp1gua6px"]
+
+[ext_resource type="Animation" uid="uid://bbu1e45vag72a" path="res://characters/Animations/t_pose.res" id="1_1hau0"]
+[ext_resource type="Animation" uid="uid://d3rebe8g1vjf2" path="res://characters/Animations/idle.res" id="1_idle"]
+[ext_resource type="Animation" uid="uid://cpvke648q7yti" path="res://characters/Animations/running_a.res" id="2_walk"]
+[ext_resource type="Animation" uid="uid://d2do0ma5xcg80" path="res://characters/Animations/attack_sword.res" id="3_attack"]
+[ext_resource type="Animation" uid="uid://2mw58fv42gin" path="res://characters/Animations/die.res" id="4_die"]
+
+[resource]
+_data = {
+&"T-Pose": ExtResource("1_1hau0"),
+&"attack-melee-right": ExtResource("3_attack"),
+&"die": ExtResource("4_die"),
+&"idle": ExtResource("1_idle"),
+&"walk": ExtResource("2_walk")
+}
