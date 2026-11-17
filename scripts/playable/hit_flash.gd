@@ -2,7 +2,7 @@ extends Node
 class_name HitFlash
 # Checa o life do objeto pai e dá um flash branco quando ele sofre dano
 
-@export var flash_color := Color(1, 1, 1, 0.85)
+@export var flash_color := Color(1, 1, 1, 0.4)
 @export var duration := 0.15 # Quantos segundos até o flash sair
 
 var _target: Node

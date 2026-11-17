@@ -1,11 +1,14 @@
 extends CharacterBody3D
 
-@export var max_life := 2
+@export var max_life := 5
 @export var speed := 2.0
 @export var attack_distance := 0.6
 @export var attack_cooldown := 0.5
 @export var attack_damage := 1
 @export var attack_speed := 1.5
+@export var hit_start := 0.2
+@export var hit_end := 0.36
+@export var knockback := 0.8
 
 var player : Node3D = null
 var life := max_life
@@ -16,6 +19,7 @@ enum State {
 	IDLE,
 	CHASE,
 	ATTACK_PREPARE,
+	STAGGER,
 	DEAD
 }
 
@@ -36,9 +40,13 @@ func _ready():
 	anim.animation_started.connect(_on_animation_started)
 	anim.animation_finished.connect(_on_animation_finished)
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if state == State.DEAD:
 		return
+
+	if anim.current_animation == "attack-melee-right":
+		var t := anim.current_animation_position
+		attack_area.monitoring = t >= hit_start and t <= hit_end
 
 	match state:
 		State.IDLE:
@@ -46,6 +54,9 @@ func _physics_process(_delta):
 		
 		State.CHASE:
 			chase_state()
+
+		State.STAGGER:
+			stagger_state(delta)
 
 # IDLE
 func idle_state():
@@ -91,7 +102,7 @@ func attack():
 
 	await get_tree().create_timer(attack_cooldown).timeout
 
-	if state == State.DEAD:
+	if state != State.ATTACK_PREPARE:
 		return
 
 	anim.play("attack-melee-right", -1, attack_speed)
@@ -101,13 +112,17 @@ func _on_animation_started(anim_name):
 		return
 	if anim_name == "attack-melee-right":
 		has_hit = false
-		attack_area.monitoring = true
 
 func _on_animation_finished(anim_name):
 	if state == State.DEAD:
 		return
 	if anim_name == "attack-melee-right":
 		attack_area.monitoring = false
+		if player:
+			state = State.CHASE
+		else:
+			state = State.IDLE
+	elif anim_name == "hit":
 		if player:
 			state = State.CHASE
 		else:
@@ -147,6 +162,23 @@ func take_damage(amount):
 	life -= amount
 	if life <= 0:
 		die()
+	else:
+		stagger()
+
+func stagger():
+	state = State.STAGGER
+	attack_area.monitoring = false
+	velocity = Vector3.ZERO
+	if player:
+		var away := global_position - player.global_position
+		away.y = 0
+		velocity = away.normalized() * knockback
+	anim.play("hit", 0.05)
+	anim.seek(0, true)
+
+func stagger_state(delta):
+	velocity = velocity.move_toward(Vector3.ZERO, knockback * 4 * delta)
+	move_and_slide()
 
 func die():
 	state = State.DEAD
@@ -156,6 +188,7 @@ func die():
 
 	player = null
 	attack_area.monitoring = false
+	$CollisionShape3D.set_deferred("disabled", true)
 
 	anim.play("die")
 	await anim.animation_finished

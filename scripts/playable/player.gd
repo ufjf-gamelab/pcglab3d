@@ -4,14 +4,15 @@ extends CharacterBody3D
 var life := max_life
 
 @export var speed := 2.5
-@export var attack_damage := 1
 
 # Tempo de transição das animações
 @export var anim_blend_time := 0.15
 # Tempo de transição das animações de ataque pra não ficar muito lento
 @export var attack_blend_time := 0.05
-@export var attack_speed := 1.5
-@export var attack_cancel_time := 0.45
+@export var chain_blend_time := 0.12
+@export var combo_reset_time := 0.6
+@export var attack_buffer_time := 0.2
+@export var combo: Array[AttackData] = []
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
 
@@ -29,6 +30,11 @@ var portal_cooldown := false
 
 var attacking := false
 var enemies_hit := []
+var combo_index := 0
+var queued_attack := false
+var last_attack_end := -100.0
+var attack_elapsed := 0.0
+var attack_pressed_at := -100.0
 
 var dying := false
 
@@ -47,6 +53,7 @@ func take_damage(amount):
 	
 	if life <= 0:
 		dying = true
+		end_attack()
 		on_die()
 
 func _ready():
@@ -57,34 +64,74 @@ func _ready():
 	
 	# Conecta sinais às funções
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
-	anim.animation_finished.connect(_on_animation_finished)
-	anim.animation_started.connect(_on_animation_started)
-
-# Início de alguma animação
-func _on_animation_started(anim_name):
-	if anim_name == "attack-melee-right":
-		enable_attack()
-
-# Final de alguma animação
-func _on_animation_finished(anim_name):
-	if anim_name == "attack-melee-right":
-		disable_attack()
 
 # Ativa hitbox do ataque
 func enable_attack():
 	attack_area.monitoring = true
-	attacking = true
 
 # Desativa hitbox do ataque
 func disable_attack():
 	attack_area.monitoring = false
+
+func end_attack():
+	disable_attack()
 	attacking = false
+	queued_attack = false
+	last_attack_end = Time.get_ticks_msec() / 1000.0
+
+func consume_buffered_attack() -> bool:
+	if Time.get_ticks_msec() / 1000.0 - attack_pressed_at <= attack_buffer_time:
+		attack_pressed_at = -100.0
+		return true
+	return false
+
+func next_combo_index() -> int:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - last_attack_end <= combo_reset_time and combo_index < combo.size() - 1:
+		return combo_index + 1
+	return 0
 
 # Método de ataque
-func attack():
+func attack(index: int, dir: Vector3):
+	combo_index = index
+	queued_attack = false
+	attacking = true
+	attack_elapsed = 0.0
 	enemies_hit.clear()
+	disable_attack()
 	velocity = Vector3.ZERO
-	anim.play("attack-melee-right", attack_blend_time, attack_speed)
+	if dir != Vector3.ZERO:
+		model.rotation.y = atan2(dir.x, dir.z)
+	var data: AttackData = combo[index]
+	var blend := attack_blend_time if index == 0 else chain_blend_time
+	if data.reverse:
+		var end_time := anim.get_animation(data.animation).length - data.start_time
+		anim.play_section(data.animation, 0.0, end_time, blend, -data.speed, true)
+	else:
+		anim.play_section(data.animation, data.start_time, -1.0, blend, data.speed)
+
+func update_attack(dir: Vector3, delta: float):
+	var current: AttackData = combo[combo_index]
+	if not anim.is_playing() or anim.current_animation != current.animation:
+		end_attack()
+		return
+
+	attack_elapsed += delta * current.speed
+	var t := attack_elapsed
+	if t >= current.hit_start and t <= current.hit_end:
+		enable_attack()
+		for body in attack_area.get_overlapping_bodies():
+			_on_attack_area_body_entered(body)
+	else:
+		disable_attack()
+
+	if t < current.chain_end and combo_index < combo.size() - 1 and consume_buffered_attack():
+		queued_attack = true
+
+	if queued_attack and t >= current.chain_start:
+		attack(combo_index + 1, dir)
+	elif dir != Vector3.ZERO and not queued_attack and t >= current.cancel_start:
+		end_attack()
 
 # Algum corpo entrou na area de ataque do player
 func _on_attack_area_body_entered(body: Node3D) -> void:
@@ -95,7 +142,7 @@ func _on_attack_area_body_entered(body: Node3D) -> void:
 		return
 		
 	enemies_hit.append(body)
-	body.take_damage(attack_damage)
+	body.take_damage(combo[combo_index].damage)
 	
 # Teleporta o player para o próximo portal
 func teleport_to(pos: Vector3):
@@ -106,14 +153,19 @@ func teleport_to(pos: Vector3):
 	portal_cooldown = false
 
 func _physics_process(delta):
-	if attacking and not (anim.is_playing() and anim.current_animation == "attack-melee-right"):
-		disable_attack()
+	if dying:
+		return
 
-	var wants_move := Input.get_axis("move_left", "move_right") != 0 or Input.get_axis("move_back", "move_forward") != 0
-	if attacking and wants_move and anim.current_animation_position >= attack_cancel_time:
-		disable_attack()
+	if Input.is_action_just_pressed("attack"):
+		attack_pressed_at = Time.get_ticks_msec() / 1000.0
+	
+	# Movimento relativo à câmera orbital
+	var input_x := Input.get_axis("move_left", "move_right")
+	var input_z := Input.get_axis("move_back", "move_forward")
+	var dir: Vector3 = camera_pivot.get_right() * input_x + camera_pivot.get_forward() * input_z
 
-	if attacking or dying:
+	if attacking:
+		update_attack(dir.normalized(), delta)
 		return
 	
 	# Registra tile percorrido caso seja diferente do último da lista
@@ -121,14 +173,9 @@ func _physics_process(delta):
 	if current_tile != last_tile:
 		walked_tiles.append(current_tile)
 		last_tile = current_tile
-	
-	# Movimento relativo à câmera orbital
-	var input_x := Input.get_axis("move_left", "move_right")
-	var input_z := Input.get_axis("move_back", "move_forward")
-	var dir: Vector3 = camera_pivot.get_right() * input_x + camera_pivot.get_forward() * input_z
 
-	if Input.is_action_just_pressed("attack"):
-		attack()
+	if not combo.is_empty() and consume_buffered_attack():
+		attack(next_combo_index(), dir.normalized())
 		return
 
 	if dir != Vector3.ZERO:

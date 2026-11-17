@@ -3,6 +3,34 @@
 [ext_resource type="Script" uid="uid://5r3nrjvr1s5" path="res://scripts/playable/player.gd" id="1_hngai"]
 [ext_resource type="PackedScene" uid="uid://xo8yuckv0hno" path="res://scenes/playable/player-model.tscn" id="2_qs72k"]
 [ext_resource type="Script" uid="uid://dnj7x4q8plua8" path="res://scripts/playable/player_camera.gd" id="3_qs72k"]
+[ext_resource type="Script" uid="uid://dv18p7tjr216c" path="res://scripts/playable/attack_data.gd" id="4_atk"]
+
+[sub_resource type="Resource" id="Resource_diagonal"]
+script = ExtResource("4_atk")
+animation = &"attack-diagonal"
+hit_start = 0.35
+hit_end = 0.52
+chain_start = 0.62
+chain_end = 0.8
+
+[sub_resource type="Resource" id="Resource_stab"]
+script = ExtResource("4_atk")
+animation = &"attack-stab"
+hit_start = 0.34
+hit_end = 0.5
+chain_start = 0.55
+chain_end = 0.9
+
+[sub_resource type="Resource" id="Resource_chop"]
+script = ExtResource("4_atk")
+animation = &"attack-chop"
+speed = 1.2
+damage = 2
+hit_start = 0.53
+hit_end = 0.68
+chain_start = 0.0
+chain_end = 0.0
+cancel_start = 0.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3oet1"]
 radius = 0.24902344
@@ -12,6 +40,7 @@ height = 0.8041687
 collision_mask = 11
 motion_mode = 1
 script = ExtResource("1_hngai")
+combo = Array[ExtResource("4_atk")]([SubResource("Resource_diagonal"), SubResource("Resource_stab"), SubResource("Resource_chop")])
 
 [node name="Collision" type="CollisionShape3D" parent="." unique_id=1569286859]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37986755, 0)
