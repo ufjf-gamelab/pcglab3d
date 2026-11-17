@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://5r3nrjvr1s5" path="res://scripts/playable/player.gd" id="1_hngai"]
 [ext_resource type="PackedScene" uid="uid://xo8yuckv0hno" path="res://scenes/playable/player-model.tscn" id="2_qs72k"]
-[ext_resource type="Script" uid="uid://dnj7x4q8plua8" path="res://scripts/playable/player_camera.gd" id="3_qs72k"]
+[ext_resource type="Script" uid="uid://cs6wcsixw7bg" path="res://scripts/playable/isometric_camera.gd" id="3_qs72k"]
 [ext_resource type="Script" uid="uid://dv18p7tjr216c" path="res://scripts/playable/attack_data.gd" id="4_atk"]
 
 [sub_resource type="Resource" id="Resource_diagonal"]
