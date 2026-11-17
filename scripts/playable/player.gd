@@ -28,6 +28,11 @@ var life := max_life
 @onready var attack_area: Area3D = $"Model/Rig_Medium/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
 @onready var camera_pivot: IsometricCamera = $Pivot
+@onready var lantern: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot
+@onready var shield: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot/Shield
+@onready var lantern_arm: SkeletonModifier3D = $Model/Rig_Medium/Skeleton3D/LanternArm
+@onready var shield_hand_slot: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/ShieldHandSlot
+@onready var shield_back_slot: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
@@ -47,6 +52,7 @@ var blocking := false
 var block_started_at := 0.0
 var block_tween: Tween
 var locomotion_blend := Vector2.ZERO
+var shield_equipped := false
 
 var dying := false
 
@@ -78,6 +84,7 @@ func _ready():
 	anim.play("idle")
 	
 	attack_area.monitoring = false
+	equip_shield(shield_equipped)
 	
 	# Conecta sinais às funções
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
@@ -95,6 +102,25 @@ func end_attack():
 	attacking = false
 	queued_attack = false
 	last_attack_end = Time.get_ticks_msec() / 1000.0
+
+func _unhandled_input(event):
+	if attacking or dying:
+		return
+	if event.is_action_pressed("swap_item"):
+		equip_shield(not shield_equipped)
+
+func equip_shield(equipped: bool):
+	if blocking:
+		finish_block()
+	shield_equipped = equipped
+	block_enabled = equipped
+	lantern_arm.active = not equipped
+	move_item(shield, shield_hand_slot if equipped else shield_back_slot)
+	lantern.visible = not equipped
+
+func move_item(item: Node3D, slot: Node3D):
+	if item.get_parent() != slot:
+		item.reparent(slot, false)
 
 func start_block():
 	blocking = true

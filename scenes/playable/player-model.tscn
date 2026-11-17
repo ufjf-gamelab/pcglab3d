@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c4lo6jmjruj8k" path="res://scripts/playable/bone_offset_modifier.gd" id="6_offset"]
 [ext_resource type="Script" uid="uid://b8n6fujv4ckd2" path="res://scripts/playable/hanging_item.gd" id="7_hanging"]
 [ext_resource type="Script" uid="uid://bso0mlyqvkix7" path="res://scripts/playable/flicker_light.gd" id="8_flicker"]
+[ext_resource type="PackedScene" uid="uid://cprcoxm7wighm" path="res://characters/Knight/shield_round.gltf" id="9_shield"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2mf1t"]
 resource_name = "knight"
@@ -647,14 +648,16 @@ transform = Transform3D(-6.1197105e-09, 0.26286295, 0.96483254, 0.99999917, -2.9
 bone_name = "handslot.l"
 bone_idx = 8
 
-[node name="LanternPivot" type="Node3D" parent="Rig_Medium/Skeleton3D/LeftHand" unique_id=1218255054]
+[node name="LanternHandSlot" type="Node3D" parent="Rig_Medium/Skeleton3D/LeftHand" unique_id=1218255080]
+
+[node name="LanternPivot" type="Node3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot" unique_id=1218255054]
 transform = Transform3D(-2.6226834e-08, 0.6, 0, -0.6, -2.6226834e-08, 0, 0, 0, 0.6, 0, 0, 0)
 script = ExtResource("7_hanging")
 
-[node name="Lantern" parent="Rig_Medium/Skeleton3D/LeftHand/LanternPivot" unique_id=1218255059 instance=ExtResource("3_84yhq")]
+[node name="Lantern" parent="Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot" unique_id=1218255059 instance=ExtResource("3_84yhq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1, 0)
 
-[node name="LanternLight" type="OmniLight3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternPivot/Lantern" unique_id=1218255055]
+[node name="LanternLight" type="OmniLight3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot/Lantern" unique_id=1218255055]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 0.6
@@ -663,12 +666,25 @@ script = ExtResource("8_flicker")
 base_energy = 0.6
 base_range = 5.0
 
-[node name="Flame" type="GPUParticles3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternPivot/Lantern/LanternLight" unique_id=1218255070]
+[node name="Flame" type="GPUParticles3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot/Lantern/LanternLight" unique_id=1218255070]
 amount = 6
 lifetime = 0.45
 local_coords = true
 process_material = SubResource("ParticleMaterial_flame")
 draw_pass_1 = SubResource("Mesh_flame")
+
+[node name="ShieldHandSlot" type="Node3D" parent="Rig_Medium/Skeleton3D/LeftHand" unique_id=1218255081]
+transform = Transform3D(1, -1.9895197e-13, -4.9737504e-15, 0, 0.9999999, -5.684342e-14, -1.0425397e-14, 1.7053026e-13, 1, -0.020885527, -6.718824e-08, 0.2214086)
+
+[node name="Back" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D" unique_id=1218255082]
+transform = Transform3D(0.9962748, -5.1496167e-09, 0.08623532, 5.1304343e-09, 0.99999994, 4.4407705e-10, -0.08623532, 1.8800718e-15, 0.9962748, -2.9196552e-09, 0.9590293, 1.0685902e-15)
+bone_name = "chest"
+bone_idx = 3
+
+[node name="ShieldBackSlot" type="Node3D" parent="Rig_Medium/Skeleton3D/Back" unique_id=1218255083]
+transform = Transform3D(-0.9999999, -1.5972017e-16, 1.4901161e-08, -1.6142618e-15, 1, -1.2407847e-16, -1.4901161e-08, -6.989123e-17, -0.9999999, 0.0033132972, -0.07466984, -0.3882784)
+
+[node name="Shield" parent="Rig_Medium/Skeleton3D/Back/ShieldBackSlot" unique_id=1218255084 instance=ExtResource("9_shield")]
 
 [node name="LanternArm" type="SkeletonModifier3D" parent="Rig_Medium/Skeleton3D" unique_id=1218255056 node_paths=PackedStringArray("animation_player")]
 unique_name_in_owner = false
