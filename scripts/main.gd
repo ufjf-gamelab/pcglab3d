@@ -607,9 +607,7 @@ func enter_play_mode():
 	
 	spawn_play_objects_from_gridmap()
 	
-	total_coins = 0
-	for room in UGen.rooms_elements_pos:
-		total_coins += room["coin_pos"].size()
+	total_coins = get_tree().get_nodes_in_group("Coins").size()
 	
 	print(total_coins)
 	
