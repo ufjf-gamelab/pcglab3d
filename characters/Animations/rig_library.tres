@@ -5,10 +5,17 @@
 [ext_resource type="Animation" uid="uid://cpvke648q7yti" path="res://characters/Animations/running_a.res" id="2_walk"]
 [ext_resource type="Animation" uid="uid://d2do0ma5xcg80" path="res://characters/Animations/attack_sword.res" id="3_attack"]
 [ext_resource type="Animation" uid="uid://2mw58fv42gin" path="res://characters/Animations/die.res" id="4_die"]
-[ext_resource type="Animation" uid="uid://d35b6eibsdfb4" path="res://characters/Animations/attack_diagonal.res" id="5_diagonal"]
-[ext_resource type="Animation" uid="uid://b7o1llkiutxpt" path="res://characters/Animations/attack_chop.res" id="6_chop"]
-[ext_resource type="Animation" path="res://characters/Animations/attack_stab.res" id="8_stab"]
-[ext_resource type="Animation" uid="uid://crqjkweq31bvf" path="res://characters/Animations/hit.res" id="7_hit"]
+[ext_resource type="Animation" uid="uid://b05hlc2nft7q0" path="res://characters/Animations/attack_diagonal.res" id="5_diagonal"]
+[ext_resource type="Animation" uid="uid://q8o4s4w5ywhq" path="res://characters/Animations/attack_chop.res" id="6_chop"]
+[ext_resource type="Animation" uid="uid://dvscedk162eje" path="res://characters/Animations/hit.res" id="7_hit"]
+[ext_resource type="Animation" uid="uid://b1cvfgdekmi77" path="res://characters/Animations/attack_stab.res" id="8_stab"]
+[ext_resource type="Animation" uid="uid://d4g0bsxhhuhi2" path="res://characters/Animations/block.res" id="9_block"]
+[ext_resource type="Animation" uid="uid://dcjyqikbirc6e" path="res://characters/Animations/blocking.res" id="10_blocking"]
+[ext_resource type="Animation" uid="uid://cb0knp0lb847w" path="res://characters/Animations/block_hit.res" id="11_block_hit"]
+[ext_resource type="Animation" uid="uid://bdk8q60t517mn" path="res://characters/Animations/walking_a.res" id="12_walk_slow"]
+[ext_resource type="Animation" path="res://characters/Animations/walking_backwards.res" id="13_walk_back"]
+[ext_resource type="Animation" path="res://characters/Animations/strafe_left.res" id="14_strafe_left"]
+[ext_resource type="Animation" path="res://characters/Animations/strafe_right.res" id="15_strafe_right"]
 
 [resource]
 _data = {
@@ -17,8 +24,15 @@ _data = {
 &"attack-diagonal": ExtResource("5_diagonal"),
 &"attack-melee-right": ExtResource("3_attack"),
 &"attack-stab": ExtResource("8_stab"),
+&"block": ExtResource("9_block"),
+&"block-hit": ExtResource("11_block_hit"),
+&"blocking": ExtResource("10_blocking"),
 &"die": ExtResource("4_die"),
 &"hit": ExtResource("7_hit"),
 &"idle": ExtResource("1_idle"),
-&"walk": ExtResource("2_walk")
+&"strafe-left": ExtResource("14_strafe_left"),
+&"strafe-right": ExtResource("15_strafe_right"),
+&"walk": ExtResource("2_walk"),
+&"walk-back": ExtResource("13_walk_back"),
+&"walk-slow": ExtResource("12_walk_slow")
 }

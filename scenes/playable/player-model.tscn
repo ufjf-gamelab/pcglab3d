@@ -288,6 +288,61 @@ shadow_mesh = SubResource("ArrayMesh_hgm8u")
 [sub_resource type="BoxShape3D" id="BoxShape3D_84yhq"]
 size = Vector3(0.33989257, 1.4052002, 0.3)
 
+[sub_resource type="AnimationNodeAnimation" id="Anim_idle"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_walk_slow"]
+animation = &"walk-slow"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_walk_back"]
+animation = &"walk-back"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_strafe_left"]
+animation = &"strafe-left"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_strafe_right"]
+animation = &"strafe-right"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_blocking"]
+animation = &"blocking"
+
+[sub_resource type="AnimationNodeAnimation" id="Anim_block_hit"]
+animation = &"block-hit"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="BlendSpace_locomotion"]
+blend_point_0/node = SubResource("Anim_idle")
+blend_point_0/pos = Vector2(0, 0)
+blend_point_1/node = SubResource("Anim_walk_slow")
+blend_point_1/pos = Vector2(0, 1)
+blend_point_2/node = SubResource("Anim_walk_back")
+blend_point_2/pos = Vector2(0, -1)
+blend_point_3/node = SubResource("Anim_strafe_left")
+blend_point_3/pos = Vector2(-1, 0)
+blend_point_4/node = SubResource("Anim_strafe_right")
+blend_point_4/pos = Vector2(1, 0)
+
+[sub_resource type="AnimationNodeOneShot" id="OneShot_block_hit"]
+fadein_time = 0.05
+fadeout_time = 0.15
+
+[sub_resource type="AnimationNodeBlend2" id="Blend2_upper"]
+filter_enabled = true
+filters = ["Rig_Medium/Skeleton3D:root", "Rig_Medium/Skeleton3D:spine", "Rig_Medium/Skeleton3D:chest", "Rig_Medium/Skeleton3D:head", "Rig_Medium/Skeleton3D:upperarm.l", "Rig_Medium/Skeleton3D:lowerarm.l", "Rig_Medium/Skeleton3D:wrist.l", "Rig_Medium/Skeleton3D:hand.l", "Rig_Medium/Skeleton3D:handslot.l", "Rig_Medium/Skeleton3D:upperarm.r", "Rig_Medium/Skeleton3D:lowerarm.r", "Rig_Medium/Skeleton3D:wrist.r", "Rig_Medium/Skeleton3D:hand.r", "Rig_Medium/Skeleton3D:handslot.r"]
+
+[sub_resource type="AnimationNodeBlendTree" id="BlendTree_block"]
+nodes/Locomotion/node = SubResource("BlendSpace_locomotion")
+nodes/Locomotion/position = Vector2(-200, 0)
+nodes/Blocking/node = SubResource("Anim_blocking")
+nodes/Blocking/position = Vector2(-400, 200)
+nodes/HitAnim/node = SubResource("Anim_block_hit")
+nodes/HitAnim/position = Vector2(-400, 360)
+nodes/BlockHit/node = SubResource("OneShot_block_hit")
+nodes/BlockHit/position = Vector2(-200, 220)
+nodes/Upper/node = SubResource("Blend2_upper")
+nodes/Upper/position = Vector2(80, 80)
+nodes/output/position = Vector2(320, 80)
+node_connections = [&"output", 0, &"Upper", &"Upper", 0, &"Locomotion", &"Upper", 1, &"BlockHit", &"BlockHit", 0, &"Blocking", &"BlockHit", 1, &"HitAnim"]
+
 [node name="Knight" type="Node3D" unique_id=702093481]
 
 [node name="Rig_Medium" type="Node3D" parent="." unique_id=2144132148]
@@ -524,6 +579,13 @@ transform = Transform3D(1, -2.842171e-14, -2.091514e-15, 0, 0.9999999, -5.684342
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1067251927]
 libraries/ = ExtResource("4_84yhq")
+
+[node name="BlockTree" type="AnimationTree" parent="." unique_id=1730482913]
+active = false
+tree_root = SubResource("BlendTree_block")
+anim_player = NodePath("../AnimationPlayer")
+parameters/Locomotion/blend_position = Vector2(0, 0)
+parameters/Upper/blend_amount = 0.0
 
 [node name="OmniLight3D" type="SpotLight3D" parent="." unique_id=1394368602]
 transform = Transform3D(0.94672245, 0, 0.32205093, -0.043506835, 0.9908329, 0.1278956, -0.31909868, -0.13509305, 0.9380438, 0.19595402, 0.5673919, 0.4660535)

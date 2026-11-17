@@ -153,7 +153,8 @@ func _on_attack_area_body_entered(body):
 
 	if body.name == "Player" and body.life > 0:
 		has_hit = true
-		body.take_damage(attack_damage)
+		# Agora tem que passar o próprio inimigo pra saber a direção do ataque
+		body.take_damage(attack_damage, self)
 
 func take_damage(amount):
 	if state == State.DEAD:

@@ -12,11 +12,18 @@ var life := max_life
 @export var chain_blend_time := 0.12
 @export var combo_reset_time := 0.6
 @export var attack_buffer_time := 0.2
+@export var block_speed_factor := 0.4
+@export var block_start_time := 0.15
+@export var block_angle := 70.0
+@export var block_blend_time := 0.15
+@export var locomotion_smoothing := 8.0
 @export var combo: Array[AttackData] = []
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
+# Vou precisar de uma só pra misturar as pernas com o tronco
+@onready var block_tree: AnimationTree = $Model/BlockTree
 @onready var attack_area: Area3D = $"Model/Rig_Medium/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
 @onready var camera_pivot: PlayerCamera = $Pivot
@@ -35,6 +42,10 @@ var queued_attack := false
 var last_attack_end := -100.0
 var attack_elapsed := 0.0
 var attack_pressed_at := -100.0
+var blocking := false
+var block_started_at := 0.0
+var block_tween: Tween
+var locomotion_blend := Vector2.ZERO
 
 var dying := false
 
@@ -46,7 +57,11 @@ func on_die():
 	queue_free()
 
 # Recebe dano
-func take_damage(amount):
+func take_damage(amount, source: Node3D = null):
+	if source and is_blocking_from(source):
+		block_hit()
+		return
+
 	life -= amount
 	#print("Vida Player:", life)
 	emit_signal("update_life", life)
@@ -54,6 +69,7 @@ func take_damage(amount):
 	if life <= 0:
 		dying = true
 		end_attack()
+		finish_block()
 		on_die()
 
 func _ready():
@@ -78,6 +94,74 @@ func end_attack():
 	attacking = false
 	queued_attack = false
 	last_attack_end = Time.get_ticks_msec() / 1000.0
+
+func start_block():
+	blocking = true
+	block_started_at = Time.get_ticks_msec() / 1000.0
+	if block_tween:
+		block_tween.kill()
+	# Só troca de mixer se o AnimationTree ainda não estiver ligado
+	if not block_tree.active:
+		# Vai ter que sempre desligar um pra ligar o outro
+		anim.active = false
+		block_tree.set("parameters/Upper/blend_amount", 0.0)
+		block_tree.active = true
+	block_tween = create_tween()
+	block_tween.tween_property(block_tree, "parameters/Upper/blend_amount", 1.0, block_blend_time)
+
+func end_block():
+	if not blocking:
+		return
+	blocking = false
+	if block_tween:
+		block_tween.kill()
+	block_tween = create_tween()
+	# Leva o tronco de volta pra pose das pernas
+	block_tween.tween_property(block_tree, "parameters/Upper/blend_amount", 0.0, block_blend_time)
+	# Quando termina de abaixar, devolve o controle pro AnimationPlayer
+	block_tween.tween_callback(finish_block)
+
+func finish_block():
+	if block_tween:
+		block_tween.kill()
+	blocking = false
+	block_tree.active = false
+	anim.active = true
+
+func update_block(dir: Vector3, delta: float):
+	var forward := camera_pivot.get_forward()
+	# Vetor pra ângulo
+	var target_yaw := atan2(forward.x, forward.z)
+	model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
+	velocity.x = dir.x * speed * block_speed_factor
+	velocity.z = dir.z * speed * block_speed_factor
+	move_and_slide()
+
+func update_block_locomotion(delta: float):
+	# Direção do modelo
+	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
+	var right := Vector3(-facing.z, 0, facing.x)
+	var max_speed := speed * block_speed_factor
+
+	# Projeta a velocidade pra saber o quanto o player tá andando pra frente e pro lado, e normaliza pelo max_speed
+	var target := Vector2(velocity.dot(right), velocity.dot(facing)) / max_speed
+	locomotion_blend = locomotion_blend.lerp(target, min(delta * locomotion_smoothing, 1.0))
+	# Manda o ponto pro blend das pernas
+	block_tree.set("parameters/Locomotion/blend_position", locomotion_blend)
+
+func is_blocking_from(source: Node3D) -> bool:
+	if not blocking or Time.get_ticks_msec() / 1000.0 - block_started_at < block_start_time:
+		return false
+	# Vetor do player até quem atacou
+	var to_source := source.global_position - global_position
+	# Tive que tirar a altura mas no futuro vai ter solução melhor
+	to_source.y = 0
+	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
+	# Produto escalar pra saber se o ângulo do ataque tá dentro do ângulo de bloqueio
+	return facing.dot(to_source.normalized()) >= cos(deg_to_rad(block_angle))
+
+func block_hit():
+	block_tree.set("parameters/BlockHit/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func consume_buffered_attack() -> bool:
 	if Time.get_ticks_msec() / 1000.0 - attack_pressed_at <= attack_buffer_time:
@@ -175,8 +259,19 @@ func _physics_process(delta):
 		last_tile = current_tile
 
 	if not combo.is_empty() and consume_buffered_attack():
+		# Atacar solta o escudo
+		finish_block()
 		attack(next_combo_index(), dir.normalized())
 		return
+
+	if Input.is_action_pressed("block"):
+		if not blocking:
+			start_block()
+		update_block(dir.normalized(), delta)
+		update_block_locomotion(delta)
+		return
+	elif blocking:
+		end_block()
 
 	if dir != Vector3.ZERO:
 		dir = dir.normalized()
@@ -198,3 +293,7 @@ func _physics_process(delta):
 			anim.play("idle")
 
 	move_and_slide()
+
+	# Enquanto o escudo abaixa o AnimationTree ainda está ligado, então as pernas continuam acompanhando o movimento
+	if block_tree.active:
+		update_block_locomotion(delta)
