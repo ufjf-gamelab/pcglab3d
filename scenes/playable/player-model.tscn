@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://oytik2ph7tgp" path="res://characters/Knight/lantern.gltf" id="3_84yhq"]
 [ext_resource type="AnimationLibrary" uid="uid://xnhpp1gua6px" path="res://characters/Animations/rig_library.tres" id="4_84yhq"]
 [ext_resource type="Script" uid="uid://c4lo6jmjruj8k" path="res://scripts/playable/bone_offset_modifier.gd" id="6_offset"]
-[ext_resource type="Script" path="res://scripts/playable/hanging_item.gd" id="7_hanging"]
-[ext_resource type="Script" path="res://scripts/playable/flicker_light.gd" id="8_flicker"]
+[ext_resource type="Script" uid="uid://b8n6fujv4ckd2" path="res://scripts/playable/hanging_item.gd" id="7_hanging"]
+[ext_resource type="Script" uid="uid://bso0mlyqvkix7" path="res://scripts/playable/flicker_light.gd" id="8_flicker"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2mf1t"]
 resource_name = "knight"
@@ -291,6 +291,66 @@ shadow_mesh = SubResource("ArrayMesh_hgm8u")
 [sub_resource type="BoxShape3D" id="BoxShape3D_84yhq"]
 size = Vector3(0.33989257, 1.4052002, 0.3)
 
+[sub_resource type="Gradient" id="Gradient_flame_color"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.35, 0.75)
+colors = PackedColorArray(1, 0.9, 0.45, 1, 1, 0.55, 0.15, 1, 0.85, 0.2, 0.05, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_flame_color"]
+gradient = SubResource("Gradient_flame_color")
+
+[sub_resource type="Curve" id="Curve_flame_scale"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_flame_scale"]
+curve = SubResource("Curve_flame_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleMaterial_flame"]
+particle_flag_rotate_y = true
+emission_shape = 1
+emission_sphere_radius = 0.015
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 8.0
+initial_velocity_min = 0.02
+initial_velocity_max = 0.049999997
+gravity = Vector3(0, 0, 0)
+scale_min = 0.7
+scale_curve = SubResource("CurveTexture_flame_scale")
+color_ramp = SubResource("GradientTexture_flame_color")
+
+[sub_resource type="Gradient" id="Gradient_flame_shape"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_flame_shape"]
+gradient = SubResource("Gradient_flame_shape")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="Material_flame"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture_flame_shape")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="SphereMesh" id="Mesh_flame"]
+material = SubResource("Material_flame")
+radius = 0.025
+height = 0.07
+radial_segments = 4
+rings = 1
+
 [sub_resource type="AnimationNodeOneShot" id="OneShot_block_hit"]
 fadein_time = 0.05
 fadeout_time = 0.15
@@ -355,48 +415,6 @@ nodes/BlockHit/position = Vector2(-140, 220)
 nodes/Upper/node = SubResource("Blend2_upper")
 nodes/Upper/position = Vector2(100, 80)
 node_connections = [&"output", 0, &"Upper", &"LegsSpeed", 0, &"Locomotion", &"BlockHit", 0, &"Blocking", &"BlockHit", 1, &"HitAnim", &"Upper", 0, &"LegsSpeed", &"Upper", 1, &"BlockHit"]
-
-[sub_resource type="Gradient" id="Gradient_flame_color"]
-offsets = PackedFloat32Array(0, 0.35, 0.75)
-colors = PackedColorArray(1, 0.9, 0.45, 1, 1, 0.55, 0.15, 1, 0.85, 0.2, 0.05, 1)
-interpolation_mode = 1
-
-[sub_resource type="GradientTexture1D" id="GradientTexture_flame_color"]
-gradient = SubResource("Gradient_flame_color")
-
-[sub_resource type="Curve" id="Curve_flame_scale"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
-point_count = 2
-
-[sub_resource type="CurveTexture" id="CurveTexture_flame_scale"]
-curve = SubResource("Curve_flame_scale")
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleMaterial_flame"]
-particle_flag_rotate_y = true
-emission_shape = 1
-emission_sphere_radius = 0.015
-angle_min = -180.0
-angle_max = 180.0
-direction = Vector3(0, 1, 0)
-spread = 8.0
-initial_velocity_min = 0.08
-initial_velocity_max = 0.15
-gravity = Vector3(0, 0, 0)
-scale_min = 0.7
-scale_max = 1.0
-scale_curve = SubResource("CurveTexture_flame_scale")
-color_ramp = SubResource("GradientTexture_flame_color")
-
-[sub_resource type="StandardMaterial3D" id="Material_flame"]
-shading_mode = 0
-vertex_color_use_as_albedo = true
-
-[sub_resource type="SphereMesh" id="Mesh_flame"]
-material = SubResource("Material_flame")
-radius = 0.025
-height = 0.07
-radial_segments = 4
-rings = 1
 
 [node name="Knight" type="Node3D" unique_id=702093481]
 
@@ -640,7 +658,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 0.6
-omni_range = 5.0
 omni_attenuation = 0.8
 script = ExtResource("8_flicker")
 base_energy = 0.6
