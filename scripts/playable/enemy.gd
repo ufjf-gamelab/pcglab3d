@@ -178,7 +178,7 @@ func stagger():
 		var away := global_position - player.global_position
 		away.y = 0
 		velocity = away.normalized() * knockback
-	anim.play("hit", 0.05)
+	anim.play("hit")
 	anim.seek(0, true)
 
 func stagger_state(delta):

@@ -17,6 +17,7 @@ transform = Transform3D(0.33, 0, 0, 0, 0.33, 0, 0, 0, 0.33, 0, 0, 0)
 libraries = {
 &"": ExtResource("2_anims")
 }
+playback_default_blend_time = 0.15
 
 [node name="RightHand" type="BoneAttachment3D" parent="Rig_Medium/Skeleton3D"]
 bone_name = "handslot.r"
