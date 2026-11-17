@@ -26,7 +26,7 @@ var life := max_life
 @onready var block_tree: AnimationTree = $Model/BlockTree
 @onready var attack_area: Area3D = $"Model/Rig_Medium/Skeleton3D/RightHand/AttackArea"
 @onready var model: Node3D = $Model
-@onready var camera_pivot: PlayerCamera = $Pivot
+@onready var camera_pivot: IsometricCamera = $Pivot
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
@@ -129,10 +129,11 @@ func finish_block():
 	anim.active = true
 
 func update_block(dir: Vector3, delta: float):
-	var forward := camera_pivot.get_forward()
-	# Vetor pra ângulo
-	var target_yaw := atan2(forward.x, forward.z)
-	model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
+	var aim := camera_pivot.get_aim_direction(global_position)
+	if aim != Vector3.ZERO:
+		# Vetor pra ângulo
+		var target_yaw := atan2(aim.x, aim.z)
+		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
 	velocity.x = dir.x * speed * block_speed_factor
 	velocity.z = dir.z * speed * block_speed_factor
 	move_and_slide()
@@ -184,7 +185,10 @@ func attack(index: int, dir: Vector3):
 	enemies_hit.clear()
 	disable_attack()
 	velocity = Vector3.ZERO
-	if dir != Vector3.ZERO:
+	var aim := camera_pivot.get_aim_direction(global_position)
+	if aim != Vector3.ZERO:
+		model.rotation.y = atan2(aim.x, aim.z)
+	elif dir != Vector3.ZERO:
 		model.rotation.y = atan2(dir.x, dir.z)
 	var data: AttackData = combo[index]
 	var blend := attack_blend_time if index == 0 else chain_blend_time
