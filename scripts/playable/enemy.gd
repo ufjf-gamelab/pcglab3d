@@ -3,7 +3,7 @@ extends CharacterBody3D
 @export var max_life := 5
 @export var speed := 2.0
 @export var attack_distance := 0.6
-@export var attack_cooldown := 0.5
+@export var attack_cooldown := 0.25
 @export var attack_damage := 1
 @export var attack_speed := 1.5
 @export var hit_start := 0.2
@@ -99,6 +99,10 @@ func attack():
 
 	velocity = Vector3.ZERO
 	move_and_slide()
+
+	if player:
+		look_at(Vector3(player.global_position.x, global_position.y, player.global_position.z))
+	anim.play("idle")
 
 	await get_tree().create_timer(attack_cooldown).timeout
 
