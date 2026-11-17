@@ -321,6 +321,8 @@ blend_point_3/pos = Vector2(-1, 0)
 blend_point_4/node = SubResource("Anim_strafe_right")
 blend_point_4/pos = Vector2(1, 0)
 
+[sub_resource type="AnimationNodeTimeScale" id="TimeScale_legs"]
+
 [sub_resource type="AnimationNodeOneShot" id="OneShot_block_hit"]
 fadein_time = 0.05
 fadeout_time = 0.15
@@ -331,7 +333,9 @@ filters = ["Rig_Medium/Skeleton3D:root", "Rig_Medium/Skeleton3D:spine", "Rig_Med
 
 [sub_resource type="AnimationNodeBlendTree" id="BlendTree_block"]
 nodes/Locomotion/node = SubResource("BlendSpace_locomotion")
-nodes/Locomotion/position = Vector2(-200, 0)
+nodes/Locomotion/position = Vector2(-400, 0)
+nodes/LegsSpeed/node = SubResource("TimeScale_legs")
+nodes/LegsSpeed/position = Vector2(-160, 0)
 nodes/Blocking/node = SubResource("Anim_blocking")
 nodes/Blocking/position = Vector2(-400, 200)
 nodes/HitAnim/node = SubResource("Anim_block_hit")
@@ -341,7 +345,7 @@ nodes/BlockHit/position = Vector2(-200, 220)
 nodes/Upper/node = SubResource("Blend2_upper")
 nodes/Upper/position = Vector2(80, 80)
 nodes/output/position = Vector2(320, 80)
-node_connections = [&"output", 0, &"Upper", &"Upper", 0, &"Locomotion", &"Upper", 1, &"BlockHit", &"BlockHit", 0, &"Blocking", &"BlockHit", 1, &"HitAnim"]
+node_connections = [&"output", 0, &"Upper", &"Upper", 0, &"LegsSpeed", &"LegsSpeed", 0, &"Locomotion", &"Upper", 1, &"BlockHit", &"BlockHit", 0, &"Blocking", &"BlockHit", 1, &"HitAnim"]
 
 [node name="Knight" type="Node3D" unique_id=702093481]
 
@@ -585,6 +589,7 @@ active = false
 tree_root = SubResource("BlendTree_block")
 anim_player = NodePath("../AnimationPlayer")
 parameters/Locomotion/blend_position = Vector2(0, 0)
+parameters/LegsSpeed/scale = 0.6
 parameters/Upper/blend_amount = 0.0
 
 [node name="OmniLight3D" type="SpotLight3D" parent="." unique_id=1394368602]
