@@ -5,6 +5,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://xnhpp1gua6px" path="res://characters/Animations/rig_library.tres" id="4_84yhq"]
 [ext_resource type="Script" uid="uid://c4lo6jmjruj8k" path="res://scripts/playable/bone_offset_modifier.gd" id="6_offset"]
 [ext_resource type="Script" path="res://scripts/playable/hanging_item.gd" id="7_hanging"]
+[ext_resource type="Script" path="res://scripts/playable/flicker_light.gd" id="8_flicker"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2mf1t"]
 resource_name = "knight"
@@ -355,6 +356,48 @@ nodes/Upper/node = SubResource("Blend2_upper")
 nodes/Upper/position = Vector2(100, 80)
 node_connections = [&"output", 0, &"Upper", &"LegsSpeed", 0, &"Locomotion", &"BlockHit", 0, &"Blocking", &"BlockHit", 1, &"HitAnim", &"Upper", 0, &"LegsSpeed", &"Upper", 1, &"BlockHit"]
 
+[sub_resource type="Gradient" id="Gradient_flame_color"]
+offsets = PackedFloat32Array(0, 0.35, 0.75)
+colors = PackedColorArray(1, 0.9, 0.45, 1, 1, 0.55, 0.15, 1, 0.85, 0.2, 0.05, 1)
+interpolation_mode = 1
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_flame_color"]
+gradient = SubResource("Gradient_flame_color")
+
+[sub_resource type="Curve" id="Curve_flame_scale"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_flame_scale"]
+curve = SubResource("Curve_flame_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleMaterial_flame"]
+particle_flag_rotate_y = true
+emission_shape = 1
+emission_sphere_radius = 0.015
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 8.0
+initial_velocity_min = 0.08
+initial_velocity_max = 0.15
+gravity = Vector3(0, 0, 0)
+scale_min = 0.7
+scale_max = 1.0
+scale_curve = SubResource("CurveTexture_flame_scale")
+color_ramp = SubResource("GradientTexture_flame_color")
+
+[sub_resource type="StandardMaterial3D" id="Material_flame"]
+shading_mode = 0
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="Mesh_flame"]
+material = SubResource("Material_flame")
+radius = 0.025
+height = 0.07
+radial_segments = 4
+rings = 1
+
 [node name="Knight" type="Node3D" unique_id=702093481]
 
 [node name="Rig_Medium" type="Node3D" parent="." unique_id=2144132148]
@@ -596,8 +639,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1, 0)
 [node name="LanternLight" type="OmniLight3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternPivot/Lantern" unique_id=1218255055]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 light_color = Color(1, 0.6, 0.3, 1)
-light_energy = 1.5
-omni_range = 4.0
+light_energy = 0.6
+omni_range = 5.0
+omni_attenuation = 0.8
+script = ExtResource("8_flicker")
+base_energy = 0.6
+base_range = 5.0
+
+[node name="Flame" type="GPUParticles3D" parent="Rig_Medium/Skeleton3D/LeftHand/LanternPivot/Lantern/LanternLight" unique_id=1218255070]
+amount = 6
+lifetime = 0.45
+local_coords = true
+process_material = SubResource("ParticleMaterial_flame")
+draw_pass_1 = SubResource("Mesh_flame")
 
 [node name="LanternArm" type="SkeletonModifier3D" parent="Rig_Medium/Skeleton3D" unique_id=1218255056 node_paths=PackedStringArray("animation_player")]
 unique_name_in_owner = false
