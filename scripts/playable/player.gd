@@ -12,6 +12,7 @@ var life := max_life
 @export var chain_blend_time := 0.12
 @export var combo_reset_time := 0.6
 @export var attack_buffer_time := 0.2
+@export var block_enabled := false
 @export var block_speed_factor := 0.4
 @export var block_start_time := 0.15
 @export var block_angle := 70.0
@@ -268,7 +269,7 @@ func _physics_process(delta):
 		attack(next_combo_index(), dir.normalized())
 		return
 
-	if Input.is_action_pressed("block"):
+	if block_enabled and Input.is_action_pressed("block"):
 		if not blocking:
 			start_block()
 		update_block(dir.normalized(), delta)
