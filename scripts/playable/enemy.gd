@@ -170,14 +170,18 @@ func take_damage(amount):
 	else:
 		stagger()
 
-func stagger():
+func stagger(push := -1.0):
+	if state == State.DEAD:
+		return
+	if push < 0.0:
+		push = knockback
 	state = State.STAGGER
 	attack_area.monitoring = false
 	velocity = Vector3.ZERO
 	if player:
 		var away := global_position - player.global_position
 		away.y = 0
-		velocity = away.normalized() * knockback
+		velocity = away.normalized() * push
 	anim.play("hit")
 	anim.seek(0, true)
 

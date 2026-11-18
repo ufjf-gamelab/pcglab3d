@@ -17,6 +17,13 @@ var life := max_life
 @export var block_start_time := 0.15
 @export var block_angle := 70.0
 @export var block_blend_time := 0.15
+@export var bash_speed := 1.5
+@export var bash_hit_time := 0.25
+@export var bash_range := 1.0
+@export var bash_angle := 70.0
+@export var bash_knockback := 2.5
+@export var bash_cancel_time := 0.5
+@export var block_knockback := 0.6
 @export var locomotion_smoothing := 8.0
 @export var max_fuel := 30.0
 @export var dark_hit_interval := 3.0
@@ -56,6 +63,11 @@ var attack_pressed_at := -100.0
 var blocking := false
 var block_started_at := 0.0
 var block_tween: Tween
+var bashing := false
+var block_stun := 0.0
+var block_push := Vector3.ZERO
+var bash_elapsed := 0.0
+var bash_done := false
 var locomotion_blend := Vector2.ZERO
 var shield_equipped := false
 var fuel := 0.0
@@ -74,7 +86,7 @@ func on_die():
 # Recebe dano
 func take_damage(amount, source: Node3D = null):
 	if source and is_blocking_from(source):
-		block_hit()
+		block_hit(source)
 		return
 
 	life -= amount
@@ -113,7 +125,7 @@ func end_attack():
 	last_attack_end = Time.get_ticks_msec() / 1000.0
 
 func _unhandled_input(event):
-	if attacking or dying:
+	if attacking or bashing or dying:
 		return
 	if event.is_action_pressed("swap_item"):
 		equip_shield(not shield_equipped)
@@ -198,8 +210,12 @@ func update_block(dir: Vector3, delta: float):
 		# Vetor pra ângulo
 		var target_yaw := atan2(aim.x, aim.z)
 		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
-	velocity.x = dir.x * speed * block_speed_factor
-	velocity.z = dir.z * speed * block_speed_factor
+	if block_stun > 0.0:
+		block_stun -= delta
+		dir = Vector3.ZERO
+	velocity.x = dir.x * speed * block_speed_factor + block_push.x
+	velocity.z = dir.z * speed * block_speed_factor + block_push.z
+	block_push = block_push.move_toward(Vector3.ZERO, block_knockback * 4 * delta)
 	move_and_slide()
 
 func update_block_locomotion(delta: float):
@@ -225,7 +241,50 @@ func is_blocking_from(source: Node3D) -> bool:
 	# Produto escalar pra saber se o ângulo do ataque tá dentro do ângulo de bloqueio
 	return facing.dot(to_source.normalized()) >= cos(deg_to_rad(block_angle))
 
-func block_hit():
+func shield_bash(dir: Vector3):
+	bashing = true
+	bash_elapsed = 0.0
+	bash_done = false
+	velocity = Vector3.ZERO
+	var aim := camera_pivot.get_aim_direction(global_position)
+	if aim != Vector3.ZERO:
+		model.rotation.y = atan2(aim.x, aim.z)
+	elif dir != Vector3.ZERO:
+		model.rotation.y = atan2(dir.x, dir.z)
+	block_tree.set("parameters/BashSpeed/scale", bash_speed)
+	block_tree.set("parameters/Bash/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+func update_bash(dir: Vector3, delta: float):
+	velocity.x = 0.0
+	velocity.z = 0.0
+	update_block_locomotion(delta)
+	bash_elapsed += delta * bash_speed
+	if not bash_done and bash_elapsed >= bash_hit_time:
+		bash_done = true
+		for enemy in get_tree().get_nodes_in_group("Enemies"):
+			if is_in_bash_range(enemy):
+				enemy.stagger(bash_knockback)
+	if bash_elapsed >= anim.get_animation("block-attack").length:
+		bashing = false
+	elif bash_done and bash_elapsed >= bash_cancel_time and not Input.is_action_pressed("block") and consume_buffered_attack():
+		bashing = false
+		block_tree.set("parameters/Bash/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+		finish_block()
+		attack(next_combo_index(), dir)
+
+func is_in_bash_range(target: Node3D) -> bool:
+	var to_target := target.global_position - global_position
+	to_target.y = 0
+	if to_target.length() > bash_range:
+		return false
+	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
+	return facing.dot(to_target.normalized()) >= cos(deg_to_rad(bash_angle))
+
+func block_hit(source: Node3D):
+	block_stun = anim.get_animation("block-hit").length
+	var away := global_position - source.global_position
+	away.y = 0
+	block_push = away.normalized() * block_knockback
 	block_tree.set("parameters/BlockHit/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func consume_buffered_attack() -> bool:
@@ -321,6 +380,10 @@ func _physics_process(delta):
 	if attacking:
 		update_attack(dir.normalized(), delta)
 		return
+
+	if bashing:
+		update_bash(dir.normalized(), delta)
+		return
 	
 	# Registra tile percorrido caso seja diferente do último da lista
 	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
@@ -329,6 +392,9 @@ func _physics_process(delta):
 		last_tile = current_tile
 
 	if not combo.is_empty() and consume_buffered_attack():
+		if blocking and Input.is_action_pressed("block"):
+			shield_bash(dir.normalized())
+			return
 		# Atacar solta o escudo
 		finish_block()
 		attack(next_combo_index(), dir.normalized())
