@@ -18,6 +18,9 @@ var life := max_life
 @export var block_angle := 70.0
 @export var block_blend_time := 0.15
 @export var locomotion_smoothing := 8.0
+@export var max_fuel := 30.0
+@export var dark_hit_interval := 3.0
+@export var dark_damage := 1
 @export var combo: Array[AttackData] = []
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
@@ -30,6 +33,7 @@ var life := max_life
 @onready var camera_pivot: IsometricCamera = $Pivot
 @onready var lantern: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot
 @onready var shield: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot/Shield
+@onready var lantern_light: Light3D = $Model/Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot/Lantern/LanternLight
 @onready var lantern_arm: SkeletonModifier3D = $Model/Rig_Medium/Skeleton3D/LanternArm
 @onready var shield_hand_slot: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/ShieldHandSlot
 @onready var shield_back_slot: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot
@@ -38,6 +42,7 @@ var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
 
 signal update_life(curr_life)
+signal update_fuel(curr_fuel)
 
 var portal_cooldown := false
 
@@ -53,6 +58,9 @@ var block_started_at := 0.0
 var block_tween: Tween
 var locomotion_blend := Vector2.ZERO
 var shield_equipped := false
+var fuel := 0.0
+var lights_near := 0
+var dark_time := 0.0
 
 var dying := false
 
@@ -85,6 +93,7 @@ func _ready():
 	
 	attack_area.monitoring = false
 	equip_shield(shield_equipped)
+	fuel = max_fuel
 	
 	# Conecta sinais às funções
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
@@ -121,6 +130,34 @@ func equip_shield(equipped: bool):
 func move_item(item: Node3D, slot: Node3D):
 	if item.get_parent() != slot:
 		item.reparent(slot, false)
+
+func update_darkness(delta: float):
+	if not shield_equipped and fuel > 0.0:
+		fuel = max(fuel - delta, 0.0)
+		update_fuel.emit(fuel)
+		if fuel == 0.0:
+			lantern_light.visible = false
+	if is_lit():
+		dark_time = 0.0
+		return
+	dark_time += delta
+	if dark_time >= dark_hit_interval:
+		dark_time = 0.0
+		take_damage(dark_damage)
+
+func is_lit() -> bool:
+	return lights_near > 0 or (not shield_equipped and fuel > 0.0)
+
+func enter_light():
+	lights_near += 1
+
+func exit_light():
+	lights_near = max(lights_near - 1, 0)
+
+func refill_fuel():
+	fuel = max_fuel
+	lantern_light.visible = true
+	update_fuel.emit(fuel)
 
 func start_block():
 	blocking = true
@@ -270,6 +307,8 @@ func teleport_to(pos: Vector3):
 func _physics_process(delta):
 	if dying:
 		return
+
+	update_darkness(delta)
 
 	if Input.is_action_just_pressed("attack"):
 		attack_pressed_at = Time.get_ticks_msec() / 1000.0
