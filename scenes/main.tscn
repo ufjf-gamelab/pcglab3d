@@ -82,7 +82,6 @@ region = Rect2(527, 270, 49, 45)
 
 [node name="Main" type="Node3D" unique_id=1635729911]
 script = ExtResource("1_yc10j")
-max_energy_time = 50.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1201926833]
 environment = SubResource("Environment_og1vs")
