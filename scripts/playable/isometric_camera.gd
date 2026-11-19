@@ -1,10 +1,10 @@
-extends Node3D
+extends Camera3D
 class_name IsometricCamera
 
 @export var pitch := -35.264
 @export var yaw := 45.0
 @export var distance := 20.0
-@export var size := 7.0
+@export var start_size := 7.0
 @export var min_size := 4.0
 @export var max_size := 14.0
 @export var zoom_step := 1.0
@@ -13,28 +13,34 @@ class_name IsometricCamera
 @export var rotate_step := 90.0
 @export var rotate_smoothing := 10.0
 
-@onready var camera: Camera3D = $Camera
-
-var target_size := size
+var target_size := start_size
 var target_yaw := yaw
+var current_yaw := 0.0
+var focus := Vector3.ZERO
 
 func _ready():
+	# Não herda a rotação do player
 	top_level = true
-	global_position = get_parent().global_position
-	rotation_degrees = Vector3(pitch, yaw, 0)
-	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.position = Vector3(0, 0, distance)
-	camera.size = size
-	target_size = size
+	projection = Camera3D.PROJECTION_ORTHOGONAL
+	size = start_size
+	target_size = start_size
 	target_yaw = yaw
-	camera.current = true
+	current_yaw = deg_to_rad(yaw)
+	focus = get_parent().global_position
+	update_transform()
+	current = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta):
 	var target: Vector3 = get_parent().global_position
-	global_position = global_position.lerp(target, min(delta * follow_smoothing, 1.0))
-	camera.size = lerp(camera.size, target_size, min(delta * zoom_smoothing, 1.0))
-	rotation.y = lerp_angle(rotation.y, deg_to_rad(target_yaw), min(delta * rotate_smoothing, 1.0))
+	focus = focus.lerp(target, min(delta * follow_smoothing, 1.0))
+	size = lerp(size, target_size, min(delta * zoom_smoothing, 1.0))
+	current_yaw = lerp_angle(current_yaw, deg_to_rad(target_yaw), min(delta * rotate_smoothing, 1.0))
+	update_transform()
+
+func update_transform():
+	rotation = Vector3(deg_to_rad(pitch), current_yaw, 0)
+	global_position = focus + global_basis.z * distance
 
 func _unhandled_input(event):
 	if event.is_action_pressed("camera_rotate_left"):
@@ -58,8 +64,9 @@ func get_right() -> Vector3:
 
 func get_aim_direction(from: Vector3) -> Vector3:
 	var mouse := get_viewport().get_mouse_position()
-	var origin := camera.project_ray_origin(mouse)
-	var normal := camera.project_ray_normal(mouse)
+	# Raio do mouse até o chão
+	var origin := project_ray_origin(mouse)
+	var normal := project_ray_normal(mouse)
 	var hit = Plane(Vector3.UP, from.y).intersects_ray(origin, normal)
 	if hit == null:
 		return Vector3.ZERO

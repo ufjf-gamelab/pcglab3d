@@ -480,7 +480,7 @@ func enter_creation_mode():
 	
 	# Salva vida atual antes de destruir o player
 	if player:
-		saved_life = player.life
+		saved_life = player.health.life
 	
 	sun.visible = true
 
@@ -555,27 +555,29 @@ func enter_play_mode():
 	
 	var player = world.get_node_or_null("Player")
 	if player:
-		player.update_life.connect(_on_player_update_life)
-		player.update_fuel.connect(_on_player_update_fuel)
-		health_bar.max_value = player.max_fuel
-		health_bar.value = player.fuel
+		player.health.life_changed.connect(_on_player_update_life)
+		var lantern: Lantern = player.equipment.find_item(Lantern)
+		if lantern:
+			lantern.fuel_changed.connect(_on_player_update_fuel)
+			health_bar.max_value = lantern.max_fuel
+			health_bar.value = lantern.fuel
 		
 		# Reseta contadores
 		if RESET_ON_TOGGLE_OR_DIE:
 			collected_coins = 0
 			coins_ui.update_coin_count(0)
-			player.life = player.max_life
-			life_hearts.update_hearts(player.life)
+			player.health.life = player.health.max_life
+			life_hearts.update_hearts(player.health.life)
 			used_banners.clear()
 		else:
 			coins_ui.update_coin_count(collected_coins)
 			
 			if saved_life <= 0:
-				player.life = player.max_life
+				player.health.life = player.health.max_life
 			else:
-				player.life = saved_life
+				player.health.life = saved_life
 			
-			life_hearts.update_hearts(player.life)
+			life_hearts.update_hearts(player.health.life)
 
 
 func rebuild_navigation_mesh():

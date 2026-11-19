@@ -1,0 +1,40 @@
+[gd_resource type="AnimationLibrary" format=3]
+
+[ext_resource type="Animation" path="res://characters/Animations/Player/T-Pose.res" id="1_5o2ep"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/attack-chop.res" id="2_b5s1k"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/attack-diagonal.res" id="3_j3apy"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/attack-melee-right.res" id="4_vrp8f"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/attack-stab.res" id="5_qdufx"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/block.res" id="6_aryeh"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/block-attack.res" id="7_h62d7"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/block-hit.res" id="8_6s2v4"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/blocking.res" id="9_dkuxu"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/die.res" id="10_w0sh4"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/hit.res" id="11_a0qkv"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/idle.res" id="12_lw255"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/strafe-left.res" id="13_qn51w"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/strafe-right.res" id="14_ycsa8"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/walk.res" id="15_hmf3q"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/walk-back.res" id="16_0bwh6"]
+[ext_resource type="Animation" path="res://characters/Animations/Player/walk-slow.res" id="17_v76p1"]
+
+[resource]
+_data = {
+&"T-Pose": ExtResource("1_5o2ep"),
+&"attack-chop": ExtResource("2_b5s1k"),
+&"attack-diagonal": ExtResource("3_j3apy"),
+&"attack-melee-right": ExtResource("4_vrp8f"),
+&"attack-stab": ExtResource("5_qdufx"),
+&"block": ExtResource("6_aryeh"),
+&"block-attack": ExtResource("7_h62d7"),
+&"block-hit": ExtResource("8_6s2v4"),
+&"blocking": ExtResource("9_dkuxu"),
+&"die": ExtResource("10_w0sh4"),
+&"hit": ExtResource("11_a0qkv"),
+&"idle": ExtResource("12_lw255"),
+&"strafe-left": ExtResource("13_qn51w"),
+&"strafe-right": ExtResource("14_ycsa8"),
+&"walk": ExtResource("15_hmf3q"),
+&"walk-back": ExtResource("16_0bwh6"),
+&"walk-slow": ExtResource("17_v76p1")
+}

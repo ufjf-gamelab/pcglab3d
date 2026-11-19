@@ -1,291 +1,75 @@
 extends CharacterBody3D
-
-@export var max_life := 2
-var life := max_life
+class_name Player
 
 @export var speed := 2.5
 
 # Tempo de transição das animações
 @export var anim_blend_time := 0.15
-# Tempo de transição das animações de ataque pra não ficar muito lento
-@export var attack_blend_time := 0.05
-@export var chain_blend_time := 0.12
-@export var combo_reset_time := 0.6
 @export var attack_buffer_time := 0.2
-@export var block_enabled := false
-@export var block_speed_factor := 0.4
-@export var block_start_time := 0.15
-@export var block_angle := 70.0
-@export var block_blend_time := 0.15
-@export var bash_speed := 1.5
-@export var bash_hit_time := 0.25
-@export var bash_range := 1.0
-@export var bash_angle := 70.0
-@export var bash_knockback := 2.5
-@export var bash_cancel_time := 0.5
-@export var block_knockback := 0.6
 @export var locomotion_smoothing := 8.0
-@export var max_fuel := 30.0
-@export var dark_hit_interval := 3.0
-@export var dark_damage := 1
-@export var combo: Array[AttackData] = []
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
 
-@onready var anim: AnimationPlayer = $Model/AnimationPlayer
+@onready var anim: AnimationPlayer = $"Animation Player"
 # Vou precisar de uma só pra misturar as pernas com o tronco
-@onready var block_tree: AnimationTree = $Model/BlockTree
-@onready var attack_area: Area3D = $"Model/Rig_Medium/Skeleton3D/RightHand/AttackArea"
+@onready var block_tree: AnimationTree = $Block
 @onready var model: Node3D = $Model
-@onready var camera_pivot: IsometricCamera = $Pivot
-@onready var lantern: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot
-@onready var shield: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot/Shield
-@onready var lantern_light: Light3D = $Model/Rig_Medium/Skeleton3D/LeftHand/LanternHandSlot/LanternPivot/Lantern/LanternLight
-@onready var lantern_arm: SkeletonModifier3D = $Model/Rig_Medium/Skeleton3D/LanternArm
-@onready var shield_hand_slot: Node3D = $Model/Rig_Medium/Skeleton3D/LeftHand/ShieldHandSlot
-@onready var shield_back_slot: Node3D = $Model/Rig_Medium/Skeleton3D/Back/ShieldBackSlot
+@onready var camera: IsometricCamera = $Camera
+@onready var health: Health = $Health
+@onready var darkness: Darkness = $Darkness
+@onready var equipment: Equipment = $Equipment
+@onready var state_machine: StateMachine = $"State Machine"
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
 
-signal update_life(curr_life)
-signal update_fuel(curr_fuel)
-
 var portal_cooldown := false
 
-var attacking := false
-var enemies_hit := []
-var combo_index := 0
-var queued_attack := false
-var last_attack_end := -100.0
-var attack_elapsed := 0.0
 var attack_pressed_at := -100.0
-var blocking := false
-var block_started_at := 0.0
-var block_tween: Tween
-var bashing := false
-var block_stun := 0.0
-var block_push := Vector3.ZERO
-var bash_elapsed := 0.0
-var bash_done := false
-var locomotion_blend := Vector2.ZERO
-var shield_equipped := false
-var fuel := 0.0
-var lights_near := 0
-var dark_time := 0.0
-
-var dying := false
-
-# Faz a animação de morte e remove do mapa
-func on_die():
-	anim.play("die")
-	await anim.animation_finished
-	await get_tree().create_timer(2).timeout
-	queue_free()
-
-# Recebe dano
-func take_damage(amount, source: Node3D = null):
-	if source and is_blocking_from(source):
-		block_hit(source)
-		return
-
-	life -= amount
-	#print("Vida Player:", life)
-	emit_signal("update_life", life)
-	
-	if life <= 0:
-		dying = true
-		end_attack()
-		finish_block()
-		on_die()
 
 func _ready():
 	anim.playback_default_blend_time = anim_blend_time
 	anim.play("idle")
-	
-	attack_area.monitoring = false
-	equip_shield(shield_equipped)
-	fuel = max_fuel
-	
-	# Conecta sinais às funções
-	attack_area.body_entered.connect(_on_attack_area_body_entered)
+	health.died.connect(_on_died)
 
-# Ativa hitbox do ataque
-func enable_attack():
-	attack_area.monitoring = true
+func is_dead() -> bool:
+	return health.life <= 0
 
-# Desativa hitbox do ataque
-func disable_attack():
-	attack_area.monitoring = false
+# Recebe dano
+func take_damage(amount, source: Node3D = null):
+	if source and equipment.try_block(source):
+		return
+	health.take_damage(amount)
 
-func end_attack():
-	disable_attack()
-	attacking = false
-	queued_attack = false
-	last_attack_end = Time.get_ticks_msec() / 1000.0
+func _on_died():
+	state_machine.transition_to("Dead")
 
 func _unhandled_input(event):
-	if attacking or bashing or dying:
+	if is_dead() or not state_machine.state.can_swap_item():
 		return
 	if event.is_action_pressed("swap_item"):
-		equip_shield(not shield_equipped)
+		equipment.swap_off_hand()
+		state_machine.transition_to("Move")
 
-func equip_shield(equipped: bool):
-	if blocking:
-		finish_block()
-	shield_equipped = equipped
-	block_enabled = equipped
-	lantern_arm.active = not equipped
-	move_item(shield, shield_hand_slot if equipped else shield_back_slot)
-	lantern.visible = not equipped
+func get_move_direction() -> Vector3:
+	# Movimento relativo à câmera orbital
+	var input_x := Input.get_axis("move_left", "move_right")
+	var input_z := Input.get_axis("move_back", "move_forward")
+	return camera.get_right() * input_x + camera.get_forward() * input_z
 
-func move_item(item: Node3D, slot: Node3D):
-	if item.get_parent() != slot:
-		item.reparent(slot, false)
-
-func update_darkness(delta: float):
-	if not shield_equipped and fuel > 0.0:
-		fuel = max(fuel - delta, 0.0)
-		update_fuel.emit(fuel)
-		if fuel == 0.0:
-			lantern_light.visible = false
-	if is_lit():
-		dark_time = 0.0
-		return
-	dark_time += delta
-	if dark_time >= dark_hit_interval:
-		dark_time = 0.0
-		take_damage(dark_damage)
-
-func is_lit() -> bool:
-	return lights_near > 0 or (not shield_equipped and fuel > 0.0)
-
-func enter_light():
-	lights_near += 1
-
-func exit_light():
-	lights_near = max(lights_near - 1, 0)
-
-func refill_fuel():
-	fuel = max_fuel
-	lantern_light.visible = true
-	update_fuel.emit(fuel)
-
-func start_block():
-	blocking = true
-	block_started_at = Time.get_ticks_msec() / 1000.0
-	if block_tween:
-		block_tween.kill()
-	# Só troca de mixer se o AnimationTree ainda não estiver ligado
-	if not block_tree.active:
-		# Vai ter que sempre desligar um pra ligar o outro
-		anim.active = false
-		block_tree.set("parameters/Upper/blend_amount", 0.0)
-		block_tree.active = true
-	block_tween = create_tween()
-	block_tween.tween_property(block_tree, "parameters/Upper/blend_amount", 1.0, block_blend_time)
-
-func end_block():
-	if not blocking:
-		return
-	blocking = false
-	if block_tween:
-		block_tween.kill()
-	block_tween = create_tween()
-	# Leva o tronco de volta pra pose das pernas
-	block_tween.tween_property(block_tree, "parameters/Upper/blend_amount", 0.0, block_blend_time)
-	# Quando termina de abaixar, devolve o controle pro AnimationPlayer
-	block_tween.tween_callback(finish_block)
-
-func finish_block():
-	if block_tween:
-		block_tween.kill()
-	blocking = false
-	block_tree.active = false
-	anim.active = true
-
-func update_block(dir: Vector3, delta: float):
-	var aim := camera_pivot.get_aim_direction(global_position)
-	if aim != Vector3.ZERO:
-		# Vetor pra ângulo
-		var target_yaw := atan2(aim.x, aim.z)
-		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
-	if block_stun > 0.0:
-		block_stun -= delta
-		dir = Vector3.ZERO
-	velocity.x = dir.x * speed * block_speed_factor + block_push.x
-	velocity.z = dir.z * speed * block_speed_factor + block_push.z
-	block_push = block_push.move_toward(Vector3.ZERO, block_knockback * 4 * delta)
-	move_and_slide()
-
-func update_block_locomotion(delta: float):
-	# Direção do modelo
-	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
-	var right := Vector3(-facing.z, 0, facing.x)
-	var max_speed := speed * block_speed_factor
-
-	# Projeta a velocidade pra saber o quanto o player tá andando pra frente e pro lado, e normaliza pelo max_speed
-	var target := Vector2(velocity.dot(right), velocity.dot(facing)) / max_speed
-	locomotion_blend = locomotion_blend.lerp(target, min(delta * locomotion_smoothing, 1.0))
-	# Manda o ponto pro blend das pernas
-	block_tree.set("parameters/Locomotion/blend_position", locomotion_blend)
-
-func is_blocking_from(source: Node3D) -> bool:
-	if not blocking or Time.get_ticks_msec() / 1000.0 - block_started_at < block_start_time:
-		return false
-	# Vetor do player até quem atacou
-	var to_source := source.global_position - global_position
-	# Tive que tirar a altura mas no futuro vai ter solução melhor
-	to_source.y = 0
-	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
-	# Produto escalar pra saber se o ângulo do ataque tá dentro do ângulo de bloqueio
-	return facing.dot(to_source.normalized()) >= cos(deg_to_rad(block_angle))
-
-func shield_bash(dir: Vector3):
-	bashing = true
-	bash_elapsed = 0.0
-	bash_done = false
-	velocity = Vector3.ZERO
-	var aim := camera_pivot.get_aim_direction(global_position)
+func face_aim(dir: Vector3):
+	var aim := camera.get_aim_direction(global_position)
 	if aim != Vector3.ZERO:
 		model.rotation.y = atan2(aim.x, aim.z)
 	elif dir != Vector3.ZERO:
 		model.rotation.y = atan2(dir.x, dir.z)
-	block_tree.set("parameters/BashSpeed/scale", bash_speed)
-	block_tree.set("parameters/Bash/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
-func update_bash(dir: Vector3, delta: float):
-	velocity.x = 0.0
-	velocity.z = 0.0
-	update_block_locomotion(delta)
-	bash_elapsed += delta * bash_speed
-	if not bash_done and bash_elapsed >= bash_hit_time:
-		bash_done = true
-		for enemy in get_tree().get_nodes_in_group("Enemies"):
-			if is_in_bash_range(enemy):
-				enemy.stagger(bash_knockback)
-	if bash_elapsed >= anim.get_animation("block-attack").length:
-		bashing = false
-	elif bash_done and bash_elapsed >= bash_cancel_time and not Input.is_action_pressed("block") and consume_buffered_attack():
-		bashing = false
-		block_tree.set("parameters/Bash/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
-		finish_block()
-		attack(next_combo_index(), dir)
-
-func is_in_bash_range(target: Node3D) -> bool:
-	var to_target := target.global_position - global_position
-	to_target.y = 0
-	if to_target.length() > bash_range:
-		return false
-	var facing := Vector3(sin(model.rotation.y), 0, cos(model.rotation.y))
-	return facing.dot(to_target.normalized()) >= cos(deg_to_rad(bash_angle))
-
-func block_hit(source: Node3D):
-	block_stun = anim.get_animation("block-hit").length
-	var away := global_position - source.global_position
-	away.y = 0
-	block_push = away.normalized() * block_knockback
-	block_tree.set("parameters/BlockHit/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+func record_tile():
+	# Registra tile percorrido caso seja diferente do último da lista
+	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
+	if current_tile != last_tile:
+		walked_tiles.append(current_tile)
+		last_tile = current_tile
 
 func consume_buffered_attack() -> bool:
 	if Time.get_ticks_msec() / 1000.0 - attack_pressed_at <= attack_buffer_time:
@@ -293,68 +77,6 @@ func consume_buffered_attack() -> bool:
 		return true
 	return false
 
-func next_combo_index() -> int:
-	var now := Time.get_ticks_msec() / 1000.0
-	if now - last_attack_end <= combo_reset_time and combo_index < combo.size() - 1:
-		return combo_index + 1
-	return 0
-
-# Método de ataque
-func attack(index: int, dir: Vector3):
-	combo_index = index
-	queued_attack = false
-	attacking = true
-	attack_elapsed = 0.0
-	enemies_hit.clear()
-	disable_attack()
-	velocity = Vector3.ZERO
-	var aim := camera_pivot.get_aim_direction(global_position)
-	if aim != Vector3.ZERO:
-		model.rotation.y = atan2(aim.x, aim.z)
-	elif dir != Vector3.ZERO:
-		model.rotation.y = atan2(dir.x, dir.z)
-	var data: AttackData = combo[index]
-	var blend := attack_blend_time if index == 0 else chain_blend_time
-	if data.reverse:
-		var end_time := anim.get_animation(data.animation).length - data.start_time
-		anim.play_section(data.animation, 0.0, end_time, blend, -data.speed, true)
-	else:
-		anim.play_section(data.animation, data.start_time, -1.0, blend, data.speed)
-
-func update_attack(dir: Vector3, delta: float):
-	var current: AttackData = combo[combo_index]
-	if not anim.is_playing() or anim.current_animation != current.animation:
-		end_attack()
-		return
-
-	attack_elapsed += delta * current.speed
-	var t := attack_elapsed
-	if t >= current.hit_start and t <= current.hit_end:
-		enable_attack()
-		for body in attack_area.get_overlapping_bodies():
-			_on_attack_area_body_entered(body)
-	else:
-		disable_attack()
-
-	if t < current.chain_end and combo_index < combo.size() - 1 and consume_buffered_attack():
-		queued_attack = true
-
-	if queued_attack and t >= current.chain_start:
-		attack(combo_index + 1, dir)
-	elif dir != Vector3.ZERO and not queued_attack and t >= current.cancel_start:
-		end_attack()
-
-# Algum corpo entrou na area de ataque do player
-func _on_attack_area_body_entered(body: Node3D) -> void:
-	if not body.has_method("take_damage"):
-		return
-		
-	if body in enemies_hit:
-		return
-		
-	enemies_hit.append(body)
-	body.take_damage(combo[combo_index].damage)
-	
 # Teleporta o player para o próximo portal
 func teleport_to(pos: Vector3):
 	portal_cooldown = true
@@ -364,72 +86,10 @@ func teleport_to(pos: Vector3):
 	portal_cooldown = false
 
 func _physics_process(delta):
-	if dying:
+	if is_dead():
 		return
-
-	update_darkness(delta)
 
 	if Input.is_action_just_pressed("attack"):
 		attack_pressed_at = Time.get_ticks_msec() / 1000.0
-	
-	# Movimento relativo à câmera orbital
-	var input_x := Input.get_axis("move_left", "move_right")
-	var input_z := Input.get_axis("move_back", "move_forward")
-	var dir: Vector3 = camera_pivot.get_right() * input_x + camera_pivot.get_forward() * input_z
 
-	if attacking:
-		update_attack(dir.normalized(), delta)
-		return
-
-	if bashing:
-		update_bash(dir.normalized(), delta)
-		return
-	
-	# Registra tile percorrido caso seja diferente do último da lista
-	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
-	if current_tile != last_tile:
-		walked_tiles.append(current_tile)
-		last_tile = current_tile
-
-	if not combo.is_empty() and consume_buffered_attack():
-		if blocking and Input.is_action_pressed("block"):
-			shield_bash(dir.normalized())
-			return
-		# Atacar solta o escudo
-		finish_block()
-		attack(next_combo_index(), dir.normalized())
-		return
-
-	if block_enabled and Input.is_action_pressed("block"):
-		if not blocking:
-			start_block()
-		update_block(dir.normalized(), delta)
-		update_block_locomotion(delta)
-		return
-	elif blocking:
-		end_block()
-
-	if dir != Vector3.ZERO:
-		dir = dir.normalized()
-		velocity.x = dir.x * speed
-		velocity.z = dir.z * speed
-
-		if anim.current_animation != "walk":
-			anim.play("walk")
-
-		# Gira só o modelo, para a câmera não girar junto
-		# Pra girar suavemente preciso transformar um vetor em um ângulo, e encontrei essa função que faz isso usando só os eixos X e Z
-		var target_yaw := atan2(dir.x, dir.z)
-		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
-	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
-
-		if anim.current_animation != "idle":
-			anim.play("idle")
-
-	move_and_slide()
-
-	# Enquanto o escudo abaixa o AnimationTree ainda está ligado, então as pernas continuam acompanhando o movimento
-	if block_tree.active:
-		update_block_locomotion(delta)
+	state_machine.physics_update(delta)

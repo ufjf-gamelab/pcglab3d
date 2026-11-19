@@ -67,7 +67,7 @@ func idle_state():
 		
 # CHASE
 func chase_state():
-	if player == null or player.life <= 0:
+	if player == null or player.is_dead():
 		state = State.IDLE
 		return
 
@@ -155,7 +155,7 @@ func _on_attack_area_body_entered(body):
 	if has_hit:
 		return
 
-	if body.name == "Player" and body.life > 0:
+	if body.name == "Player" and not body.is_dead():
 		has_hit = true
 		# Agora tem que passar o próprio inimigo pra saber a direção do ataque
 		body.take_damage(attack_damage, self)
