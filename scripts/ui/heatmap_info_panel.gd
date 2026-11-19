@@ -1,8 +1,8 @@
 extends PanelContainer
 class_name HeatmapInfoPanel
 
-@onready var title_label: Label = $VBoxContainer/Title
-@onready var subtitle_label: Label = $VBoxContainer/Subtitle
+@onready var title_label: Label = %Title
+@onready var subtitle_label: Label = %Subtitle
 
 func _ready():
 	visible = false
