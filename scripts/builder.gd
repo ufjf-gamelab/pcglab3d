@@ -32,28 +32,14 @@ func _ready():
 		# Instancia a cena
 		var scene_instance = structure.model.instantiate()
 		
+		mesh_library.set_item_mesh(id, _merge_meshes(scene_instance))
+		
 		# Percorre os filhos do nó raiz
 		for child in scene_instance.get_children():
-			
-			# Caso encontre a mesh filha direta do nó raiz
-			if child is MeshInstance3D:
-				# Adiciona a mesh ao item
-				mesh_library.set_item_mesh(id, child.mesh)
-				mesh_library.set_item_mesh_transform(id, child.transform)
-				
 			# Caso encontre colisão filha direta do nó raiz
-			elif child is CollisionShape3D:
+			if child is CollisionShape3D:
 				# Adiciona forma ao item
 				mesh_library.set_item_shapes(id, [child.shape, child.transform])
-				
-			# Caso seja uma cena com colisão, a mesh fica dentro do glb
-			elif child is Node3D:
-				# Procura a mesh dentro do Model do .tscn
-				for grandchild in child.get_children():
-					if grandchild is MeshInstance3D:
-						mesh_library.set_item_mesh(id, grandchild.mesh)
-						mesh_library.set_item_mesh_transform(id, child.transform)
-						break
 		
 		# Remove a instância da memória
 		scene_instance.queue_free()
@@ -79,6 +65,44 @@ func _process(delta):
 	
 	action_build(gridmap_position)
 	action_demolish(gridmap_position)
+
+func _merge_meshes(root: Node) -> ArrayMesh:
+	var merged := ArrayMesh.new()
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh: Mesh = node.mesh
+		if mesh == null:
+			continue
+		var xform := _transform_relative_to(node, root)
+		for surface in range(mesh.get_surface_count()):
+			var arrays := mesh.surface_get_arrays(surface)
+			arrays[Mesh.ARRAY_BONES] = null
+			arrays[Mesh.ARRAY_WEIGHTS] = null
+			arrays[Mesh.ARRAY_TANGENT] = null
+			var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			for i in range(vertices.size()):
+				vertices[i] = xform * vertices[i]
+			arrays[Mesh.ARRAY_VERTEX] = vertices
+			if arrays[Mesh.ARRAY_NORMAL] != null:
+				var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+				for i in range(normals.size()):
+					normals[i] = (xform.basis * normals[i]).normalized()
+				arrays[Mesh.ARRAY_NORMAL] = normals
+			merged.add_surface_from_arrays(mesh.surface_get_primitive_type(surface), arrays)
+			var material: Material = node.material_override
+			if material == null:
+				material = node.get_surface_override_material(surface)
+			if material == null:
+				material = mesh.surface_get_material(surface)
+			merged.surface_set_material(merged.get_surface_count() - 1, material)
+	return merged
+
+func _transform_relative_to(node: Node3D, root: Node) -> Transform3D:
+	var xform := node.transform
+	var parent := node.get_parent()
+	while parent != root and parent is Node3D:
+		xform = parent.transform * xform
+		parent = parent.get_parent()
+	return xform
 
 # Retrieve the mesh from a PackedScene, used for dynamically creating a MeshLibrary
 func get_mesh(packed_scene):

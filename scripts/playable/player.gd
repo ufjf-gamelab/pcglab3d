@@ -1,100 +1,82 @@
 extends CharacterBody3D
-
-@export var max_life := 2
-var life := max_life
+class_name Player
 
 @export var speed := 2.5
-@export var attack_damage := 1
 
 # Tempo de transição das animações
 @export var anim_blend_time := 0.15
-# Tempo de transição das animações de ataque pra não ficar muito lento
-@export var attack_blend_time := 0.05
+@export var attack_buffer_time := 0.2
+@export var locomotion_smoothing := 8.0
 # Velocidade que o modelo gira
 @export var turn_speed := 15.0
 
-@onready var anim: AnimationPlayer = $Model/AnimationPlayer
-@onready var attack_area: Area3D = $"Model/character-human/Skeleton3D/RightHand/AttackArea"
+@onready var anim: AnimationPlayer = $"Animation Player"
+# Vou precisar de uma só pra misturar as pernas com o tronco
+@onready var block_tree: AnimationTree = $Block
 @onready var model: Node3D = $Model
-@onready var camera_pivot: PlayerCamera = $Pivot
+@onready var camera: IsometricCamera = $Camera
+@onready var health: Health = $Health
+@onready var darkness: Darkness = $Darkness
+@onready var equipment: Equipment = $Equipment
+@onready var state_machine: StateMachine = $"State Machine"
 
 var walked_tiles: Array[Vector3i] = []
 var last_tile: Vector3i = Vector3i(-9999, -9999, -9999)
 
-signal update_life(curr_life)
-
 var portal_cooldown := false
 
-var attacking := false
-var enemies_hit := []
-
-var dying := false
-
-# Faz a animação de morte e remove do mapa
-func on_die():
-	anim.play("die")
-	await anim.animation_finished
-	await get_tree().create_timer(2).timeout
-	queue_free()
-
-# Recebe dano
-func take_damage(amount):
-	life -= amount
-	#print("Vida Player:", life)
-	emit_signal("update_life", life)
-	
-	if life <= 0:
-		dying = true
-		on_die()
+var attack_pressed_at := -100.0
 
 func _ready():
 	anim.playback_default_blend_time = anim_blend_time
 	anim.play("idle")
-	
-	attack_area.monitoring = false
-	
-	# Conecta sinais às funções
-	attack_area.body_entered.connect(_on_attack_area_body_entered)
-	anim.animation_finished.connect(_on_animation_finished)
-	anim.animation_started.connect(_on_animation_started)
+	health.died.connect(_on_died)
 
-# Início de alguma animação
-func _on_animation_started(anim_name):
-	if anim_name == "attack-melee-right":
-		enable_attack()
+func is_dead() -> bool:
+	return health.life <= 0
 
-# Final de alguma animação
-func _on_animation_finished(anim_name):
-	if anim_name == "attack-melee-right":
-		disable_attack()
-
-# Ativa hitbox do ataque
-func enable_attack():
-	attack_area.monitoring = true
-	attacking = true
-
-# Desativa hitbox do ataque
-func disable_attack():
-	attack_area.monitoring = false
-	attacking = false
-
-# Método de ataque
-func attack():
-	enemies_hit.clear()
-	velocity = Vector3.ZERO
-	anim.play("attack-melee-right", attack_blend_time)
-
-# Algum corpo entrou na area de ataque do player
-func _on_attack_area_body_entered(body: Node3D) -> void:
-	if not body.has_method("take_damage"):
+# Recebe dano
+func take_damage(amount, source: Node3D = null):
+	if source and equipment.try_block(source):
 		return
-		
-	if body in enemies_hit:
+	health.take_damage(amount)
+
+func _on_died():
+	state_machine.transition_to("Dead")
+
+func _unhandled_input(event):
+	if is_dead() or not state_machine.state.can_swap_item():
 		return
-		
-	enemies_hit.append(body)
-	body.take_damage(attack_damage)
-	
+	if event.is_action_pressed("swap_item"):
+		equipment.swap_off_hand()
+		state_machine.transition_to("Move")
+
+func get_move_direction() -> Vector3:
+	# Movimento relativo à câmera orbital
+	var input_x := Input.get_axis("move_left", "move_right")
+	var input_z := Input.get_axis("move_back", "move_forward")
+	return camera.get_right() * input_x + camera.get_forward() * input_z
+
+func face_aim(dir: Vector3):
+	var aim := camera.get_aim_direction(global_position)
+	if aim != Vector3.ZERO:
+		model.rotation.y = atan2(aim.x, aim.z)
+	elif dir != Vector3.ZERO:
+		model.rotation.y = atan2(dir.x, dir.z)
+
+func record_tile():
+	# Registra tile percorrido caso seja diferente do último da lista
+	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
+	if current_tile != last_tile:
+		walked_tiles.append(current_tile)
+		last_tile = current_tile
+
+func consume_buffered_attack() -> bool:
+	if Time.get_ticks_msec() / 1000.0 - attack_pressed_at <= attack_buffer_time:
+		attack_pressed_at = -100.0
+		return true
+	return false
+
 # Teleporta o player para o próximo portal
 func teleport_to(pos: Vector3):
 	portal_cooldown = true
@@ -104,41 +86,10 @@ func teleport_to(pos: Vector3):
 	portal_cooldown = false
 
 func _physics_process(delta):
-	if attacking or dying:
+	if is_dead():
 		return
-	
-	# Registra tile percorrido caso seja diferente do último da lista
-	var current_tile = Vector3i(roundi(global_position.x), 0, roundi(global_position.z))
-	if current_tile != last_tile:
-		walked_tiles.append(current_tile)
-		last_tile = current_tile
-	
-	# Movimento relativo à câmera orbital
-	var input_x := Input.get_axis("move_left", "move_right")
-	var input_z := Input.get_axis("move_back", "move_forward")
-	var dir: Vector3 = camera_pivot.get_right() * input_x + camera_pivot.get_forward() * input_z
 
 	if Input.is_action_just_pressed("attack"):
-		attack()
-		return
+		attack_pressed_at = Time.get_ticks_msec() / 1000.0
 
-	if dir != Vector3.ZERO:
-		dir = dir.normalized()
-		velocity.x = dir.x * speed
-		velocity.z = dir.z * speed
-
-		if anim.current_animation != "walk":
-			anim.play("walk")
-
-		# Gira só o modelo, para a câmera não girar junto
-		# Pra girar suavemente preciso transformar um vetor em um ângulo, e encontrei essa função que faz isso usando só os eixos X e Z
-		var target_yaw := atan2(dir.x, dir.z)
-		model.rotation.y = lerp_angle(model.rotation.y, target_yaw, min(delta * turn_speed, 1.0))
-	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
-
-		if anim.current_animation != "idle":
-			anim.play("idle")
-
-	move_and_slide()
+	state_machine.physics_update(delta)

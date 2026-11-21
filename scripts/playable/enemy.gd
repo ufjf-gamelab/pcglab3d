@@ -1,25 +1,31 @@
 extends CharacterBody3D
 
-@export var max_life := 2
+@export var max_life := 5
 @export var speed := 2.0
 @export var attack_distance := 0.6
-@export var attack_cooldown := 0.5
+@export var attack_cooldown := 0.25
 @export var attack_damage := 1
+@export var attack_speed := 1.5
+@export var hit_start := 0.2
+@export var hit_end := 0.36
+@export var knockback := 0.8
 
 var player : Node3D = null
 var life := max_life
 var state : State = State.IDLE
+var has_hit := false
 
 enum State {
 	IDLE,
 	CHASE,
 	ATTACK_PREPARE,
+	STAGGER,
 	DEAD
 }
 
 @onready var anim: AnimationPlayer = $Model/AnimationPlayer
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
-@onready var attack_area := $"Model/character-orc/Skeleton3D/RightHand/Area3D"
+@onready var attack_area := $"Model/Rig_Medium/Skeleton3D/RightHand/Area3D"
 
  
 func _ready():
@@ -34,9 +40,13 @@ func _ready():
 	anim.animation_started.connect(_on_animation_started)
 	anim.animation_finished.connect(_on_animation_finished)
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if state == State.DEAD:
 		return
+
+	if anim.current_animation == "attack-melee-right":
+		var t := anim.current_animation_position
+		attack_area.monitoring = t >= hit_start and t <= hit_end
 
 	match state:
 		State.IDLE:
@@ -44,6 +54,9 @@ func _physics_process(_delta):
 		
 		State.CHASE:
 			chase_state()
+
+		State.STAGGER:
+			stagger_state(delta)
 
 # IDLE
 func idle_state():
@@ -54,7 +67,7 @@ func idle_state():
 		
 # CHASE
 func chase_state():
-	if player == null or player.life <= 0:
+	if player == null or player.is_dead():
 		state = State.IDLE
 		return
 
@@ -87,24 +100,33 @@ func attack():
 	velocity = Vector3.ZERO
 	move_and_slide()
 
+	if player:
+		look_at(Vector3(player.global_position.x, global_position.y, player.global_position.z))
+	anim.play("idle")
+
 	await get_tree().create_timer(attack_cooldown).timeout
 
-	if state == State.DEAD:
+	if state != State.ATTACK_PREPARE:
 		return
 
-	anim.play("attack-melee-right")
+	anim.play("attack-melee-right", -1, attack_speed)
 
 func _on_animation_started(anim_name):
 	if state == State.DEAD:
 		return
 	if anim_name == "attack-melee-right":
-		attack_area.monitoring = true
+		has_hit = false
 
 func _on_animation_finished(anim_name):
 	if state == State.DEAD:
 		return
 	if anim_name == "attack-melee-right":
 		attack_area.monitoring = false
+		if player:
+			state = State.CHASE
+		else:
+			state = State.IDLE
+	elif anim_name == "hit":
 		if player:
 			state = State.CHASE
 		else:
@@ -130,8 +152,13 @@ func _on_attack_area_body_entered(body):
 	if state == State.DEAD:
 		return
 
-	if body.name == "Player" and body.life > 0:
-		body.take_damage(attack_damage)
+	if has_hit:
+		return
+
+	if body.name == "Player" and not body.is_dead():
+		has_hit = true
+		# Agora tem que passar o próprio inimigo pra saber a direção do ataque
+		body.take_damage(attack_damage, self)
 
 func take_damage(amount):
 	if state == State.DEAD:
@@ -140,6 +167,27 @@ func take_damage(amount):
 	life -= amount
 	if life <= 0:
 		die()
+	else:
+		stagger()
+
+func stagger(push := -1.0):
+	if state == State.DEAD:
+		return
+	if push < 0.0:
+		push = knockback
+	state = State.STAGGER
+	attack_area.monitoring = false
+	velocity = Vector3.ZERO
+	if player:
+		var away := global_position - player.global_position
+		away.y = 0
+		velocity = away.normalized() * push
+	anim.play("hit")
+	anim.seek(0, true)
+
+func stagger_state(delta):
+	velocity = velocity.move_toward(Vector3.ZERO, knockback * 4 * delta)
+	move_and_slide()
 
 func die():
 	state = State.DEAD
@@ -149,6 +197,7 @@ func die():
 
 	player = null
 	attack_area.monitoring = false
+	$CollisionShape3D.set_deferred("disabled", true)
 
 	anim.play("die")
 	await anim.animation_finished
