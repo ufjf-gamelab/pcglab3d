@@ -6,7 +6,7 @@ gerada com um personagem).
 
 ## Requisitos
 
-- Godot Engine 4.6 ou superior
+- Godot Engine 4.7 ou superior
 
 ## Controles
 
@@ -26,7 +26,6 @@ gerada com um personagem).
 | <kbd>Q</kbd> / <kbd>E</kbd> | Alternar entre estruturas (anterior / próxima) |
 | <kbd>F1</kbd> | Salvar mapa |
 | <kbd>F2</kbd> | Carregar mapa salvo |
-| <kbd>F3</kbd> | Carregar mapa de exemplo (recurso interno) |
 
 #### Geração da Dungeon
 

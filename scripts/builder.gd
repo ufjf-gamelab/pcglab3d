@@ -32,28 +32,14 @@ func _ready():
 		# Instancia a cena
 		var scene_instance = structure.model.instantiate()
 		
+		mesh_library.set_item_mesh(id, _merge_meshes(scene_instance))
+		
 		# Percorre os filhos do nó raiz
 		for child in scene_instance.get_children():
-			
-			# Caso encontre a mesh filha direta do nó raiz
-			if child is MeshInstance3D:
-				# Adiciona a mesh ao item
-				mesh_library.set_item_mesh(id, child.mesh)
-				mesh_library.set_item_mesh_transform(id, child.transform)
-				
 			# Caso encontre colisão filha direta do nó raiz
-			elif child is CollisionShape3D:
-#				# Adiciona forma ao item
+			if child is CollisionShape3D:
+				# Adiciona forma ao item
 				mesh_library.set_item_shapes(id, [child.shape, child.transform])
-				
-			# Caso seja uma cena com colisão, a mesh fica dentro do glb
-			elif child is Node3D:
-				# Procura a mesh dentro do Model do .tscn
-				for grandchild in child.get_children():
-					if grandchild is MeshInstance3D:
-						mesh_library.set_item_mesh(id, grandchild.mesh)
-						mesh_library.set_item_mesh_transform(id, child.transform)
-						break
 		
 		# Remove a instância da memória
 		scene_instance.queue_free()
@@ -69,10 +55,6 @@ func _process(delta):
 	action_rotate() # Rotates selection 90 degrees
 	action_structure_toggle() # Toggles between structures
 	
-	action_save() # Saving
-	action_load() # Loading
-	action_load_resources() # Loading from resources
-	
 	# Map position based on mouse
 	var world_position = plane.intersects_ray(
 		view_camera.project_ray_origin(get_viewport().get_mouse_position()),
@@ -83,6 +65,44 @@ func _process(delta):
 	
 	action_build(gridmap_position)
 	action_demolish(gridmap_position)
+
+func _merge_meshes(root: Node) -> ArrayMesh:
+	var merged := ArrayMesh.new()
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh: Mesh = node.mesh
+		if mesh == null:
+			continue
+		var xform := _transform_relative_to(node, root)
+		for surface in range(mesh.get_surface_count()):
+			var arrays := mesh.surface_get_arrays(surface)
+			arrays[Mesh.ARRAY_BONES] = null
+			arrays[Mesh.ARRAY_WEIGHTS] = null
+			arrays[Mesh.ARRAY_TANGENT] = null
+			var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			for i in range(vertices.size()):
+				vertices[i] = xform * vertices[i]
+			arrays[Mesh.ARRAY_VERTEX] = vertices
+			if arrays[Mesh.ARRAY_NORMAL] != null:
+				var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+				for i in range(normals.size()):
+					normals[i] = (xform.basis * normals[i]).normalized()
+				arrays[Mesh.ARRAY_NORMAL] = normals
+			merged.add_surface_from_arrays(mesh.surface_get_primitive_type(surface), arrays)
+			var material: Material = node.material_override
+			if material == null:
+				material = node.get_surface_override_material(surface)
+			if material == null:
+				material = mesh.surface_get_material(surface)
+			merged.surface_set_material(merged.get_surface_count() - 1, material)
+	return merged
+
+func _transform_relative_to(node: Node3D, root: Node) -> Transform3D:
+	var xform := node.transform
+	var parent := node.get_parent()
+	while parent != root and parent is Node3D:
+		xform = parent.transform * xform
+		parent = parent.get_parent()
+	return xform
 
 # Retrieve the mesh from a PackedScene, used for dynamically creating a MeshLibrary
 func get_mesh(packed_scene):
@@ -98,7 +118,7 @@ func get_mesh(packed_scene):
 
 # Build (place) a structure
 func action_build(gridmap_position):
-	if Input.is_action_just_pressed("build"):
+	if Input.is_action_just_pressed("build") and not _mouse_over_ui():
 		
 		var previous_tile = gridmap.get_cell_item(gridmap_position)
 		gridmap.set_cell_item(gridmap_position, index, gridmap.get_orthogonal_index_from_basis(selector.basis))
@@ -110,7 +130,7 @@ func action_build(gridmap_position):
 
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):
-	if Input.is_action_just_pressed("demolish"):
+	if Input.is_action_just_pressed("demolish") and not _mouse_over_ui():
 		if gridmap.get_cell_item(gridmap_position) != -1:
 			gridmap.set_cell_item(gridmap_position, -1)
 			
@@ -118,7 +138,7 @@ func action_demolish(gridmap_position):
 
 # Rotates the 'cursor' 90 degrees
 func action_rotate():
-	if Input.is_action_just_pressed("rotate"):
+	if Input.is_action_just_pressed("rotate") and not _mouse_over_ui():
 		selector.rotate_y(deg_to_rad(90))
 		
 		Audio.play("sounds/rotate.ogg", -30)
@@ -147,40 +167,33 @@ func update_structure():
 	_model.position.y += 0.25
 
 # Saving/load
-func action_save():
-	if Input.is_action_just_pressed("save"):
-		print("Saving map...")
-		
-		map.structures.clear()
-		for cell in gridmap.get_used_cells():
-			var data_structure:DataStructure = DataStructure.new()
-			data_structure.position = Vector2i(cell.x, cell.z)
-			data_structure.orientation = gridmap.get_cell_item_orientation(cell)
-			data_structure.structure = gridmap.get_cell_item(cell)
-			map.structures.append(data_structure)
-			
-		ResourceSaver.save(map, "user://map.res")
+func save_map():
+	print("Saving map...")
 	
-func action_load():
-	if Input.is_action_just_pressed("load"):
-		print("Loading map...")
+	map.structures.clear()
+	for cell in gridmap.get_used_cells():
+		var data_structure:DataStructure = DataStructure.new()
+		data_structure.position = Vector2i(cell.x, cell.z)
+		data_structure.orientation = gridmap.get_cell_item_orientation(cell)
+		data_structure.structure = gridmap.get_cell_item(cell)
+		map.structures.append(data_structure)
 		
-		gridmap.clear()
-		
-		map = ResourceLoader.load("user://map.res")
-		if not map:
-			map = DataMap.new()
-		for cell in map.structures:
-			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+	ResourceSaver.save(map, "user://map.res")
 
-func action_load_resources():
-	if Input.is_action_just_pressed("load_resources"):
-		print("Loading map...")
-		
-		gridmap.clear()
-		
-		map = ResourceLoader.load("res://sample map/map.res")
-		if not map:
-			map = DataMap.new()
-		for cell in map.structures:
-			gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+func load_map():
+	print("Loading map...")
+	
+	gridmap.clear()
+	
+	map = ResourceLoader.load("user://map.res")
+	if not map:
+		map = DataMap.new()
+	for cell in map.structures:
+		gridmap.set_cell_item(Vector3i(cell.position.x, 0, cell.position.y), cell.structure, cell.orientation)
+
+func _mouse_over_ui() -> bool:
+	var mouse := get_viewport().get_mouse_position()
+	for control: Control in get_tree().get_nodes_in_group("blocking_ui"):
+		if control.is_visible_in_tree() and control.get_global_rect().has_point(mouse):
+			return true
+	return false

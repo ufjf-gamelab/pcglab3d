@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://b6fo5dh7fb12q"]
+
+[ext_resource type="Script" uid="uid://c2fkaxfcpiquq" path="res://scripts/playable/campfire.gd" id="1_campfire"]
+[ext_resource type="PackedScene" path="res://dungeon/assets/campfire/campfire-pit.glb" id="2_pit"]
+[ext_resource type="Script" uid="uid://bso0mlyqvkix7" path="res://scripts/playable/flicker_light.gd" id="3_flicker"]
+
+[sub_resource type="Gradient" id="Gradient_fire_color"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.35, 0.75)
+colors = PackedColorArray(1, 0.9, 0.45, 1, 1, 0.55, 0.15, 1, 0.85, 0.2, 0.05, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_fire_color"]
+gradient = SubResource("Gradient_fire_color")
+
+[sub_resource type="Curve" id="Curve_fire_scale"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_fire_scale"]
+curve = SubResource("Curve_fire_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleMaterial_fire"]
+particle_flag_rotate_y = true
+emission_shape = 1
+emission_sphere_radius = 0.1
+angle_min = -180.0
+angle_max = 180.0
+direction = Vector3(0, 1, 0)
+spread = 10.0
+initial_velocity_min = 0.3
+initial_velocity_max = 0.6
+gravity = Vector3(0, 0, 0)
+scale_min = 0.7
+scale_max = 1.2
+scale_curve = SubResource("CurveTexture_fire_scale")
+color_ramp = SubResource("GradientTexture_fire_color")
+
+[sub_resource type="StandardMaterial3D" id="Material_fire"]
+shading_mode = 0
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="Mesh_fire"]
+material = SubResource("Material_fire")
+radius = 0.05
+height = 0.14
+radial_segments = 4
+rings = 1
+
+[sub_resource type="CylinderShape3D" id="Shape_body"]
+height = 0.3
+radius = 0.35
+
+[sub_resource type="CylinderShape3D" id="Shape_light"]
+radius = 2.5
+
+[node name="Campfire" type="StaticBody3D" unique_id=1722136888]
+script = ExtResource("1_campfire")
+
+[node name="Pit" parent="." instance=ExtResource("2_pit")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
+
+[node name="Fire" type="GPUParticles3D" parent="." unique_id=941391174]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+amount = 16
+lifetime = 0.6
+process_material = SubResource("ParticleMaterial_fire")
+draw_pass_1 = SubResource("Mesh_fire")
+
+[node name="FireLight" type="OmniLight3D" parent="." unique_id=472693987]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+light_color = Color(1, 0.6, 0.3, 1)
+light_energy = 1.2
+omni_attenuation = 0.8
+script = ExtResource("3_flicker")
+base_energy = 1.2
+base_range = 5.0
+jitter = 0.04
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=242806937]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+shape = SubResource("Shape_body")
+
+[node name="LightArea" type="Area3D" parent="." unique_id=25491700]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightArea" unique_id=1883961751]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("Shape_light")
+
+[connection signal="body_entered" from="LightArea" to="." method="_on_light_area_body_entered"]
+[connection signal="body_exited" from="LightArea" to="." method="_on_light_area_body_exited"]

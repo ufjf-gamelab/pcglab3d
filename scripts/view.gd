@@ -7,13 +7,31 @@ var zoom:float = 30.0 # 30 = Standard zoom level, in meters
 
 var active := true
 
+# Visão inicial do jogo
+@export var home_position := Vector3(20, 0, 20)
+@export var home_rotation := Vector3(-35, 0, 0)
+@export var home_zoom := 80.0
+
+# Bloqueia só o controle do jogador
+var input_locked := false
+
 @onready var camera = $EditCamera
 
 func _ready():
-	
-	camera_rotation = rotation_degrees # Initial rotation
-	
-	pass
+	# Começa na visão inicial
+	camera_position = home_position
+	camera_rotation = home_rotation
+	zoom = home_zoom
+	position = home_position
+	rotation_degrees = home_rotation
+	camera.position = Vector3(0, 0, zoom)
+
+# Leva a câmera de volta à visão inicial, interpolando
+func go_home():
+	camera_position = home_position
+	var delta_y := wrapf(home_rotation.y - rotation_degrees.y, -180.0, 180.0)
+	camera_rotation = Vector3(home_rotation.x, rotation_degrees.y + delta_y, home_rotation.z)
+	zoom = home_zoom
 
 func _process(delta):
 	if not active:
@@ -34,7 +52,7 @@ func _process(delta):
 
 func handle_input(_delta):
 	
-	if not active:
+	if not active or input_locked:
 		return
 	
 	# Rotation
@@ -59,11 +77,14 @@ func handle_input(_delta):
 	# Back to center
 	
 	if Input.is_action_pressed("camera_center"):
-		camera_position = Vector3()
+		go_home()
 
 func _input(event):
 	
 	if not active:
+		return
+	
+	if input_locked:
 		return
 	
 	# Rotate camera using mouse (hold 'middle' mouse button)

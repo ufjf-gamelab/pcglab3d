@@ -20,7 +20,15 @@ const ROOM_SIZE_PRESETS = {
 	"grande":  { "min": 13, "max": 15 }
 }
 
+# Quantas gerações já foram, quantas precisam ser feitas, e a descrição com a seed, preset e tipo de gerador
+signal progress(current: int, total: int, description: String)
+
 var _gridmap: GridMap
+var cancelled := false
+
+func cancel():
+	cancelled = true
+
 var _chart_plotter: Control
 
 func run(gridmap: GridMap, chart_plotter: Control):
@@ -31,20 +39,37 @@ func run(gridmap: GridMap, chart_plotter: Control):
 	for i in range(EXPERIMENT_SEED_COUNT):
 		seeds.append(randi())
 
+	# Usa dois geradores por seed
+	var total := ROOM_SIZE_PRESETS.size() * seeds.size() * 2
+	var current := 0
+
 	for preset_name in ROOM_SIZE_PRESETS.keys():
 		var preset = ROOM_SIZE_PRESETS[preset_name]
 
 		for s in seeds:
+			if cancelled:
+				break
+
 			var geo_gen = GENERATOR.new()
 			geo_gen.set_room_size(preset["min"], preset["max"])
 			_run_for_seed(s, "geo_%s" % preset_name, geo_gen, func(): geo_gen.generate_dungeon(_gridmap))
+			current += 1
+			progress.emit(current, total, "Salas geométricas, %s, seed %d" % [preset_name, s])
+			# Precisa dar um frame pra atualizar a interface
+			await Engine.get_main_loop().process_frame
 
 			var ca_gen = CA_GENERATOR.new()
 			ca_gen.set_room_size(preset["min"], preset["max"])
 			_run_for_seed(s, "ca_%s" % preset_name, ca_gen, func(): ca_gen.generate_dungeon_ca(_gridmap))
+			current += 1
+			progress.emit(current, total, "Autômato celular, %s, seed %d" % [preset_name, s])
+			await Engine.get_main_loop().process_frame
+
+		if cancelled:
+			break
 
 	UGen.SPAWN = UGen.Spawn.SMART
-	print("\nExperimento concluído")
+	print("\nExperimento cancelado" if cancelled else "\nExperimento concluído")
 
 func _run_for_seed(s: int, generator_name: String, generator_instance, generate_func: Callable):
 	for spawn_mode in EXPERIMENT_SPAWN_MODES:

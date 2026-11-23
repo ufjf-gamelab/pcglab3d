@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/items/shield.gd" id="1_8mnvw"]
+[ext_resource type="PackedScene" uid="uid://cprcoxm7wighm" path="res://characters/Knight/shield_round.gltf" id="2_1vzx7"]
+
+[node name="Shield" type="Node3D"]
+script = ExtResource("1_8mnvw")
+hold_transform = Transform3D(1, -1.9895197e-13, -4.9737504e-15, 0, 0.9999999, -5.684342e-14, -1.0425397e-14, 1.7053026e-13, 1, -0.020885527, -6.718824e-08, 0.2214086)
+stow_slot = 1
+stow_transform = Transform3D(-0.9999999, -1.5972017e-16, 1.4901161e-08, -1.6142618e-15, 1, -1.2407847e-16, -1.4901161e-08, -6.989123e-17, -0.9999999, 0.0033132972, -0.07466984, -0.3882784)
+
+[node name="Model" parent="." instance=ExtResource("2_1vzx7")]
