@@ -6,6 +6,8 @@ const GENERATOR = preload("res://scripts/generators/dungeon_generator.gd")
 const PATHFINDER = preload("res://scripts/utils/pathfinding.gd")
 const EXPERIMENT = preload("res://scripts/utils/quantitative_experiment.gd")
 
+enum Generator { GEOMETRIC, CELLULAR, BSP }
+
 signal chart_opened
 signal chart_closed
 signal experiment_state_changed(running: bool)
@@ -80,24 +82,20 @@ func _handle_seed():
 	seed(used_seed)
 	print("\nSeed usada: ", used_seed)
 
-func on_ca_generate_dungeon_pressed():
-	_handle_seed()
-	UHeat.deactivate_heatmaps()
-	heatmap_panel.clear()
-	UHeat.clear_heatmaps()
-	var ca_generator = CA_GENERATOR.new()
-	ca_generator.generate_dungeon_ca(gridmap)
-	ca_generator.spawn_dungeon_elements(gridmap)
-	rebuild_navigation_mesh()
-
-func on_generate_dungeon_pressed():
+func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 	_handle_seed()
 	UHeat.deactivate_heatmaps()
 	UHeat.clear_heatmaps()
 	heatmap_panel.clear()
-	var generator = GENERATOR.new()
-	generator.generate_dungeon(gridmap)
-	generator.spawn_dungeon_elements(gridmap)
+	match type:
+		Generator.CELLULAR:
+			var ca_generator = CA_GENERATOR.new()
+			ca_generator.generate_dungeon_ca(gridmap)
+			ca_generator.spawn_dungeon_elements(gridmap)
+		Generator.GEOMETRIC, Generator.BSP:
+			var generator = GENERATOR.new()
+			generator.generate_dungeon(gridmap)
+			generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
 
 func rebuild_navigation_mesh():
