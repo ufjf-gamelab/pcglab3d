@@ -15,6 +15,9 @@ func _ready():
 			var action: StringName = button.get_meta("action")
 			button.pressed.connect(func(): action_pressed.emit(action))
 
+func get_selected_generator() -> int:
+	return %GeneratorSelect.get_selected_id()
+
 func set_build_mode(enabled: bool):
 	%Build.set_pressed_no_signal(enabled)
 	%Build.text = "Construção: ligada" if enabled else "Construção: desligada"

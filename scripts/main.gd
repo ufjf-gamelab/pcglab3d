@@ -44,7 +44,7 @@ var mode = Mode.CREATION
 
 # Ações do menu lateral
 const INPUT_ACTIONS: Array[StringName] = [
-	&"ca_generate_dungeon", &"generate_dungeon", &"toggle_mode",
+	&"generate_dungeon", &"toggle_mode",
 	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"select_room", &"run_quantitative_experiment",
@@ -133,10 +133,8 @@ func _run_action(action: StringName):
 		return
 
 	match action:
-		&"ca_generate_dungeon":
-			edit_tools.on_ca_generate_dungeon_pressed()
 		&"generate_dungeon":
-			edit_tools.on_generate_dungeon_pressed()
+			edit_tools.on_generate_dungeon_pressed(action_menu.get_selected_generator())
 		&"toggle_mode":
 			edit_tools.clear_heatmaps()
 			toggle_mode()

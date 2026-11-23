@@ -41,17 +41,24 @@ layout_mode = 2
 layout_mode = 2
 text = "Gerar dungeon"
 
-[node name="Geometric" type="Button" parent="Panel/Margin/VBox" unique_id=512733632]
+[node name="GeneratorSelect" type="OptionButton" parent="Panel/Margin/VBox" unique_id=1832515669]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Salas geométricas (G)"
-metadata/action = &"generate_dungeon"
+selected = 0
+item_count = 3
+popup/item_0/text = "Salas geométricas"
+popup/item_0/id = 0
+popup/item_1/text = "Autômato celular"
+popup/item_1/id = 1
+popup/item_2/text = "Particionamento binário (BSP)"
+popup/item_2/id = 2
 
-[node name="Cellular" type="Button" parent="Panel/Margin/VBox" unique_id=1832515669]
+[node name="Generate" type="Button" parent="Panel/Margin/VBox" unique_id=512733632]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Autômato celular (H)"
-metadata/action = &"ca_generate_dungeon"
+text = "Gerar (G)"
+metadata/action = &"generate_dungeon"
 
 [node name="Sep1" type="HSeparator" parent="Panel/Margin/VBox" unique_id=1402654491]
 layout_mode = 2
