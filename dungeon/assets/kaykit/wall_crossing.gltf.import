@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cqrsvpov6whdw"
-path="res://.godot/imported/teto_portal.glb-324a6b99233baeaa9df633b95352c659.scn"
+uid="uid://1pab7nw11wah"
+path="res://.godot/imported/wall_crossing.gltf-77f4e3a0662b2dbe8a4c96cbddd74eea.scn"
 
 [deps]
 
-source_file="res://dungeon/assets/teto_portal.glb"
-dest_files=["res://.godot/imported/teto_portal.glb-324a6b99233baeaa9df633b95352c659.scn"]
+source_file="res://dungeon/assets/kaykit/wall_crossing.gltf"
+dest_files=["res://.godot/imported/wall_crossing.gltf-77f4e3a0662b2dbe8a4c96cbddd74eea.scn"]
 
 [params]
 
@@ -39,7 +39,15 @@ import_script/path=""
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
-_subresources={}
+_subresources={
+"materials": {
+"texture": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://dungeon/assets/kaykit/kaykit_matte.tres",
+"use_external/path": "res://dungeon/assets/kaykit/kaykit_matte.tres"
+}
+}
+}
 gltf/naming_version=2
 gltf/embedded_image_handling=1
-gltf/texture_map_mode=0
+gltf/texture_map_mode=1

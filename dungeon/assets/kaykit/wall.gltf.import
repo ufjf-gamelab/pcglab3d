@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://6jsliuegj2oh"
-path="res://.godot/imported/wood-structure.glb-462fb47dafe8ae031eb71a0e4bc15777.scn"
+uid="uid://cbrv6kl6ckmgh"
+path="res://.godot/imported/wall.gltf-e3247c17ddd37e1b0271e07809cf3a8c.scn"
 
 [deps]
 
-source_file="res://dungeon/assets/wood-structure.glb"
-dest_files=["res://.godot/imported/wood-structure.glb-462fb47dafe8ae031eb71a0e4bc15777.scn"]
+source_file="res://dungeon/assets/kaykit/wall.gltf"
+dest_files=["res://.godot/imported/wall.gltf-e3247c17ddd37e1b0271e07809cf3a8c.scn"]
 
 [params]
 
@@ -41,13 +41,13 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "materials": {
-"colormap": {
+"texture": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://dungeon/assets/colormap_portal/colormap.tres",
-"use_external/path": "uid://dxo18no2uewou"
+"use_external/fallback_path": "res://dungeon/assets/kaykit/kaykit_matte.tres",
+"use_external/path": "res://dungeon/assets/kaykit/kaykit_matte.tres"
 }
 }
 }
 gltf/naming_version=2
 gltf/embedded_image_handling=1
-gltf/texture_map_mode=0
+gltf/texture_map_mode=1

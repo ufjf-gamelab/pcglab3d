@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bmsd34k1e23hi"]
+
+[ext_resource type="PackedScene" uid="uid://buys2ate6670i" path="res://dungeon/assets/campfire/campfire-pit.glb" id="1_cigqv"]
+
+[node name="Campfire" type="Node3D" unique_id=1303372283]
+
+[node name="Model" parent="." unique_id=1268802419 instance=ExtResource("1_cigqv")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)

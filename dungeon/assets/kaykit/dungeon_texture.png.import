@@ -2,20 +2,17 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://n67w00dnfiiq"
-path.s3tc="res://.godot/imported/teto_portal_colormap.png-0c52f111f16960675738a75ac7f64db0.s3tc.ctex"
+uid="uid://b32rcefb1ha0n"
+path.s3tc="res://.godot/imported/dungeon_texture.png-d15ad2391c8a7a85420efbda3a363a05.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "873e8b540523b5e76f6fe2e79c05cea9"
-}
 
 [deps]
 
-source_file="res://dungeon/assets/teto_portal_colormap.png"
-dest_files=["res://.godot/imported/teto_portal_colormap.png-0c52f111f16960675738a75ac7f64db0.s3tc.ctex"]
+source_file="res://dungeon/assets/kaykit/dungeon_texture.png"
+dest_files=["res://.godot/imported/dungeon_texture.png-d15ad2391c8a7a85420efbda3a363a05.s3tc.ctex"]
 
 [params]
 

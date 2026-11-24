@@ -27,9 +27,19 @@
 [ext_resource type="AudioStream" uid="uid://wvfsgkl8qob6" path="res://sounds/ambience.ogg" id="24_y6deb"]
 [ext_resource type="PackedScene" uid="uid://d1qtixd4ty5d3" path="res://scenes/hud/VictoryScreen.tscn" id="27_2f3dj"]
 [ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://scenes/path-visualizer.tscn" id="27_vxglm"]
-[ext_resource type="PackedScene" path="res://scenes/hud/ActionMenu.tscn" id="28_menu"]
+[ext_resource type="PackedScene" uid="uid://c8kqi653osk6g" path="res://scenes/hud/ActionMenu.tscn" id="28_menu"]
 [ext_resource type="PackedScene" path="res://scenes/hud/ExperimentOverlay.tscn" id="29_overlay"]
-[ext_resource type="Script" path="res://scripts/edit_tools.gd" id="30_edit"]
+[ext_resource type="Script" uid="uid://p6f8go2m6vcb" path="res://scripts/edit_tools.gd" id="30_edit"]
+[ext_resource type="Script" uid="uid://c0t8x4sd0irqo" path="res://scripts/dungeon_dresser.gd" id="31_lljq8"]
+[ext_resource type="PackedScene" uid="uid://d2yeqg2wtqjbn" path="res://scenes/tiles/floor.tscn" id="32_g2w5x"]
+[ext_resource type="PackedScene" uid="uid://dt544krt6vmef" path="res://scenes/tiles/wall.tscn" id="33_vuujp"]
+[ext_resource type="PackedScene" uid="uid://bg44ikesead4a" path="res://scenes/tiles/wall_corner.tscn" id="34_1230q"]
+[ext_resource type="PackedScene" uid="uid://bm70bp8tawam5" path="res://scenes/tiles/wall_crossing.tscn" id="35_gd2ek"]
+[ext_resource type="PackedScene" uid="uid://dtoayors8dhgq" path="res://scenes/tiles/coin.tscn" id="36_c7kqa"]
+[ext_resource type="PackedScene" uid="uid://bffribjrrke0y" path="res://scenes/tiles/enemy.tscn" id="37_e2nvh"]
+[ext_resource type="PackedScene" uid="uid://dfcl4kksas4ys" path="res://scenes/tiles/portal.tscn" id="38_p5tro"]
+[ext_resource type="PackedScene" uid="uid://cty331hka3bc" path="res://scenes/tiles/spawn.tscn" id="39_s8wmd"]
+[ext_resource type="PackedScene" uid="uid://bmsd34k1e23hi" path="res://scenes/tiles/campfire.tscn" id="40_f3cjb"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
 glow_enabled = true
@@ -221,13 +231,27 @@ autoplay = true
 
 [node name="ExperimentOverlay" parent="." unique_id=971121760 instance=ExtResource("29_overlay")]
 
-[node name="EditTools" type="Node" parent="." node_paths=PackedStringArray("gridmap", "nav_region", "heatmap_panel", "chart_plotter", "path_visualizer", "edit_camera", "view", "experiment_overlay")]
+[node name="EditTools" type="Node" parent="." unique_id=675232316 node_paths=PackedStringArray("gridmap", "nav_region", "dresser", "heatmap_panel", "chart_plotter", "path_visualizer", "edit_camera", "view", "experiment_overlay")]
 script = ExtResource("30_edit")
 gridmap = NodePath("../NavigationRegion3D/GridMap")
 nav_region = NodePath("../NavigationRegion3D")
+dresser = NodePath("../DungeonDresser")
 heatmap_panel = NodePath("../UI/CreationUI/LeftColumn/HeatmapInfoPanel")
 chart_plotter = NodePath("../UI/CreationUI/LeftColumn/ChartPlotter")
 path_visualizer = NodePath("../PathVisualizer")
 edit_camera = NodePath("../View/EditCamera")
 view = NodePath("../View")
 experiment_overlay = NodePath("../ExperimentOverlay")
+
+[node name="DungeonDresser" type="Node3D" parent="." unique_id=1316712067 node_paths=PackedStringArray("gridmap")]
+script = ExtResource("31_lljq8")
+gridmap = NodePath("../NavigationRegion3D/GridMap")
+floor_scene = ExtResource("32_g2w5x")
+wall_scene = ExtResource("33_vuujp")
+corner_scene = ExtResource("34_1230q")
+crossing_scene = ExtResource("35_gd2ek")
+coin_scene = ExtResource("36_c7kqa")
+enemy_scene = ExtResource("37_e2nvh")
+portal_scene = ExtResource("38_p5tro")
+spawn_scene = ExtResource("39_s8wmd")
+campfire_scene = ExtResource("40_f3cjb")

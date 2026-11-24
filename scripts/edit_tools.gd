@@ -14,6 +14,7 @@ signal experiment_state_changed(running: bool)
 
 @export var gridmap: GridMap
 @export var nav_region: NavigationRegion3D
+@export var dresser: DungeonDresser
 @export var heatmap_panel: HeatmapInfoPanel
 @export var chart_plotter: Control
 @export var path_visualizer: Node3D
@@ -99,14 +100,17 @@ func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 	rebuild_navigation_mesh()
 
 func rebuild_navigation_mesh():
+	dresser.rebuild()
+
 	var navigation_mesh := NavigationMesh.new()
 	navigation_mesh.sample_partition_type = NavigationMesh.SAMPLE_PARTITION_LAYERS
+	navigation_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	navigation_mesh.agent_radius = 0.1
 	navigation_mesh.cell_height = 0.01
 	
 	var source := NavigationMeshSourceGeometryData3D.new()
 
-	NavigationServer3D.parse_source_geometry_data(navigation_mesh,source,gridmap)
+	NavigationServer3D.parse_source_geometry_data(navigation_mesh, source, dresser)
 
 	NavigationServer3D.bake_from_source_geometry_data(navigation_mesh, source)
 

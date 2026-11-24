@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b18yjw5xl8wd4"
-path="res://.godot/imported/floor_tp.glb-678cc65b72ceb18239b8f5c211d4688b.scn"
+uid="uid://nmnfgndq44wa"
+path="res://.godot/imported/floor_tile_large.gltf-687c4a0fe2084c0700553b882e8747f1.scn"
 
 [deps]
 
-source_file="res://dungeon/assets/floor_tp.glb"
-dest_files=["res://.godot/imported/floor_tp.glb-678cc65b72ceb18239b8f5c211d4688b.scn"]
+source_file="res://dungeon/assets/kaykit/floor_tile_large.gltf"
+dest_files=["res://.godot/imported/floor_tile_large.gltf-687c4a0fe2084c0700553b882e8747f1.scn"]
 
 [params]
 
@@ -39,7 +39,15 @@ import_script/path=""
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
-_subresources={}
+_subresources={
+"materials": {
+"texture": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://dungeon/assets/kaykit/kaykit_matte.tres",
+"use_external/path": "res://dungeon/assets/kaykit/kaykit_matte.tres"
+}
+}
+}
 gltf/naming_version=2
 gltf/embedded_image_handling=1
-gltf/texture_map_mode=0
+gltf/texture_map_mode=1
