@@ -17,6 +17,7 @@ extends Node3D
 @onready var victory_screen: Control = $UI/VictoryScreen
 @onready var action_menu: ActionMenu = $ActionMenu
 @onready var edit_tools: EditTools = $EditTools
+@onready var dresser: DungeonDresser = $DungeonDresser
 
 
 # Total de moedas na dungeon
@@ -33,6 +34,8 @@ var used_banners := []
 const RESET_ON_TOGGLE_OR_DIE := true
 var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
 
+
+var active_room := -1
 
 # Vidas do player (corações)
 var saved_life: int = 0  
@@ -64,6 +67,7 @@ func _ready():
 	edit_tools.experiment_state_changed.connect(_on_experiment_state_changed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
+	dresser.rebuilt.connect(_apply_active_room)
 	edit_tools.on_generate_dungeon_pressed()
 
 func _on_back_button_pressed():
@@ -101,6 +105,29 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 		
 		if !body.portal_cooldown and arrival:
 			body.teleport_to(arrival)
+			_show_room(_room_of(arrival))
+
+func _show_room(index: int):
+	active_room = index
+	_apply_active_room()
+
+func _apply_active_room():
+	for index in dresser.room_groups.size():
+		dresser.room_groups[index].visible = _is_room_visible(index)
+
+	for child in world.get_children():
+		if child.name == "Player":
+			continue
+		child.visible = _is_room_visible(_room_of(get_cell_pos(child)))
+
+func _is_room_visible(index: int) -> bool:
+	return active_room == -1 or index == active_room
+
+func _room_of(cell: Vector3i) -> int:
+	for index in UGen.rooms.size():
+		if Vector3i(cell.x, 0, cell.z) in UGen.rooms[index]:
+			return index
+	return -1
 
 func _on_banner_player_entered(banner_pos: Vector3i):
 	used_banners.append(banner_pos)
@@ -287,6 +314,7 @@ func recover_gridmap():
 
 func enter_creation_mode():
 	mode = Mode.CREATION
+	_show_room(-1)
 	
 	victory_screen.visible = false
 	
@@ -369,6 +397,7 @@ func enter_play_mode():
 	
 	var player = world.get_node_or_null("Player")
 	if player:
+		_show_room(_room_of(get_cell_pos(player)))
 		player.health.life_changed.connect(_on_player_update_life)
 		var lantern: Lantern = player.equipment.find_item(Lantern)
 		if lantern:

@@ -1,6 +1,8 @@
 extends Node3D
 class_name DungeonDresser
 
+signal rebuilt
+
 @export var gridmap: GridMap
 @export var cover_border := 2
 
@@ -27,6 +29,9 @@ class_name DungeonDresser
 }
 
 var last_signature := 0
+var room_by_cell := {}
+var room_groups: Array[Node3D] = []
+var outside_group: Node3D
 
 func _ready():
 	global_transform = gridmap.global_transform
@@ -45,6 +50,7 @@ func rebuild():
 	last_signature = grid_signature()
 	for child in get_children():
 		child.free()
+	create_groups()
 
 	var walkable := walkable_cells()
 	var area := map_area().grow(cover_border)
@@ -53,6 +59,27 @@ func rebuild():
 			dress_cell(Vector2i(x, y), walkable)
 	for vertex in vertices_around(walkable):
 		dress_vertex(vertex, walkable)
+	rebuilt.emit()
+
+func create_groups():
+	room_by_cell.clear()
+	room_groups.clear()
+	outside_group = add_group("Outside")
+	for index in UGen.rooms.size():
+		room_groups.append(add_group("Room%d" % index))
+		for cell in UGen.rooms[index]:
+			room_by_cell[Vector2i(cell.x, cell.z)] = index
+
+func add_group(group_name: String) -> Node3D:
+	var group := Node3D.new()
+	group.name = group_name
+	add_child(group)
+	return group
+
+func group_for(cell: Vector2i) -> Node3D:
+	if room_by_cell.has(cell):
+		return room_groups[room_by_cell[cell]]
+	return outside_group
 
 func walkable_cells() -> Dictionary:
 	var walkable := {}
@@ -76,15 +103,16 @@ func vertices_around(cells: Dictionary) -> Dictionary:
 
 func dress_cell(cell: Vector2i, walkable: Dictionary):
 	var spot := Vector3(cell.x, 0, cell.y)
+	var group := group_for(cell)
 	if not walkable.has(cell):
-		place(cover_scene, spot, 0)
+		place(cover_scene, group, spot, 0)
 		return
 
-	place(floor_scene, spot, 0)
+	place(floor_scene, group, spot, 0)
 
 	var marker: PackedScene = markers.get(gridmap.get_cell_item(Vector3i(cell.x, 0, cell.y)))
 	if marker:
-		place(marker, spot, 0)
+		place(marker, group, spot, 0)
 
 func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var top_left := walkable.has(vertex)
@@ -98,17 +126,24 @@ func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var east := top_right != bottom_right
 
 	var spot := Vector3(vertex.x + 0.5, 0, vertex.y + 0.5)
+	var group := group_for(first_walkable(vertex, walkable))
 	match [north, south, west, east]:
-		[true, true, true, true]: place(crossing_scene, spot, 0)
-		[true, true, false, false]: place(wall_scene, spot, 270 if top_left else 90)
-		[false, false, true, true]: place(wall_scene, spot, 180 if top_left else 0)
-		[false, true, true, false]: place(corner_scene, spot, 0)
-		[false, true, false, true]: place(corner_scene, spot, 90)
-		[true, false, false, true]: place(corner_scene, spot, 180)
-		[true, false, true, false]: place(corner_scene, spot, 270)
+		[true, true, true, true]: place(crossing_scene, group, spot, 0)
+		[true, true, false, false]: place(wall_scene, group, spot, 270 if top_left else 90)
+		[false, false, true, true]: place(wall_scene, group, spot, 180 if top_left else 0)
+		[false, true, true, false]: place(corner_scene, group, spot, 0)
+		[false, true, false, true]: place(corner_scene, group, spot, 90)
+		[true, false, false, true]: place(corner_scene, group, spot, 180)
+		[true, false, true, false]: place(corner_scene, group, spot, 270)
 
-func place(scene: PackedScene, spot: Vector3, degrees: float):
+func first_walkable(vertex: Vector2i, walkable: Dictionary) -> Vector2i:
+	for cell in [vertex, vertex + Vector2i(1, 0), vertex + Vector2i(0, 1), vertex + Vector2i(1, 1)]:
+		if walkable.has(cell):
+			return cell
+	return vertex
+
+func place(scene: PackedScene, group: Node3D, spot: Vector3, degrees: float):
 	var piece: Node3D = scene.instantiate()
 	piece.position = spot
 	piece.rotation_degrees.y = degrees
-	add_child(piece)
+	group.add_child(piece)
