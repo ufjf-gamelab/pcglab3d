@@ -2,6 +2,7 @@ extends Node3D
 class_name DungeonDresser
 
 @export var gridmap: GridMap
+@export var cover_border := 2
 
 @export_group("Terrain")
 @export var floor_scene: PackedScene
@@ -46,8 +47,10 @@ func rebuild():
 		child.free()
 
 	var walkable := walkable_cells()
-	for cell in gridmap.get_used_cells():
-		dress_cell(Vector2i(cell.x, cell.z), walkable)
+	var area := map_area().grow(cover_border)
+	for x in range(area.position.x, area.end.x):
+		for y in range(area.position.y, area.end.y):
+			dress_cell(Vector2i(x, y), walkable)
 	for vertex in vertices_around(walkable):
 		dress_vertex(vertex, walkable)
 
@@ -57,6 +60,12 @@ func walkable_cells() -> Dictionary:
 		if gridmap.get_cell_item(cell) >= UGen.FLOOR_ID:
 			walkable[Vector2i(cell.x, cell.z)] = true
 	return walkable
+
+func map_area() -> Rect2i:
+	var area := Rect2i()
+	for cell in gridmap.get_used_cells():
+		area = area.merge(Rect2i(cell.x, cell.z, 1, 1))
+	return area
 
 func vertices_around(cells: Dictionary) -> Dictionary:
 	var vertices := {}
