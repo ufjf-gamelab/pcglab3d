@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" uid="uid://dy2fk0426nlre" path="res://dungeon/assets/kaykit/cover_material.tres" id="1_p0x4c"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_q2wd8"]
+material = ExtResource("1_p0x4c")
+size = Vector2(1, 1)
+
+[node name="Cover" type="Node3D"]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.97, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_q2wd8")

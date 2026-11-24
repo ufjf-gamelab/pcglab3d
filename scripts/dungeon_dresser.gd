@@ -8,6 +8,7 @@ class_name DungeonDresser
 @export var wall_scene: PackedScene
 @export var corner_scene: PackedScene
 @export var crossing_scene: PackedScene
+@export var cover_scene: PackedScene
 
 @export_group("Markers")
 @export var coin_scene: PackedScene
@@ -45,8 +46,8 @@ func rebuild():
 		child.free()
 
 	var walkable := walkable_cells()
-	for cell: Vector2i in walkable:
-		dress_cell(cell)
+	for cell in gridmap.get_used_cells():
+		dress_cell(Vector2i(cell.x, cell.z), walkable)
 	for vertex in vertices_around(walkable):
 		dress_vertex(vertex, walkable)
 
@@ -64,8 +65,12 @@ func vertices_around(cells: Dictionary) -> Dictionary:
 			vertices[cell + offset] = true
 	return vertices
 
-func dress_cell(cell: Vector2i):
+func dress_cell(cell: Vector2i, walkable: Dictionary):
 	var spot := Vector3(cell.x, 0, cell.y)
+	if not walkable.has(cell):
+		place(cover_scene, spot, 0)
+		return
+
 	place(floor_scene, spot, 0)
 
 	var marker: PackedScene = markers.get(gridmap.get_cell_item(Vector3i(cell.x, 0, cell.y)))

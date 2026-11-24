@@ -39,6 +39,7 @@
 [ext_resource type="PackedScene" uid="uid://dfcl4kksas4ys" path="res://scenes/tiles/portal.tscn" id="38_p5tro"]
 [ext_resource type="PackedScene" uid="uid://cty331hka3bc" path="res://scenes/tiles/spawn.tscn" id="39_s8wmd"]
 [ext_resource type="PackedScene" uid="uid://bmsd34k1e23hi" path="res://scenes/tiles/campfire.tscn" id="40_f3cjb"]
+[ext_resource type="PackedScene" path="res://scenes/tiles/cover.tscn" id="41_n6wqd"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
 glow_enabled = true
@@ -244,6 +245,7 @@ floor_scene = ExtResource("32_g2w5x")
 wall_scene = ExtResource("33_vuujp")
 corner_scene = ExtResource("34_1230q")
 crossing_scene = ExtResource("35_gd2ek")
+cover_scene = ExtResource("41_n6wqd")
 coin_scene = ExtResource("36_c7kqa")
 enemy_scene = ExtResource("37_e2nvh")
 portal_scene = ExtResource("38_p5tro")
