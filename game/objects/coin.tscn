@@ -7,7 +7,7 @@
 height = 0.2057743
 radius = 0.24169922
 
-[node name="Coin" type="Area3D" unique_id=638181417]
+[node name="Coin" type="Area3D" unique_id=638181417 groups=["Coins"]]
 script = ExtResource("1_pmjqu")
 
 [node name="Model" parent="." unique_id=2032919206 instance=ExtResource("1_2io0e")]

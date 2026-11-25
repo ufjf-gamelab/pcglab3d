@@ -34,11 +34,11 @@
 [ext_resource type="PackedScene" uid="uid://dt544krt6vmef" path="res://generation/dresser/tiles/wall.tscn" id="33_vuujp"]
 [ext_resource type="PackedScene" uid="uid://bg44ikesead4a" path="res://generation/dresser/tiles/wall_corner.tscn" id="34_1230q"]
 [ext_resource type="PackedScene" uid="uid://bm70bp8tawam5" path="res://generation/dresser/tiles/wall_crossing.tscn" id="35_gd2ek"]
-[ext_resource type="PackedScene" uid="uid://dtoayors8dhgq" path="res://generation/dresser/tiles/coin.tscn" id="36_c7kqa"]
-[ext_resource type="PackedScene" uid="uid://bffribjrrke0y" path="res://generation/dresser/tiles/enemy.tscn" id="37_e2nvh"]
-[ext_resource type="PackedScene" uid="uid://dfcl4kksas4ys" path="res://generation/dresser/tiles/portal.tscn" id="38_p5tro"]
-[ext_resource type="PackedScene" uid="uid://cty331hka3bc" path="res://generation/dresser/tiles/spawn.tscn" id="39_s8wmd"]
-[ext_resource type="PackedScene" uid="uid://bmsd34k1e23hi" path="res://generation/dresser/tiles/campfire.tscn" id="40_f3cjb"]
+[ext_resource type="PackedScene" uid="uid://bu6kscocwsybd" path="res://game/objects/coin.tscn" id="36_c7kqa"]
+[ext_resource type="PackedScene" uid="uid://spwcbjyxsldx" path="res://game/enemy/enemy.tscn" id="37_e2nvh"]
+[ext_resource type="PackedScene" uid="uid://bl4n50j8duvcn" path="res://game/objects/portal.tscn" id="38_p5tro"]
+[ext_resource type="PackedScene" uid="uid://7hle3fst5g4v" path="res://game/player/player.tscn" id="39_s8wmd"]
+[ext_resource type="PackedScene" uid="uid://b6fo5dh7fb12q" path="res://game/objects/campfire.tscn" id="40_f3cjb"]
 [ext_resource type="PackedScene" uid="uid://bta7top6clupy" path="res://generation/dresser/tiles/cover.tscn" id="41_n6wqd"]
 
 [sub_resource type="Environment" id="Environment_og1vs"]
@@ -114,8 +114,6 @@ fov = 20.0
 transform = Transform3D(-0.422618, -0.694272, 0.582563, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
 shadow_enabled = true
 shadow_opacity = 0.75
-
-[node name="World" type="Node3D" parent="." unique_id=1064644955]
 
 [node name="HeatmapVisualizer" type="Node3D" parent="." unique_id=72363053]
 
@@ -249,5 +247,5 @@ cover_scene = ExtResource("41_n6wqd")
 coin_scene = ExtResource("36_c7kqa")
 enemy_scene = ExtResource("37_e2nvh")
 portal_scene = ExtResource("38_p5tro")
-spawn_scene = ExtResource("39_s8wmd")
+player_scene = ExtResource("39_s8wmd")
 campfire_scene = ExtResource("40_f3cjb")

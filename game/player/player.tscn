@@ -321,7 +321,7 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[node name="Player" type="CharacterBody3D" unique_id=768019384]
+[node name="Player" type="CharacterBody3D" unique_id=768019384 groups=["Players"]]
 collision_mask = 11
 motion_mode = 1
 script = ExtResource("1_nzm4y")

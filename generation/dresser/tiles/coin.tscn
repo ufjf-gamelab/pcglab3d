@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://dtoayors8dhgq"]
-
-[ext_resource type="PackedScene" uid="uid://dh2faxf12q56t" path="res://assets/models/objects/coin.glb" id="1_9sr76"]
-
-[node name="Coin" type="Node3D" unique_id=27716634]
-
-[node name="Model" parent="." unique_id=1246977864 instance=ExtResource("1_9sr76")]

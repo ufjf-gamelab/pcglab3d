@@ -28,7 +28,6 @@ func _ready():
 	current_yaw = deg_to_rad(yaw)
 	focus = get_parent().global_position
 	update_transform()
-	current = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta):

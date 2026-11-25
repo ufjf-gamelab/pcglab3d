@@ -3,7 +3,6 @@ extends Node3D
 
 @onready var gridmap := $NavigationRegion3D/GridMap
 @onready var builder := $Builder
-@onready var world := $World
 @onready var edit_camera := $View/EditCamera
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
@@ -25,14 +24,9 @@ var total_coins: int = 0
 # Moedas coletadas
 var collected_coins = 0
 
-# Estandartes utilizados
-var used_banners := []
-
-
 
 # Define se ao sair do modo jogável, restaura o gridmap original ou não
 const RESET_ON_TOGGLE_OR_DIE := true
-var gridmap_snapshot: Dictionary = {}  # {Vector3i: int}
 
 
 var active_room := -1
@@ -67,23 +61,13 @@ func _ready():
 	edit_tools.experiment_state_changed.connect(_on_experiment_state_changed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
-	dresser.rebuilt.connect(_apply_active_room)
+	dresser.entity_placed.connect(_on_entity_placed)
 	edit_tools.on_generate_dungeon_pressed()
 
 func _on_back_button_pressed():
 	get_tree().paused = false
 	victory_screen.visible = false
 	toggle_mode()
-
-func _take_gridmap_snapshot():
-	gridmap_snapshot.clear()
-	for cell in gridmap.get_used_cells():
-		gridmap_snapshot[cell] = gridmap.get_cell_item(cell)
-
-func _recover_gridmap_snapshot():
-	gridmap.clear()
-	for cell in gridmap_snapshot.keys():
-		gridmap.set_cell_item(cell, gridmap_snapshot[cell])
 
 func show_selector():
 	builder.selector.visible = true
@@ -107,6 +91,21 @@ func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 			body.teleport_to(arrival)
 			_show_room(_room_of(arrival))
 
+func _on_entity_placed(entity: Node3D, cell: Vector3i):
+	if entity.is_in_group("Coins"):
+		entity.collect_coin.connect(_on_player_collect_coin)
+	elif entity.is_in_group("Portals"):
+		entity.portal_cell = cell
+		entity.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
+	elif entity.is_in_group("Players"):
+		entity.health.life_changed.connect(_on_player_update_life)
+		var lantern: Lantern = entity.equipment.find_item(Lantern)
+		if lantern:
+			lantern.fuel_changed.connect(_on_player_update_fuel)
+
+func _player() -> Player:
+	return get_tree().get_first_node_in_group("Players")
+
 func _show_room(index: int):
 	active_room = index
 	_apply_active_room()
@@ -114,11 +113,6 @@ func _show_room(index: int):
 func _apply_active_room():
 	for index in dresser.room_groups.size():
 		dresser.room_groups[index].visible = _is_room_visible(index)
-
-	for child in world.get_children():
-		if child.name == "Player":
-			continue
-		child.visible = _is_room_visible(_room_of(get_cell_pos(child)))
 
 func _is_room_visible(index: int) -> bool:
 	return active_room == -1 or index == active_room
@@ -128,9 +122,6 @@ func _room_of(cell: Vector3i) -> int:
 		if Vector3i(cell.x, 0, cell.z) in UGen.rooms[index]:
 			return index
 	return -1
-
-func _on_banner_player_entered(banner_pos: Vector3i):
-	used_banners.append(banner_pos)
 
 func _on_player_update_fuel(curr_fuel):
 	health_bar.value = curr_fuel
@@ -212,54 +203,6 @@ func _apply_builder_state():
 		builder.process_mode = Node.PROCESS_MODE_DISABLED
 		hide_selector()
 
-func spawn_play_objects_from_gridmap():
-	# Mapeamento dos IDs do GridMap para cenas reais
-	var tile_id_to_scene = {
-		3: preload("res://game/objects/coin.tscn"),
-		4: preload("res://game/enemy/enemy.tscn"),
-		5: preload("res://game/objects/portal.tscn"),
-		6: preload("res://game/player/player.tscn"),
-		7: preload("res://game/objects/campfire.tscn")
-	}
-
-	for cell in gridmap.get_used_cells():
-		# Captura ID da MeshLibrary naquele tile
-		var id = gridmap.get_cell_item(cell)
-
-		# Verifica se é um tile que necessita de instância
-		if tile_id_to_scene.has(id):
-			# Captura posicao local e converte para global
-			var local_pos = gridmap.map_to_local(cell)
-			var world_pos = gridmap.to_global(local_pos)
-			
-			# Instacia objetos
-			var obj = tile_id_to_scene[id].instantiate()
-			
-			match id:
-				3: 
-					obj.add_to_group("Coins")
-					obj.collect_coin.connect(_on_player_collect_coin.bind()) 
-				4: obj.add_to_group("Enemies")
-				5: 
-					obj.add_to_group("Portals")
-					obj.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
-					# Portal recebe célula em que se encontra
-					obj.portal_cell = cell
-				6: 
-					obj.add_to_group("Players")
-					obj.name = "Player"
-				7:
-					obj.add_to_group("Banners")
-					obj.player_entered_banner_area.connect(_on_banner_player_entered.bind(cell))
-					if cell in used_banners:
-						obj.active = false
-						
-			world.add_child(obj)
-			obj.global_position = world_pos
-			
-			# Coloca apenas chão naquele local do gridmap
-			gridmap.set_cell_item(cell, 2)
-
 func toggle_mode() -> void:
 	if mode == Mode.CREATION:
 		enter_play_mode()
@@ -285,33 +228,6 @@ func get_cell_pos(entity):
 
 	return cell_pos
 
-func recover_gridmap():
-	var coins = get_tree().get_nodes_in_group("Coins")
-	var enemies = get_tree().get_nodes_in_group("Enemies")
-	var portals = get_tree().get_nodes_in_group("Portals")
-	var players = get_tree().get_nodes_in_group("Players")
-	var banners = get_tree().get_nodes_in_group("Banners")
-	
-	for coin in coins:
-		var cell_pos = get_cell_pos(coin)
-		gridmap.set_cell_item(cell_pos, 3)
-		
-	for enemy in enemies:
-		var cell_pos = get_cell_pos(enemy)
-		gridmap.set_cell_item(cell_pos, 4)
-		
-	for portal in portals:
-		var cell_pos = get_cell_pos(portal)
-		gridmap.set_cell_item(cell_pos, 5)
-	
-	for player in players:
-		var cell_pos = get_cell_pos(player)
-		gridmap.set_cell_item(cell_pos, 6)
-		
-	for banner in banners:
-		var cell_pos = get_cell_pos(banner)
-		gridmap.set_cell_item(cell_pos, 7)
-
 func enter_creation_mode():
 	mode = Mode.CREATION
 	_show_room(-1)
@@ -319,7 +235,7 @@ func enter_creation_mode():
 	victory_screen.visible = false
 	
 	# Coleta e separa o caminho livre antes de destruir o player
-	var player = world.get_node_or_null("Player")
+	var player = _player()
 	if player and player.walked_tiles.size() > 0:
 		edit_tools.split_walked_path_by_room(player.walked_tiles)
 	
@@ -331,14 +247,10 @@ func enter_creation_mode():
 
 	_apply_builder_state()
 	
-	if RESET_ON_TOGGLE_OR_DIE and not gridmap_snapshot.is_empty():
-		_recover_gridmap_snapshot()
-	else:
-		recover_gridmap()
+	dresser.set_entities_active(false)
+	if RESET_ON_TOGGLE_OR_DIE:
+		dresser.reset_entities()
 	
-	for child in world.get_children():
-		child.queue_free()
-		
 	edit_camera.current = true
 
 	view.active = true
@@ -376,9 +288,7 @@ func enter_play_mode():
 
 	_apply_builder_state()
 	
-	_take_gridmap_snapshot()
-	
-	spawn_play_objects_from_gridmap()
+	dresser.set_entities_active(true)
 	
 	total_coins = get_tree().get_nodes_in_group("Coins").size()
 	
@@ -395,13 +305,12 @@ func enter_play_mode():
 	action_menu.visible = false
 	game_hud.visible = true
 	
-	var player = world.get_node_or_null("Player")
+	var player = _player()
 	if player:
 		_show_room(_room_of(get_cell_pos(player)))
-		player.health.life_changed.connect(_on_player_update_life)
+		player.camera.make_current()
 		var lantern: Lantern = player.equipment.find_item(Lantern)
 		if lantern:
-			lantern.fuel_changed.connect(_on_player_update_fuel)
 			health_bar.max_value = lantern.max_fuel
 			health_bar.value = lantern.fuel
 		
@@ -411,7 +320,6 @@ func enter_play_mode():
 			coins_ui.update_coin_count(0)
 			player.health.life = player.health.max_life
 			life_hearts.update_hearts(player.health.life)
-			used_banners.clear()
 		else:
 			coins_ui.update_coin_count(collected_coins)
 			
