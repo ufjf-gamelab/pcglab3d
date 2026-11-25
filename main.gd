@@ -97,6 +97,7 @@ func _on_entity_placed(entity: Node3D, cell: Vector3i):
 		entity.collect_coin.connect(_on_player_collect_coin)
 	elif entity.is_in_group("Portals"):
 		entity.portal_cell = cell
+		entity.mesh.visible = UGen.portal_links.has(cell)
 		entity.get_node("Area3D").body_entered.connect(_on_portal_body_entered.bind(cell))
 	elif entity.is_in_group("Players"):
 		entity.health.life_changed.connect(_on_player_update_life)
