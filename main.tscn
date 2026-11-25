@@ -82,13 +82,14 @@ script = ExtResource("1_yc10j")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1201926833]
 environment = SubResource("Environment_og1vs")
 
-[node name="Builder" type="Node3D" parent="." unique_id=1826473606 node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap")]
+[node name="Builder" type="Node3D" parent="." unique_id=1826473606 node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap", "portal_links")]
 script = ExtResource("1_jybm7")
 structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("15_jscy8")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/EditCamera")
 gridmap = NodePath("../NavigationRegion3D/GridMap")
+portal_links = NodePath("../PortalLinks")
 
 [node name="Selector" type="Node3D" parent="Builder" unique_id=726130398]
 

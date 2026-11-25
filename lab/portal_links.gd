@@ -5,20 +5,18 @@ class_name PortalLinks
 @export var arc_height := 0.25
 @export var segments := 24
 
-var last_links := 0
+var preview_from = null
+var preview_to := Vector3.ZERO
 
 func _process(_delta):
-	if UGen.portal_links.hash() != last_links:
-		rebuild()
-
-func rebuild():
-	last_links = UGen.portal_links.hash()
 	material_override.albedo_color = color
 	var lines := ImmediateMesh.new()
 	for from in UGen.portal_links:
 		var to = UGen.portal_links[from]
 		if to != null:
 			draw_arc(lines, Vector3(from), Vector3(to))
+	if preview_from != null:
+		draw_arc(lines, Vector3(preview_from), preview_to)
 	mesh = lines
 
 func draw_arc(lines: ImmediateMesh, from: Vector3, to: Vector3):

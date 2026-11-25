@@ -11,6 +11,7 @@ var index:int = 0 # Index of structure being built
 @export var view_camera:Camera3D # Used for raycasting mouse
 @export var gridmap:GridMap
 @export var cash_display:Label
+@export var portal_links: PortalLinks
 
 var plane:Plane # Used for raycasting mouse
 
@@ -45,7 +46,9 @@ func _process(delta):
 	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
 	selector.position = lerp(selector.position, gridmap_position, min(delta * 40, 1.0))
 	
-	action_build(gridmap_position)
+	action_link(Vector3i(gridmap_position))
+	if portal_links.preview_from == null:
+		action_build(gridmap_position)
 	action_demolish(gridmap_position)
 
 # Retrieve the mesh from a PackedScene, used for dynamically creating a MeshLibrary
@@ -68,14 +71,28 @@ func action_build(gridmap_position):
 		gridmap.set_cell_item(gridmap_position, index, gridmap.get_orthogonal_index_from_basis(selector.basis))
 		
 		if previous_tile != index:
+			UGen.unlink_portal(Vector3i(gridmap_position))
 			map.cash -= structures[index].price
 			
 			Audio.play("assets/audio/placement_a.ogg, assets/audio/placement_b.ogg, assets/audio/placement_c.ogg, assets/audio/placement_d.ogg", -20)
+
+func action_link(cell: Vector3i):
+	var on_portal := gridmap.get_cell_item(cell) == UGen.PORTAL_ID
+	if Input.is_action_just_pressed("build") and on_portal and not _mouse_over_ui():
+		portal_links.preview_from = cell
+	if portal_links.preview_from == null:
+		return
+	portal_links.preview_to = selector.position
+	if Input.is_action_just_released("build"):
+		if on_portal and cell != portal_links.preview_from:
+			UGen.link_portals(portal_links.preview_from, cell)
+		portal_links.preview_from = null
 
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):
 	if Input.is_action_pressed("demolish") and not _mouse_over_ui():
 		if gridmap.get_cell_item(gridmap_position) != -1:
+			UGen.unlink_portal(Vector3i(gridmap_position))
 			gridmap.set_cell_item(gridmap_position, -1)
 			
 			Audio.play("assets/audio/removal_a.ogg, assets/audio/removal_b.ogg, assets/audio/removal_c.ogg, assets/audio/removal_d.ogg", -20)

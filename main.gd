@@ -80,7 +80,7 @@ func hide_selector():
 
 func _on_portal_body_entered(body: Node3D, portal_pos: Vector3i):
 	if body.name == "Player":
-		var arrival = UGen.portal_links[portal_pos]
+		var arrival = UGen.portal_links.get(portal_pos)
 		
 		for i in range(UGen.rooms_elements_pos.size()):
 			var room = UGen.rooms_elements_pos[i]
