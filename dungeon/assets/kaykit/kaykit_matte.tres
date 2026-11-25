@@ -1,8 +1,0 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://cnstjdur6q4x0"]
-
-[ext_resource type="Texture2D" uid="uid://b32rcefb1ha0n" path="res://dungeon/assets/kaykit/dungeon_texture.png" id="1_w69n8"]
-
-[resource]
-albedo_texture = ExtResource("1_w69n8")
-roughness = 1.0
-metallic_specular = 0.15

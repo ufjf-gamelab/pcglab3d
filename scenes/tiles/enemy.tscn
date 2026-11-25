@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://bffribjrrke0y"]
-
-[ext_resource type="PackedScene" uid="uid://0hqf8udwrcpg" path="res://characters/Skeleton Warrior/skeleton_warrior.glb" id="1_2psnp"]
-
-[node name="Enemy" type="Node3D" unique_id=249739266]
-
-[node name="Model" parent="." unique_id=1861505372 instance=ExtResource("1_2psnp")]
-transform = Transform3D(0.33, 0, 0, 0, 0.33, 0, 0, 0, 0.33, 0, 0, 0)

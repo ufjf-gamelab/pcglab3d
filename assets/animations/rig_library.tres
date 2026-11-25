@@ -1,0 +1,40 @@
+[gd_resource type="AnimationLibrary" format=3 uid="uid://xnhpp1gua6px"]
+
+[ext_resource type="Animation" uid="uid://bbu1e45vag72a" path="res://assets/animations/t_pose.res" id="1_5lhcu"]
+[ext_resource type="Animation" uid="uid://d3rebe8g1vjf2" path="res://assets/animations/idle.res" id="2_twot8"]
+[ext_resource type="Animation" uid="uid://cpvke648q7yti" path="res://assets/animations/running_a.res" id="3_jy2w0"]
+[ext_resource type="Animation" uid="uid://d2do0ma5xcg80" path="res://assets/animations/attack_sword.res" id="4_22j4y"]
+[ext_resource type="Animation" uid="uid://2mw58fv42gin" path="res://assets/animations/die.res" id="5_pyv48"]
+[ext_resource type="Animation" uid="uid://b05hlc2nft7q0" path="res://assets/animations/attack_diagonal.res" id="6_9h8ve"]
+[ext_resource type="Animation" uid="uid://q8o4s4w5ywhq" path="res://assets/animations/attack_chop.res" id="7_lkvdr"]
+[ext_resource type="Animation" uid="uid://dvscedk162eje" path="res://assets/animations/hit.res" id="8_wx8zz"]
+[ext_resource type="Animation" uid="uid://b1cvfgdekmi77" path="res://assets/animations/attack_stab.res" id="9_w75qa"]
+[ext_resource type="Animation" uid="uid://4xv680xm8od5" path="res://assets/animations/block.res" id="10_1drgr"]
+[ext_resource type="Animation" uid="uid://dck3ubpuehr1k" path="res://assets/animations/blocking.res" id="11_cr1ao"]
+[ext_resource type="Animation" uid="uid://dj6rck53v67qx" path="res://assets/animations/block_hit.res" id="12_w9iw6"]
+[ext_resource type="Animation" uid="uid://bdk8q60t517mn" path="res://assets/animations/walking_a.res" id="13_a5j5z"]
+[ext_resource type="Animation" uid="uid://31w5luo6kn10" path="res://assets/animations/walking_backwards.res" id="14_lc7yo"]
+[ext_resource type="Animation" uid="uid://derirqt5l2qdt" path="res://assets/animations/strafe_left.res" id="15_7a158"]
+[ext_resource type="Animation" uid="uid://cq2jaj306vrax" path="res://assets/animations/strafe_right.res" id="16_291q0"]
+[ext_resource type="Animation" uid="uid://x15cvdkfr8hx" path="res://assets/animations/block_attack.res" id="17_hktpp"]
+
+[resource]
+_data = {
+&"T-Pose": ExtResource("1_5lhcu"),
+&"attack-chop": ExtResource("7_lkvdr"),
+&"attack-diagonal": ExtResource("6_9h8ve"),
+&"attack-melee-right": ExtResource("4_22j4y"),
+&"attack-stab": ExtResource("9_w75qa"),
+&"block": ExtResource("10_1drgr"),
+&"block-attack": ExtResource("17_hktpp"),
+&"block-hit": ExtResource("12_w9iw6"),
+&"blocking": ExtResource("11_cr1ao"),
+&"die": ExtResource("5_pyv48"),
+&"hit": ExtResource("8_wx8zz"),
+&"idle": ExtResource("2_twot8"),
+&"strafe-left": ExtResource("15_7a158"),
+&"strafe-right": ExtResource("16_291q0"),
+&"walk": ExtResource("3_jy2w0"),
+&"walk-back": ExtResource("14_lc7yo"),
+&"walk-slow": ExtResource("13_a5j5z")
+}
