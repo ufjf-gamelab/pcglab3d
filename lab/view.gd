@@ -69,6 +69,8 @@ func handle_input(delta):
 	input = input.rotated(Vector3.UP, rotation.y).normalized()
 	
 	camera_position += input * move_speed * delta
+	camera_position.x = clampf(camera_position.x, UGen.BUILD_AREA.position.x, UGen.BUILD_AREA.end.x)
+	camera_position.z = clampf(camera_position.z, UGen.BUILD_AREA.position.y, UGen.BUILD_AREA.end.y)
 	
 	# Zoom in/out
 	

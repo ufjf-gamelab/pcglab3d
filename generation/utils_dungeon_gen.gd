@@ -14,6 +14,7 @@ const ATTEMPTS = 200 # Número de tentativas de geração de salas
 
 const MAP_SIZE = 40 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
+const BUILD_AREA = Rect2i(-30, -30, 100, 100)
 
 # Fator de escala
 const SCALE_FACTOR = 1

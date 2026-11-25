@@ -53,6 +53,8 @@ func _process(delta):
 	selector.position = lerp(selector.position, gridmap_position, min(delta * 40, 1.0))
 	
 	cell_hovered.emit(Vector3i(gridmap_position))
+	if not UGen.BUILD_AREA.has_point(Vector2i(gridmap_position.x, gridmap_position.z)):
+		return
 	match tool:
 		Tool.BUILD:
 			action_build(gridmap_position)
