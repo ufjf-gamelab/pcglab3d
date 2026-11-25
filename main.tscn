@@ -102,6 +102,7 @@ texture = ExtResource("4_wr1wv")
 [node name="View" type="Node3D" parent="." unique_id=1192072978]
 transform = Transform3D(0.707107, -0.40558, 0.579228, 0, 0.819152, 0.573576, -0.707107, -0.40558, 0.579228, 0, 0, 0)
 script = ExtResource("8_yovpv")
+home_rotation = Vector3(-65, 0, 0)
 
 [node name="EditCamera" type="Camera3D" parent="View" unique_id=1633495106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
@@ -142,10 +143,10 @@ grow_vertical = 2
 
 [node name="LeftColumn" type="VBoxContainer" parent="UI/CreationUI" unique_id=448827883 groups=["blocking_ui"]]
 layout_mode = 0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = 16.0
-offset_bottom = 16.0
+offset_left = 128.0
+offset_top = 64.0
+offset_right = 128.0
+offset_bottom = 64.0
 theme_override_constants/separation = 8
 
 [node name="HeatmapInfoPanel" parent="UI/CreationUI/LeftColumn" unique_id=1933536118 instance=ExtResource("22_jscy8")]

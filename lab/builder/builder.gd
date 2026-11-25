@@ -1,10 +1,17 @@
 extends Node3D
+class_name Builder
+
+signal structure_changed(index: int)
+signal cell_hovered(cell: Vector3i)
+
+enum Tool { NONE, BUILD, ERASE, LINK }
 
 @export var structures: Array[Structure] = []
 
 var map:DataMap
 
 var index:int = 0 # Index of structure being built
+var tool := Tool.BUILD
 
 @export var selector:Node3D # The 'cursor'
 @export var selector_container:Node3D # Node that holds a preview of the structure
@@ -16,10 +23,9 @@ var index:int = 0 # Index of structure being built
 var plane:Plane # Used for raycasting mouse
 
 func _ready():
-	
 	map = DataMap.new()
 	plane = Plane(Vector3.UP, Vector3.ZERO)
-	
+
 	# Create new MeshLibrary dynamically, can also be done in the editor
 	# See: https://docs.godotengine.org/en/stable/tutorials/3d/using_gridmaps.html
 	
@@ -46,10 +52,14 @@ func _process(delta):
 	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
 	selector.position = lerp(selector.position, gridmap_position, min(delta * 40, 1.0))
 	
-	action_link(Vector3i(gridmap_position))
-	if portal_links.preview_from == null:
-		action_build(gridmap_position)
-	action_demolish(gridmap_position)
+	cell_hovered.emit(Vector3i(gridmap_position))
+	match tool:
+		Tool.BUILD:
+			action_build(gridmap_position)
+		Tool.ERASE:
+			action_demolish(gridmap_position)
+		Tool.LINK:
+			action_link(Vector3i(gridmap_position))
 
 # Retrieve the mesh from a PackedScene, used for dynamically creating a MeshLibrary
 func get_mesh(packed_scene):
@@ -90,7 +100,7 @@ func action_link(cell: Vector3i):
 
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):
-	if Input.is_action_pressed("demolish") and not _mouse_over_ui():
+	if Input.is_action_pressed("build") and not _mouse_over_ui():
 		if gridmap.get_cell_item(gridmap_position) != -1:
 			UGen.unlink_portal(Vector3i(gridmap_position))
 			gridmap.set_cell_item(gridmap_position, -1)
@@ -107,14 +117,16 @@ func action_rotate():
 # Toggle between structures to build
 func action_structure_toggle():
 	if Input.is_action_just_pressed("structure_next"):
-		index = next_buildable(1)
-		Audio.play("assets/audio/toggle.ogg", -30)
-		update_structure()
+		select_structure(next_buildable(1))
 	
 	if Input.is_action_just_pressed("structure_previous"):
-		index = next_buildable(-1)
-		Audio.play("assets/audio/toggle.ogg", -30)
-		update_structure()
+		select_structure(next_buildable(-1))
+
+func select_structure(new_index: int):
+	index = new_index
+	Audio.play("assets/audio/toggle.ogg", -30)
+	update_structure()
+	structure_changed.emit(index)
 
 func next_buildable(step: int) -> int:
 	var next = wrap(index + step, 0, structures.size())

@@ -1,7 +1,7 @@
 extends MeshInstance3D
 class_name PortalLinks
 
-@export var color := Color(0.4509804, 1, 0.3764706)
+@export var color := Color(0.30588236, 0.6313726, 1)
 @export var arc_height := 0.25
 @export var segments := 24
 @export var arrow_size := 0.6

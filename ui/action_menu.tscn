@@ -1,51 +1,99 @@
 [gd_scene format=3 uid="uid://c8kqi653osk6g"]
 
 [ext_resource type="Script" uid="uid://byte8v8u0wvd2" path="res://ui/action_menu.gd" id="1_mkxff"]
+[ext_resource type="Theme" uid="uid://ht66eayqyt1a" path="res://ui/lab_theme.tres" id="2_r8wle"]
+[ext_resource type="Texture2D" uid="uid://cvhq24lbln45t" path="res://assets/sprites/icons/wall.png" id="3_s89a0"]
+[ext_resource type="Texture2D" uid="uid://8gsnrj87ww2f" path="res://assets/sprites/icons/floor.png" id="4_vzhv6"]
+[ext_resource type="Texture2D" uid="uid://cc70wb0dvq8tt" path="res://assets/sprites/icons/coin.png" id="5_baldp"]
+[ext_resource type="Texture2D" uid="uid://chsko7bb58pv6" path="res://assets/sprites/icons/enemy.png" id="6_77dpe"]
+[ext_resource type="Texture2D" uid="uid://b0hh8atlifluo" path="res://assets/sprites/icons/portal.png" id="7_b7xvr"]
+[ext_resource type="Texture2D" uid="uid://c1ys7wbck68ly" path="res://assets/sprites/icons/spawn.png" id="8_z1vza"]
+[ext_resource type="Texture2D" uid="uid://chf6lo71f5ipc" path="res://assets/sprites/icons/campfire.png" id="9_2used"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_juzdr"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_7r4xw"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_dg1j8"]
 
 [node name="ActionMenu" type="CanvasLayer" unique_id=556928950]
 script = ExtResource("1_mkxff")
 
-[node name="Panel" type="PanelContainer" parent="." unique_id=1594627176]
-anchors_preset = 1
-anchor_left = 1.0
+[node name="Root" type="Control" parent="." unique_id=1748203915]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -256.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 56.0
-grow_horizontal = 0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_r8wle")
 
-[node name="Margin" type="MarginContainer" parent="Panel" unique_id=267735252]
+[node name="TopBar" type="PanelContainer" parent="Root" unique_id=2086132998]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_type_variation = &"TopBar"
+
+[node name="Margin" type="MarginContainer" parent="Root/TopBar" unique_id=1773711575]
 layout_mode = 2
 theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin" unique_id=1559186263]
+[node name="HBox" type="HBoxContainer" parent="Root/TopBar/Margin" unique_id=2137115399]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 
-[node name="Build" type="Button" parent="Panel/Margin/VBox" unique_id=163251832]
-unique_name_in_owner = true
+[node name="Title" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=722591254]
 layout_mode = 2
-size_flags_horizontal = 3
+text = "PCGLab3D"
+
+[node name="Modes" type="PanelContainer" parent="Root/TopBar/Margin/HBox" unique_id=2016486003]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"SegmentPanel"
+
+[node name="HBox" type="HBoxContainer" parent="Root/TopBar/Margin/HBox/Modes" unique_id=1881644014]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Edit" type="Button" parent="Root/TopBar/Margin/HBox/Modes/HBox" unique_id=279423724]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"SegmentButton"
 toggle_mode = true
-text = "Construção: desligada"
-metadata/action = &"toggle_build"
+button_pressed = true
+text = "Editar"
 
-[node name="SepBuild" type="HSeparator" parent="Panel/Margin/VBox" unique_id=358411692]
+[node name="Play" type="Button" parent="Root/TopBar/Margin/HBox/Modes/HBox" unique_id=136671725]
+layout_mode = 2
+theme_type_variation = &"SegmentButton"
+text = "Jogar (Tab)"
+metadata/action = &"toggle_mode"
+
+[node name="Experiment" type="Button" parent="Root/TopBar/Margin/HBox/Modes/HBox" unique_id=1371368787]
+layout_mode = 2
+theme_type_variation = &"SegmentButton"
+text = "Experimento (I)"
+metadata/action = &"run_quantitative_experiment"
+
+[node name="Sep1" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=758727549]
 layout_mode = 2
 
-[node name="GenerateLabel" type="Label" parent="Panel/Margin/VBox" unique_id=1806712172]
+[node name="GeneratorLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=1009990628]
 layout_mode = 2
-text = "Gerar dungeon"
+theme_type_variation = &"MutedLabel"
+text = "Gerador"
 
-[node name="GeneratorSelect" type="OptionButton" parent="Panel/Margin/VBox" unique_id=1832515669]
+[node name="GeneratorSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=914293600]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 4
 selected = 0
+fit_to_longest_item = false
 item_count = 3
 popup/item_0/text = "Salas geométricas"
 popup/item_0/id = 0
@@ -54,106 +102,532 @@ popup/item_1/id = 1
 popup/item_2/text = "Particionamento binário (BSP)"
 popup/item_2/id = 2
 
-[node name="Generate" type="Button" parent="Panel/Margin/VBox" unique_id=512733632]
+[node name="SeedLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=1238355335]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_type_variation = &"MutedLabel"
+text = "Seed"
+
+[node name="Seed" type="LineEdit" parent="Root/TopBar/Margin/HBox" unique_id=868970614]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+size_flags_vertical = 4
+placeholder_text = "aleatória"
+
+[node name="RandomSeed" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=379823433]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Sortear"
+metadata/action = &"random_seed"
+
+[node name="Generate" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1658975055]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"PrimaryButton"
 text = "Gerar (G)"
 metadata/action = &"generate_dungeon"
 
-[node name="Sep1" type="HSeparator" parent="Panel/Margin/VBox" unique_id=1402654491]
-layout_mode = 2
-
-[node name="HeatmapLabel" type="Label" parent="Panel/Margin/VBox" unique_id=1955103915]
-layout_mode = 2
-text = "Heatmaps"
-
-[node name="HeatmapGrid" type="GridContainer" parent="Panel/Margin/VBox" unique_id=374106722]
-layout_mode = 2
-columns = 2
-
-[node name="Enemies" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=115769860]
+[node name="Spacer" type="Control" parent="Root/TopBar/Margin/HBox" unique_id=512310753]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Inimigos (1)"
-metadata/action = &"show_enemies_heatmaps"
+mouse_filter = 2
 
-[node name="Coins" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1337872446]
+[node name="Save" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=674198346]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Moedas (2)"
-metadata/action = &"show_coins_heatmaps"
-
-[node name="Banners" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1493808712]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Estandartes (3)"
-metadata/action = &"show_banners_heatmaps"
-
-[node name="Combined" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1338639195]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Combinado (4)"
-metadata/action = &"show_combined_heatmaps"
-
-[node name="Recharge" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1678475498]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Recarga (5)"
-metadata/action = &"show_recharges_heatmaps"
-
-[node name="Recalculate" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=869423909]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Recalcular (R)"
-metadata/action = &"recalculate_heatmaps"
-
-[node name="Sep2" type="HSeparator" parent="Panel/Margin/VBox" unique_id=61179405]
-layout_mode = 2
-
-[node name="PathLabel" type="Label" parent="Panel/Margin/VBox" unique_id=718543126]
-layout_mode = 2
-text = "Caminhos"
-
-[node name="AllPaths" type="Button" parent="Panel/Margin/VBox" unique_id=1780975578]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Gerar para a sala (P)"
-metadata/action = &"pathfinding"
-
-[node name="Sep3" type="HSeparator" parent="Panel/Margin/VBox" unique_id=521599376]
-layout_mode = 2
-
-[node name="MapLabel" type="Label" parent="Panel/Margin/VBox" unique_id=596212412]
-layout_mode = 2
-text = "Mapa"
-
-[node name="MapGrid" type="GridContainer" parent="Panel/Margin/VBox" unique_id=1316165657]
-layout_mode = 2
-columns = 2
-
-[node name="Save" type="Button" parent="Panel/Margin/VBox/MapGrid" unique_id=1302056504]
-layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 4
 text = "Salvar (F1)"
 metadata/action = &"save"
 
-[node name="Load" type="Button" parent="Panel/Margin/VBox/MapGrid" unique_id=1894462574]
+[node name="Load" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1054714481]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 4
 text = "Carregar (F2)"
 metadata/action = &"load"
 
-[node name="Sep4" type="HSeparator" parent="Panel/Margin/VBox" unique_id=354339097]
+[node name="ToolBar" type="PanelContainer" parent="Root" unique_id=130227908]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_top = 48.0
+offset_right = 112.0
+offset_bottom = -32.0
+grow_vertical = 2
+theme_type_variation = &"ToolPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar" unique_id=574678015]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Camera" type="Button" parent="Root/ToolBar/VBox" unique_id=1431784635]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_juzdr")
+text = "Câmera"
+metadata/tool = 0
+
+[node name="Build" type="Button" parent="Root/ToolBar/VBox" unique_id=1077175829]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_juzdr")
+text = "Construir"
+metadata/tool = 1
+
+[node name="Erase" type="Button" parent="Root/ToolBar/VBox" unique_id=2036295813]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_juzdr")
+text = "Apagar"
+metadata/tool = 2
+
+[node name="Link" type="Button" parent="Root/ToolBar/VBox" unique_id=153186663]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_juzdr")
+text = "Ligar portais"
+metadata/tool = 3
+
+[node name="SidePanel" type="PanelContainer" parent="Root" unique_id=327418003]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = 48.0
+offset_bottom = -32.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_type_variation = &"SidePanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/SidePanel" unique_id=284198446]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ViewLabel" type="Label" parent="Root/SidePanel/VBox" unique_id=1624730996]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Visualização"
+uppercase = true
+
+[node name="ShowLinks" type="CheckBox" parent="Root/SidePanel/VBox" unique_id=1169964136]
+layout_mode = 2
+button_pressed = true
+text = "Portais"
+metadata/action = &"toggle_portal_links"
+
+[node name="ShowPath" type="CheckBox" parent="Root/SidePanel/VBox" unique_id=1004623979]
+layout_mode = 2
+button_pressed = true
+text = "Caminho"
+metadata/action = &"toggle_path"
+
+[node name="Sep1" type="HSeparator" parent="Root/SidePanel/VBox" unique_id=142046783]
 layout_mode = 2
 
-[node name="Experiment" type="Button" parent="Panel/Margin/VBox" unique_id=164188374]
+[node name="HeatmapHeader" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1200872961]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Rodar experimento (I)"
-metadata/action = &"run_quantitative_experiment"
 
-[node name="Play" type="Button" parent="Panel/Margin/VBox" unique_id=1249395907]
+[node name="HeatmapLabel" type="Label" parent="Root/SidePanel/VBox/HeatmapHeader" unique_id=1447902066]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Jogar (Tab)"
-metadata/action = &"toggle_mode"
+theme_type_variation = &"SectionLabel"
+text = "Heatmap"
+uppercase = true
+
+[node name="Recalculate" type="Button" parent="Root/SidePanel/VBox/HeatmapHeader" unique_id=1676701989]
+layout_mode = 2
+text = "Recalcular (R)"
+metadata/action = &"recalculate_heatmaps"
+
+[node name="None" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1026196329]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/None" unique_id=870938807]
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Nenhum"
+metadata/action = &"hide_heatmaps"
+
+[node name="Enemies" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1755225194]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Enemies" unique_id=223597416]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Inimigos"
+metadata/action = &"show_enemies_heatmaps"
+
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Enemies" unique_id=541580072]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "1"
+
+[node name="Coins" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1781699512]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Coins" unique_id=175826944]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Moedas"
+metadata/action = &"show_coins_heatmaps"
+
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Coins" unique_id=1365133055]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "2"
+
+[node name="Banners" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=892648344]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Banners" unique_id=1512856794]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Fogueiras"
+metadata/action = &"show_banners_heatmaps"
+
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Banners" unique_id=469218185]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "3"
+
+[node name="Combined" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1433569005]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Combined" unique_id=563953709]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Combinado"
+metadata/action = &"show_combined_heatmaps"
+
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Combined" unique_id=1678852683]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "4"
+
+[node name="Recharge" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=879090998]
+layout_mode = 2
+
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Recharge" unique_id=1314465865]
+layout_mode = 2
+size_flags_horizontal = 3
+button_group = SubResource("ButtonGroup_7r4xw")
+text = "Recarga"
+metadata/action = &"show_recharges_heatmaps"
+
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Recharge" unique_id=1731629323]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "5"
+
+[node name="Sep2" type="HSeparator" parent="Root/SidePanel/VBox" unique_id=1947144574]
+layout_mode = 2
+
+[node name="PathLabel" type="Label" parent="Root/SidePanel/VBox" unique_id=891742452]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Caminhos"
+uppercase = true
+
+[node name="AllPaths" type="Button" parent="Root/SidePanel/VBox" unique_id=1328461111]
+layout_mode = 2
+text = "Gerar para todas as salas (P)"
+metadata/action = &"pathfinding"
+
+[node name="Palette" type="PanelContainer" parent="Root" unique_id=704031239]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -120.0
+offset_right = 20.0
+offset_bottom = -44.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"FloatingPanel"
+
+[node name="HBox" type="HBoxContainer" parent="Root/Palette" unique_id=1518481902]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Wall" type="Button" parent="Root/Palette/HBox" unique_id=775149770]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 0
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Wall" unique_id=1330477185]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Wall/VBox" unique_id=284116920]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("3_s89a0")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Wall/VBox" unique_id=1848643424]
+layout_mode = 2
+text = "Parede"
+horizontal_alignment = 1
+
+[node name="Floor" type="Button" parent="Root/Palette/HBox" unique_id=1118049897]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 2
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Floor" unique_id=481461256]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Floor/VBox" unique_id=1641708576]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("4_vzhv6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Floor/VBox" unique_id=1137415390]
+layout_mode = 2
+text = "Chão"
+horizontal_alignment = 1
+
+[node name="Coin" type="Button" parent="Root/Palette/HBox" unique_id=1368324660]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 3
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Coin" unique_id=1799713167]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Coin/VBox" unique_id=1060894909]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("5_baldp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Coin/VBox" unique_id=1551106817]
+layout_mode = 2
+text = "Moeda"
+horizontal_alignment = 1
+
+[node name="Enemy" type="Button" parent="Root/Palette/HBox" unique_id=1479497263]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 4
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Enemy" unique_id=451295738]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Enemy/VBox" unique_id=490904767]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("6_77dpe")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Enemy/VBox" unique_id=1815851761]
+layout_mode = 2
+text = "Inimigo"
+horizontal_alignment = 1
+
+[node name="Portal" type="Button" parent="Root/Palette/HBox" unique_id=483411619]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 5
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Portal" unique_id=1245868677]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Portal/VBox" unique_id=794522732]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("7_b7xvr")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Portal/VBox" unique_id=1546048211]
+layout_mode = 2
+text = "Portal"
+horizontal_alignment = 1
+
+[node name="Spawn" type="Button" parent="Root/Palette/HBox" unique_id=1852074987]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 6
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Spawn" unique_id=1216836538]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Spawn/VBox" unique_id=520064666]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("8_z1vza")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Spawn/VBox" unique_id=1350475216]
+layout_mode = 2
+text = "Spawn"
+horizontal_alignment = 1
+
+[node name="Campfire" type="Button" parent="Root/Palette/HBox" unique_id=345459976]
+custom_minimum_size = Vector2(76, 80)
+layout_mode = 2
+theme_type_variation = &"PaletteButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_dg1j8")
+metadata/structure = 7
+
+[node name="VBox" type="VBoxContainer" parent="Root/Palette/HBox/Campfire" unique_id=276796180]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Campfire/VBox" unique_id=311750907]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("9_2used")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Root/Palette/HBox/Campfire/VBox" unique_id=1015133949]
+layout_mode = 2
+text = "Fogueira"
+horizontal_alignment = 1
+
+[node name="StatusBar" type="PanelContainer" parent="Root" unique_id=183608347]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"StatusPanel"
+
+[node name="HBox" type="HBoxContainer" parent="Root/StatusBar" unique_id=1319792422]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CellLabel" type="Label" parent="Root/StatusBar/HBox" unique_id=691770163]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Célula"
+
+[node name="Cell" type="Label" parent="Root/StatusBar/HBox" unique_id=2118836331]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "-"
+
+[node name="RoomLabel" type="Label" parent="Root/StatusBar/HBox" unique_id=1330125661]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Sala"
+
+[node name="Room" type="Label" parent="Root/StatusBar/HBox" unique_id=702542976]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = "-"

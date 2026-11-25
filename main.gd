@@ -2,7 +2,7 @@ extends Node3D
 
 
 @onready var gridmap := $NavigationRegion3D/GridMap
-@onready var builder := $Builder
+@onready var builder: Builder = $Builder
 @onready var edit_camera := $View/EditCamera
 @onready var creation_ui := $UI/CreationUI
 @onready var game_hud := $UI/GameHUD
@@ -18,6 +18,7 @@ extends Node3D
 @onready var edit_tools: EditTools = $EditTools
 @onready var dresser: DungeonDresser = $DungeonDresser
 @onready var portal_links: PortalLinks = $PortalLinks
+@onready var path_visualizer := $PathVisualizer
 
 
 # Total de moedas na dungeon
@@ -51,7 +52,8 @@ const INPUT_ACTIONS: Array[StringName] = [
 
 
 # Modo construção
-var build_mode := false
+var tool := Builder.Tool.NONE
+var show_links := true
 var chart_open := false
 
 func _ready():
@@ -62,6 +64,11 @@ func _ready():
 	edit_tools.experiment_state_changed.connect(_on_experiment_state_changed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
+	action_menu.tool_pressed.connect(_set_tool)
+	action_menu.structure_pressed.connect(builder.select_structure)
+	builder.structure_changed.connect(action_menu.set_structure)
+	builder.cell_hovered.connect(_on_cell_hovered)
+	action_menu.set_seed(edit_tools.dungeon_seed)
 	dresser.entity_placed.connect(_on_entity_placed)
 	edit_tools.on_generate_dungeon_pressed()
 
@@ -72,7 +79,7 @@ func _on_back_button_pressed():
 
 func show_selector():
 	builder.selector.visible = true
-	builder.selector_container.visible = true
+	builder.selector_container.visible = tool == Builder.Tool.BUILD
 
 func hide_selector():
 	builder.selector.visible = false
@@ -154,13 +161,24 @@ func _run_action(action: StringName):
 
 	match action:
 		&"generate_dungeon":
+			edit_tools.dungeon_seed = action_menu.get_seed()
 			edit_tools.on_generate_dungeon_pressed(action_menu.get_selected_generator())
+			action_menu.set_seed(edit_tools.used_seed)
+		&"random_seed":
+			action_menu.set_seed(randi())
 		&"toggle_mode":
 			edit_tools.clear_heatmaps()
+			action_menu.set_heatmap(&"hide_heatmaps")
 			toggle_mode()
 		&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps", \
 		&"show_recharges_heatmaps", &"show_combined_heatmaps":
 			edit_tools.toggle_heatmap(action)
+			if not UHeat.heatmap_multimesh.visible:
+				action_menu.set_heatmap(&"hide_heatmaps")
+			else:
+				action_menu.set_heatmap(action)
+		&"hide_heatmaps":
+			edit_tools.clear_heatmaps()
 		&"recalculate_heatmaps":
 			edit_tools.recalculate_heatmaps()
 		&"pathfinding":
@@ -175,8 +193,11 @@ func _run_action(action: StringName):
 			builder.save_map()
 		&"load":
 			builder.load_map()
-		&"toggle_build":
-			_set_build_mode(not build_mode)
+		&"toggle_portal_links":
+			show_links = not show_links
+			portal_links.visible = show_links
+		&"toggle_path":
+			path_visualizer.visible = not path_visualizer.visible
 
 func _on_chart_opened():
 	chart_open = true
@@ -190,13 +211,18 @@ func _on_chart_closed():
 func _on_experiment_state_changed(_running: bool):
 	_apply_builder_state()
 
-func _set_build_mode(enabled: bool):
-	build_mode = enabled
-	action_menu.set_build_mode(enabled)
+func _set_tool(new_tool: Builder.Tool):
+	tool = new_tool
+	if tool != Builder.Tool.NONE:
+		builder.tool = tool
+	action_menu.set_tool(tool)
 	_apply_builder_state()
 
+func _on_cell_hovered(cell: Vector3i):
+	action_menu.set_cell(cell, _room_of(cell))
+
 func _apply_builder_state():
-	var active := build_mode and mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
+	var active := tool != Builder.Tool.NONE and mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
 	if active:
 		builder.process_mode = Node.PROCESS_MODE_INHERIT
 		builder.set_process(true)
@@ -260,7 +286,7 @@ func enter_creation_mode():
 	creation_ui.visible = true
 	action_menu.visible = true
 	game_hud.visible = false
-	portal_links.visible = true
+	portal_links.visible = show_links
 
 func _activate_room_portals(room_index: int):
 	var room = UGen.rooms_elements_pos[room_index]

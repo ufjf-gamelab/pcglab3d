@@ -10,7 +10,11 @@ var active := true
 # Visão inicial do jogo
 @export var home_position := Vector3(20, 0, 20)
 @export var home_rotation := Vector3(-35, 0, 0)
-@export var home_zoom := 80.0
+@export var home_zoom := 120.0
+@export var min_zoom := 15.0
+@export var max_zoom := 200.0
+@export var zoom_step := 10.0
+@export var move_speed := 40.0
 
 # Bloqueia só o controle do jogador
 var input_locked := false
@@ -50,7 +54,7 @@ func _process(delta):
 
 # Handle input
 
-func handle_input(_delta):
+func handle_input(delta):
 	
 	if not active or input_locked:
 		return
@@ -64,15 +68,15 @@ func handle_input(_delta):
 	
 	input = input.rotated(Vector3.UP, rotation.y).normalized()
 	
-	camera_position += input / 4
+	camera_position += input * move_speed * delta
 	
 	# Zoom in/out
 	
 	if Input.is_action_just_released("zoom_in"):
-		zoom = max(15, zoom - 5) # 15 = Minimum zoom level, in meters
+		zoom = max(min_zoom, zoom - zoom_step)
 		
 	if Input.is_action_just_released("zoom_out"):
-		zoom = min(80, zoom + 5) # 80 = Maximum zoom level, in meters
+		zoom = min(max_zoom, zoom + zoom_step)
 	
 	# Back to center
 	
@@ -92,3 +96,4 @@ func _input(event):
 	if event is InputEventMouseMotion:
 		if Input.is_action_pressed("camera_rotate"):
 			camera_rotation += Vector3(0, -event.relative.x / 10, 0)
+			camera_rotation.x = clampf(camera_rotation.x - event.relative.y / 10, -89, -15)
