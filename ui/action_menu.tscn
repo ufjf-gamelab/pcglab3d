@@ -390,7 +390,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="Wall" type="Button" parent="Root/Palette/HBox" unique_id=775149770]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -406,7 +406,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Wall/VBox" unique_id=284116920]
@@ -430,7 +430,7 @@ text = "1"
 horizontal_alignment = 1
 
 [node name="Floor" type="Button" parent="Root/Palette/HBox" unique_id=1118049897]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -445,7 +445,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Floor/VBox" unique_id=1641708576]
@@ -469,7 +469,7 @@ text = "2"
 horizontal_alignment = 1
 
 [node name="Coin" type="Button" parent="Root/Palette/HBox" unique_id=1368324660]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -484,7 +484,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Coin/VBox" unique_id=1060894909]
@@ -508,7 +508,7 @@ text = "3"
 horizontal_alignment = 1
 
 [node name="Enemy" type="Button" parent="Root/Palette/HBox" unique_id=1479497263]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -523,7 +523,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Enemy/VBox" unique_id=490904767]
@@ -547,7 +547,7 @@ text = "4"
 horizontal_alignment = 1
 
 [node name="Portal" type="Button" parent="Root/Palette/HBox" unique_id=483411619]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -562,7 +562,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Portal/VBox" unique_id=794522732]
@@ -586,7 +586,7 @@ text = "5"
 horizontal_alignment = 1
 
 [node name="Spawn" type="Button" parent="Root/Palette/HBox" unique_id=1852074987]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -601,7 +601,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Spawn/VBox" unique_id=520064666]
@@ -625,7 +625,7 @@ text = "6"
 horizontal_alignment = 1
 
 [node name="Campfire" type="Button" parent="Root/Palette/HBox" unique_id=345459976]
-custom_minimum_size = Vector2(76, 96)
+custom_minimum_size = Vector2(76, 104)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -640,7 +640,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Root/Palette/HBox/Campfire/VBox" unique_id=311750907]
