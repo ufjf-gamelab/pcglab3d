@@ -337,50 +337,56 @@ func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
 	clear_heatmaps()
 	heatmap_panel.clear()
 	
-	var room_enemies_heatmaps
-	var room_coins_heatmaps
-	var room_banners_heatmaps
-	
 	for i in range(UGen.rooms.size()):
-		var elements_pos = UGen.rooms_elements_pos[i]
-		
-		# Recria heatmaps de portais (portais nao mudam de posicao)
-		var portal1_heat = create_heatmap_bfs(gridmap, elements_pos["portal1_pos"], ENTRY_PORTALS)
-		heatmaps[ENTRY_PORTALS].append(portal1_heat)
-		var portal2_heat = create_heatmap_bfs(gridmap, elements_pos["portal2_pos"], EXIT_PORTALS)
-		heatmaps[EXIT_PORTALS].append(portal2_heat)
-		
-		room_enemies_heatmaps = []
-		room_coins_heatmaps = []
-		room_banners_heatmaps = []
-		
-		for element_type in elements_pos.keys():
-			match element_type:
-				"npc_pos":
-					for pos in elements_pos["npc_pos"]:
-						var heat = create_heatmap_bfs(gridmap, pos, ENEMIES)
-						room_enemies_heatmaps.append(heat)
-				"coin_pos":
-					for pos in elements_pos["coin_pos"]:
-						var heat = create_heatmap_bfs(gridmap, pos, COINS)
-						room_coins_heatmaps.append(heat)
-				"banner_pos":
-					for pos in elements_pos["banner_pos"]:
-						var heat = create_heatmap_bfs(gridmap, pos, BANNERS)
-						room_banners_heatmaps.append(heat)
-		
-		# Cria heatmap combinado de moedas da sala
-		var combined_coins_heat = create_same_element_type_combined_heatmap(room_coins_heatmaps)
-		UHeat.heatmaps[COINS].append(combined_coins_heat)
-		# Cria heatmap combinado de inimigos da sala
-		var combined_enemies_heat = create_same_element_type_combined_heatmap(room_enemies_heatmaps)
-		UHeat.heatmaps[ENEMIES].append(combined_enemies_heat)
-		# Cria heatmap combinado de banners da sala
-		var combined_banners_heat = create_same_element_type_combined_heatmap(room_banners_heatmaps)
-		UHeat.heatmaps[BANNERS].append(combined_banners_heat)
-		# Cria heatmap combinado de todos os elementos de uma sala
-		var combined_heat = UHeat.create_combined_heatmap([combined_coins_heat], [combined_enemies_heat])
-		UHeat.heatmaps[COMBINED].append(combined_heat) 
+		var room := room_heatmaps(gridmap, i)
+		for key in room:
+			heatmaps[key].append(room[key])
+
+func recalculate_room_heatmaps(gridmap: GridMap, index: int):
+	var room := room_heatmaps(gridmap, index)
+	for key in room:
+		heatmaps[key][index] = room[key]
+
+func room_heatmaps(gridmap: GridMap, index: int) -> Dictionary:
+	var elements_pos = UGen.rooms_elements_pos[index]
+	var room := {}
+	
+	# Recria heatmaps de portais (portais nao mudam de posicao)
+	room[ENTRY_PORTALS] = create_heatmap_bfs(gridmap, elements_pos["portal1_pos"], ENTRY_PORTALS)
+	room[EXIT_PORTALS] = create_heatmap_bfs(gridmap, elements_pos["portal2_pos"], EXIT_PORTALS)
+	
+	var room_enemies_heatmaps = []
+	var room_coins_heatmaps = []
+	var room_banners_heatmaps = []
+	
+	for element_type in elements_pos.keys():
+		match element_type:
+			"npc_pos":
+				for pos in elements_pos["npc_pos"]:
+					var heat = create_heatmap_bfs(gridmap, pos, ENEMIES)
+					room_enemies_heatmaps.append(heat)
+			"coin_pos":
+				for pos in elements_pos["coin_pos"]:
+					var heat = create_heatmap_bfs(gridmap, pos, COINS)
+					room_coins_heatmaps.append(heat)
+			"banner_pos":
+				for pos in elements_pos["banner_pos"]:
+					var heat = create_heatmap_bfs(gridmap, pos, BANNERS)
+					room_banners_heatmaps.append(heat)
+	
+	# Cria heatmap combinado de moedas da sala
+	var combined_coins_heat = create_same_element_type_combined_heatmap(room_coins_heatmaps)
+	room[COINS] = combined_coins_heat
+	# Cria heatmap combinado de inimigos da sala
+	var combined_enemies_heat = create_same_element_type_combined_heatmap(room_enemies_heatmaps)
+	room[ENEMIES] = combined_enemies_heat
+	# Cria heatmap combinado de banners da sala
+	var combined_banners_heat = create_same_element_type_combined_heatmap(room_banners_heatmaps)
+	room[BANNERS] = combined_banners_heat
+	# Cria heatmap combinado de todos os elementos de uma sala
+	var combined_heat = UHeat.create_combined_heatmap([combined_coins_heat], [combined_enemies_heat])
+	room[COMBINED] = combined_heat
+	return room
 
 func sum_heatmaps(a: Dictionary, b: Dictionary) -> Dictionary:
 	var result = a.duplicate()

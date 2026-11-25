@@ -63,6 +63,7 @@ const STRUCTURE_KEYS := {
 # Modo construção
 var tool := Builder.Tool.NONE
 var show_links := true
+var auto_heatmap := true
 var chart_open := false
 
 func _ready():
@@ -77,6 +78,7 @@ func _ready():
 	action_menu.structure_pressed.connect(builder.select_structure)
 	builder.structure_changed.connect(action_menu.set_structure)
 	builder.cell_hovered.connect(_on_cell_hovered)
+	builder.cell_changed.connect(_on_cell_changed)
 	action_menu.set_seed(edit_tools.dungeon_seed)
 	dresser.entity_placed.connect(_on_entity_placed)
 	edit_tools.on_generate_dungeon_pressed()
@@ -215,6 +217,8 @@ func _run_action(action: StringName):
 		&"structure_5", &"structure_6", &"structure_7":
 			builder.select_structure(STRUCTURE_KEYS[action])
 			_set_tool(Builder.Tool.BUILD)
+		&"toggle_auto_heatmap":
+			auto_heatmap = not auto_heatmap
 		&"toggle_portal_links":
 			show_links = not show_links
 			portal_links.visible = show_links
@@ -242,6 +246,11 @@ func _set_tool(new_tool: Builder.Tool):
 
 func _on_cell_hovered(cell: Vector3i):
 	action_menu.set_cell(cell, _room_of(cell))
+
+func _on_cell_changed(cell: Vector3i):
+	var room := _room_of(cell)
+	if auto_heatmap and room != -1:
+		edit_tools.recalculate_room_heatmaps(room)
 
 func _apply_builder_state():
 	var active := tool != Builder.Tool.NONE and mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open

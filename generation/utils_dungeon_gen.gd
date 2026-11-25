@@ -56,20 +56,23 @@ enum Spawn { RANDOM, SMART }
 var SPAWN: Spawn = Spawn.RANDOM
 
 func update_elements_pos(gridmap: GridMap):
-	clear_elements_pos()
-	
 	for i in range(rooms.size()):
-		var room = rooms[i]
-		var elements_pos = rooms_elements_pos[i]
-		
-		for pos in room:
-			match gridmap.get_cell_item(pos):
-				NPC_ID:
-					elements_pos["npc_pos"].append(pos)
-				COIN_ID:
-					elements_pos["coin_pos"].append(pos)
-				BANNER_ID:
-					elements_pos["banner_pos"].append(pos)
+		update_room_elements_pos(gridmap, i)
+
+func update_room_elements_pos(gridmap: GridMap, index: int):
+	var elements_pos = rooms_elements_pos[index]
+	elements_pos["coin_pos"].clear()
+	elements_pos["banner_pos"].clear()
+	elements_pos["npc_pos"].clear()
+	
+	for pos in rooms[index]:
+		match gridmap.get_cell_item(pos):
+			NPC_ID:
+				elements_pos["npc_pos"].append(pos)
+			COIN_ID:
+				elements_pos["coin_pos"].append(pos)
+			BANNER_ID:
+				elements_pos["banner_pos"].append(pos)
 
 func clear_elements_pos():
 	for room in rooms_elements_pos:

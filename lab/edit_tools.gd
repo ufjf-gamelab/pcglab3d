@@ -70,8 +70,38 @@ func toggle_heatmap(action: StringName):
 			UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
 
 func recalculate_heatmaps():
+	var action := visible_heatmap_action()
 	UGen.update_elements_pos(gridmap)
 	UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+	if action != &"":
+		toggle_heatmap(action)
+
+func recalculate_room_heatmaps(room_index: int):
+	if UHeat.heatmaps[UHeat.COMBINED].size() <= room_index:
+		recalculate_heatmaps()
+		return
+	UGen.update_room_elements_pos(gridmap, room_index)
+	UHeat.recalculate_room_heatmaps(gridmap, room_index)
+	refresh_visible_heatmap()
+
+func refresh_visible_heatmap():
+	var action := visible_heatmap_action()
+	if action != &"":
+		UHeat.deactivate_heatmaps()
+		toggle_heatmap(action)
+
+func visible_heatmap_action() -> StringName:
+	var actions := {
+		UHeat.ENEMIES: &"show_enemies_heatmaps",
+		UHeat.COINS: &"show_coins_heatmaps",
+		UHeat.BANNERS: &"show_banners_heatmaps",
+		UHeat.RECHARGES: &"show_recharges_heatmaps",
+		UHeat.COMBINED: &"show_combined_heatmaps",
+	}
+	for key in actions:
+		if UHeat.curr_visible_heatmap[key]:
+			return actions[key]
+	return &""
 
 func _handle_seed():
 	# Se seed for 0, gera uma aleatória c.c. usa a definida

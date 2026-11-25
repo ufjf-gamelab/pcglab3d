@@ -3,6 +3,7 @@ class_name Builder
 
 signal structure_changed(index: int)
 signal cell_hovered(cell: Vector3i)
+signal cell_changed(cell: Vector3i)
 
 enum Tool { NONE, BUILD, ERASE, LINK }
 
@@ -82,6 +83,7 @@ func action_build(gridmap_position):
 		gridmap.set_cell_item(gridmap_position, index, gridmap.get_orthogonal_index_from_basis(selector.basis))
 		
 		if previous_tile != index:
+			cell_changed.emit(Vector3i(gridmap_position))
 			UGen.unlink_portal(Vector3i(gridmap_position))
 			map.cash -= structures[index].price
 			
@@ -105,6 +107,7 @@ func action_demolish(gridmap_position):
 		if gridmap.get_cell_item(gridmap_position) != -1:
 			UGen.unlink_portal(Vector3i(gridmap_position))
 			gridmap.set_cell_item(gridmap_position, -1)
+			cell_changed.emit(Vector3i(gridmap_position))
 			
 			Audio.play("assets/audio/removal_a.ogg, assets/audio/removal_b.ogg, assets/audio/removal_c.ogg, assets/audio/removal_d.ogg", -20)
 

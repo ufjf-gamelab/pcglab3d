@@ -117,6 +117,7 @@ shadow_opacity = 0.75
 [node name="HeatmapVisualizer" type="Node3D" parent="." unique_id=72363053]
 
 [node name="HeatmapMultiMesh" type="MultiMeshInstance3D" parent="HeatmapVisualizer" unique_id=1177631106]
+physics_interpolation_mode = 2
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=2029804297]
 

@@ -279,6 +279,17 @@ border_width_bottom = 1
 border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
 
 [resource]
+CheckButton/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_focus_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_hover_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_hover_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/styles/disabled = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/focus = SubResource("StyleBoxEmpty_76rzt")
+CheckButton/styles/hover = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/hover_pressed = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/normal = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/pressed = SubResource("StyleBoxEmpty_0eujp")
 default_font_size = 13
 Button/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
 Button/colors/font_disabled_color = Color(0.6039216, 0.6392157, 0.69803923, 1)

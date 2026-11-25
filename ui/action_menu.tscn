@@ -268,6 +268,12 @@ text = "Recalcular (R)"
 icon = ExtResource("17_148ga")
 metadata/action = &"recalculate_heatmaps"
 
+[node name="AutoHeatmap" type="CheckButton" parent="Root/SidePanel/VBox" unique_id=259771579]
+layout_mode = 2
+button_pressed = true
+text = "Recalcular automaticamente"
+metadata/action = &"toggle_auto_heatmap"
+
 [node name="None" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1026196329]
 layout_mode = 2
 
