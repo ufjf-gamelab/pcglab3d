@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://c6qu04y75qn1"]
+
+[ext_resource type="Script" uid="uid://b5uy5xgxqhcy1" path="res://lab/portal_links.gd" id="1_h3k7q"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p4n2x"]
+no_depth_test = true
+shading_mode = 0
+
+[node name="PortalLinks" type="MeshInstance3D" unique_id=1489302217]
+material_override = SubResource("StandardMaterial3D_p4n2x")
+cast_shadow = 0
+script = ExtResource("1_h3k7q")
