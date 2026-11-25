@@ -4,7 +4,7 @@ class_name DungeonDresser
 signal entity_placed(entity: Node3D, cell: Vector3i)
 
 @export var gridmap: GridMap
-@export var cover_border := 2
+@export var cover_border := 5
 
 @export_group("Terrain")
 @export var floor_scene: PackedScene
@@ -29,7 +29,6 @@ signal entity_placed(entity: Node3D, cell: Vector3i)
 }
 
 var last_items := {}
-var last_area := Rect2i()
 var cell_pieces := {}
 var vertex_pieces := {}
 var entity_at := {}
@@ -44,9 +43,6 @@ func _ready():
 func _process(_delta):
 	var items := grid_items()
 	if items == last_items:
-		return
-	if map_area() != last_area:
-		rebuild()
 		return
 	update_cells(changed_cells(items))
 	last_items = items
@@ -94,7 +90,6 @@ func free_piece(pieces: Dictionary, key: Vector2i):
 
 func rebuild():
 	last_items = grid_items()
-	last_area = map_area()
 	cell_pieces.clear()
 	vertex_pieces.clear()
 	for child in get_children():
@@ -102,7 +97,7 @@ func rebuild():
 	create_groups()
 
 	var walkable := walkable_cells()
-	var area := map_area().grow(cover_border)
+	var area := UGen.BUILD_AREA.grow(cover_border)
 	for x in range(area.position.x, area.end.x):
 		for y in range(area.position.y, area.end.y):
 			dress_cell(Vector2i(x, y), walkable)
@@ -172,12 +167,6 @@ func walkable_cells() -> Dictionary:
 		if gridmap.get_cell_item(cell) >= UGen.FLOOR_ID:
 			walkable[Vector2i(cell.x, cell.z)] = true
 	return walkable
-
-func map_area() -> Rect2i:
-	var area := Rect2i()
-	for cell in gridmap.get_used_cells():
-		area = area.merge(Rect2i(cell.x, cell.z, 1, 1))
-	return area
 
 func vertices_around(cells: Dictionary) -> Dictionary:
 	var vertices := {}
