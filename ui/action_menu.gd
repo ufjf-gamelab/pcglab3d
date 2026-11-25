@@ -49,6 +49,24 @@ func set_cell(cell: Vector3i, room: int):
 	%Cell.text = "(%d, %d)" % [cell.x, cell.z]
 	%Room.text = "fora das salas" if room == -1 else str(room + 1)
 
+func show_room_info(number: int, info: Dictionary):
+	%RoomInfo.visible = true
+	%RoomName.text = "Sala %d" % number
+	%RoomTiles.text = str(info.tiles)
+	%RoomEnemies.text = str(info.enemies)
+	%RoomCoins.text = str(info.coins)
+	%RoomCampfires.text = str(info.campfires)
+	%RoomFrom.text = room_list(info.arrives_from)
+	%RoomTo.text = room_list(info.leads_to)
+
+func hide_room_info():
+	%RoomInfo.visible = false
+
+func room_list(rooms: Array) -> String:
+	if rooms.is_empty():
+		return "-"
+	return ", ".join(rooms.map(func(room): return "Sala %d" % room))
+
 func press_button_with(meta: StringName, value):
 	for button: BaseButton in find_children("*", "BaseButton", true, false):
 		if button.toggle_mode and button.has_meta(meta) and button.get_meta(meta) == value:

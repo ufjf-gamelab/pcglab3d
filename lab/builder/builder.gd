@@ -4,15 +4,16 @@ class_name Builder
 signal structure_changed(index: int)
 signal cell_hovered(cell: Vector3i)
 signal cell_changed(cell: Vector3i)
+signal cell_selected(cell: Vector3i)
 
-enum Tool { NONE, BUILD, ERASE, LINK }
+enum Tool { SELECT, BUILD, ERASE, LINK }
 
 @export var structures: Array[Structure] = []
 
 var map:DataMap
 
 var index:int = 0 # Index of structure being built
-var tool := Tool.BUILD
+var tool := Tool.SELECT
 
 @export var selector:Node3D # The 'cursor'
 @export var selector_container:Node3D # Node that holds a preview of the structure
@@ -56,6 +57,8 @@ func _process(delta):
 	if not UGen.BUILD_AREA.has_point(Vector2i(gridmap_position.x, gridmap_position.z)):
 		return
 	match tool:
+		Tool.SELECT:
+			action_select(gridmap_position)
 		Tool.BUILD:
 			action_build(gridmap_position)
 		Tool.ERASE:
@@ -100,6 +103,10 @@ func action_link(cell: Vector3i):
 		if on_portal and cell != portal_links.preview_from:
 			UGen.portal_links[portal_links.preview_from] = cell
 		portal_links.preview_from = null
+
+func action_select(gridmap_position):
+	if Input.is_action_just_pressed("build") and not _mouse_over_ui():
+		cell_selected.emit(Vector3i(gridmap_position))
 
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):

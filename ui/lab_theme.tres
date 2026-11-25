@@ -84,8 +84,8 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_726xg"]
-bg_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_86ih5"]
+color = Color(0.23137255, 0.25490198, 0.3019608, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hxzz7"]
 content_margin_left = 8.0
@@ -264,6 +264,40 @@ bg_color = Color(0.11372549, 0.1254902, 0.15686275, 1)
 border_width_top = 1
 border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d69x0"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.18431373, 0.20392157, 0.24705882, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_724mr"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.30588236, 0.6313726, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_47yod"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0)
+draw_center = false
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k8bq5"]
 content_margin_left = 8.0
 content_margin_top = 10.0
@@ -278,18 +312,13 @@ bg_color = Color(0.14901961, 0.16470589, 0.2, 1)
 border_width_bottom = 1
 border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_s51nr"]
+color = Color(0.23137255, 0.25490198, 0.3019608, 1)
+grow_begin = -10.0
+grow_end = -10.0
+vertical = true
+
 [resource]
-CheckButton/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
-CheckButton/colors/font_focus_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
-CheckButton/colors/font_hover_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
-CheckButton/colors/font_hover_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
-CheckButton/colors/font_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
-CheckButton/styles/disabled = SubResource("StyleBoxEmpty_0eujp")
-CheckButton/styles/focus = SubResource("StyleBoxEmpty_76rzt")
-CheckButton/styles/hover = SubResource("StyleBoxEmpty_0eujp")
-CheckButton/styles/hover_pressed = SubResource("StyleBoxEmpty_0eujp")
-CheckButton/styles/normal = SubResource("StyleBoxEmpty_0eujp")
-CheckButton/styles/pressed = SubResource("StyleBoxEmpty_0eujp")
 default_font_size = 13
 Button/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
 Button/colors/font_disabled_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
@@ -322,10 +351,21 @@ CheckBox/styles/hover = SubResource("StyleBoxEmpty_0eujp")
 CheckBox/styles/hover_pressed = SubResource("StyleBoxEmpty_0eujp")
 CheckBox/styles/normal = SubResource("StyleBoxEmpty_0eujp")
 CheckBox/styles/pressed = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_focus_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_hover_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_hover_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/colors/font_pressed_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+CheckButton/styles/disabled = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/focus = SubResource("StyleBoxEmpty_76rzt")
+CheckButton/styles/hover = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/hover_pressed = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/normal = SubResource("StyleBoxEmpty_0eujp")
+CheckButton/styles/pressed = SubResource("StyleBoxEmpty_0eujp")
 FloatingPanel/base_type = &"PanelContainer"
 FloatingPanel/styles/panel = SubResource("StyleBoxFlat_ym538")
 HSeparator/constants/separation = 17
-HSeparator/styles/separator = SubResource("StyleBoxFlat_726xg")
+HSeparator/styles/separator = SubResource("StyleBoxLine_86ih5")
 Label/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
 LineEdit/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
 LineEdit/colors/font_placeholder_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
@@ -360,9 +400,14 @@ SidePanel/base_type = &"PanelContainer"
 SidePanel/styles/panel = SubResource("StyleBoxFlat_3ural")
 StatusPanel/base_type = &"PanelContainer"
 StatusPanel/styles/panel = SubResource("StyleBoxFlat_t9c0w")
+ToolButton/base_type = &"Button"
+ToolButton/styles/hover = SubResource("StyleBoxFlat_d69x0")
+ToolButton/styles/hover_pressed = SubResource("StyleBoxFlat_724mr")
+ToolButton/styles/normal = SubResource("StyleBoxFlat_47yod")
+ToolButton/styles/pressed = SubResource("StyleBoxFlat_724mr")
 ToolPanel/base_type = &"PanelContainer"
 ToolPanel/styles/panel = SubResource("StyleBoxFlat_k8bq5")
 TopBar/base_type = &"PanelContainer"
 TopBar/styles/panel = SubResource("StyleBoxFlat_34j8e")
 VSeparator/constants/separation = 13
-VSeparator/styles/separator = SubResource("StyleBoxFlat_726xg")
+VSeparator/styles/separator = SubResource("StyleBoxLine_s51nr")

@@ -194,36 +194,37 @@ func on_select_room_path():
 	# GridMap position based on mouse
 	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
 	
-	var pathfinder = _pathfinder_init()
-	var path
-	
 	for i in range((UGen.rooms).size()):
 		var room = UGen.rooms[i]
 		if gridmap_position in room:
-			path = _get_room_path(i, pathfinder)
-			
-			if path == []:
-				print("Jogador não passou por essa sala!")
-				return
-			
-			var influ = _get_path_influences(i, path)
-			
-			if influ[1] == []:
-				print("Nenhum tipo de mapa de influência selecionado.")
-				return
-			
-			chart_opened.emit()
-			
-			chart_plotter.current_seed = used_seed
-			chart_plotter.current_room_index = i
-			chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
-			
-			var path_3d: Array[Vector3i] = []
+			show_room_path(i)
 
-			for tuple in influ[0]:
-				path_3d.append(tuple[0])
-			
-			path_visualizer.draw_path(path_3d)
+func show_room_path(i: int):
+	var pathfinder = _pathfinder_init()
+	var path = _get_room_path(i, pathfinder)
+	
+	if path == []:
+		print("Jogador não passou por essa sala!")
+		return
+	
+	var influ = _get_path_influences(i, path)
+	
+	if influ[1] == []:
+		print("Nenhum tipo de mapa de influência selecionado.")
+		return
+	
+	chart_opened.emit()
+	
+	chart_plotter.current_seed = used_seed
+	chart_plotter.current_room_index = i
+	chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
+	
+	var path_3d: Array[Vector3i] = []
+
+	for tuple in influ[0]:
+		path_3d.append(tuple[0])
+	
+	path_visualizer.draw_path(path_3d)
 
 func _on_chart_next_button_pressed(curr_room_chart):
 	_visualize_path_by_room_index(curr_room_chart)

@@ -9,17 +9,17 @@
 [ext_resource type="Texture2D" uid="uid://b0hh8atlifluo" path="res://assets/sprites/icons/portal.png" id="7_b7xvr"]
 [ext_resource type="Texture2D" uid="uid://c1ys7wbck68ly" path="res://assets/sprites/icons/spawn.png" id="8_z1vza"]
 [ext_resource type="Texture2D" uid="uid://chf6lo71f5ipc" path="res://assets/sprites/icons/campfire.png" id="9_2used"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/cursor.svg" id="10_d34h4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/plus.svg" id="11_xcjvp"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/trash.svg" id="12_ejk8n"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/route.svg" id="13_fbdc7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/play.svg" id="14_0s3zz"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/flask.svg" id="15_81e5u"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/dice.svg" id="16_6q0tl"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/refresh.svg" id="17_148ga"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/save.svg" id="18_519hg"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/folder_open.svg" id="19_au1hp"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/map_route.svg" id="20_iays1"]
+[ext_resource type="Texture2D" uid="uid://dexdqoy54rink" path="res://assets/sprites/ui/cursor.svg" id="10_d34h4"]
+[ext_resource type="Texture2D" uid="uid://bbpb1axnb63wr" path="res://assets/sprites/ui/plus.svg" id="11_xcjvp"]
+[ext_resource type="Texture2D" uid="uid://ndm1huwcy1vb" path="res://assets/sprites/ui/trash.svg" id="12_ejk8n"]
+[ext_resource type="Texture2D" uid="uid://ddxds2cvl5id0" path="res://assets/sprites/ui/route.svg" id="13_fbdc7"]
+[ext_resource type="Texture2D" uid="uid://b6tmqsldyjucv" path="res://assets/sprites/ui/play.svg" id="14_0s3zz"]
+[ext_resource type="Texture2D" uid="uid://uxi7bxlpxp0d" path="res://assets/sprites/ui/flask.svg" id="15_81e5u"]
+[ext_resource type="Texture2D" uid="uid://1d25wqgj01kb" path="res://assets/sprites/ui/dice.svg" id="16_6q0tl"]
+[ext_resource type="Texture2D" uid="uid://cbvqhfut47skg" path="res://assets/sprites/ui/refresh.svg" id="17_148ga"]
+[ext_resource type="Texture2D" uid="uid://cyi3vb6sguiac" path="res://assets/sprites/ui/save.svg" id="18_519hg"]
+[ext_resource type="Texture2D" uid="uid://cpi0in2ld8oas" path="res://assets/sprites/ui/folder_open.svg" id="19_au1hp"]
+[ext_resource type="Texture2D" uid="uid://bhdaocje6e0oi" path="res://assets/sprites/ui/map_route.svg" id="20_iays1"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_juzdr"]
 
@@ -91,6 +91,11 @@ metadata/action = &"run_quantitative_experiment"
 [node name="Sep1" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=758727549]
 layout_mode = 2
 
+[node name="GeneratorLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=656559873]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Gerador"
+
 [node name="GeneratorSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=914293600]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 0)
@@ -106,18 +111,34 @@ popup/item_1/id = 1
 popup/item_2/text = "Particionamento binário (BSP)"
 popup/item_2/id = 2
 
+[node name="Sep2" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=1203093897]
+layout_mode = 2
+
+[node name="SpawnLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=1898285169]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Spawn"
+
 [node name="SpawnSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=1633170874]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 0)
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 size_flags_vertical = 4
-fit_to_longest_item = false
 selected = 0
+fit_to_longest_item = false
 item_count = 2
-popup/item_0/text = "Spawn aleatório"
+popup/item_0/text = "Aleatório"
 popup/item_0/id = 0
-popup/item_1/text = "Spawn inteligente"
+popup/item_1/text = "Inteligente"
 popup/item_1/id = 1
+
+[node name="Sep3" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=1004678526]
+layout_mode = 2
+
+[node name="SeedLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=838368280]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Seed"
 
 [node name="Seed" type="LineEdit" parent="Root/TopBar/Margin/HBox" unique_id=868970614]
 unique_name_in_owner = true
@@ -129,9 +150,12 @@ placeholder_text = "seed aleatória"
 [node name="RandomSeed" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=379823433]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Sortear"
+tooltip_text = "Sortear seed"
 icon = ExtResource("16_6q0tl")
 metadata/action = &"random_seed"
+
+[node name="Sep4" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=2062035738]
+layout_mode = 2
 
 [node name="Generate" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1658975055]
 layout_mode = 2
@@ -148,14 +172,14 @@ mouse_filter = 2
 [node name="Save" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=674198346]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Salvar (Ctrl+S)"
+tooltip_text = "Salvar mapa (Ctrl+S)"
 icon = ExtResource("18_519hg")
 metadata/action = &"save"
 
 [node name="Load" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1054714481]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Carregar (Ctrl+O)"
+tooltip_text = "Carregar mapa (Ctrl+O)"
 icon = ExtResource("19_au1hp")
 metadata/action = &"load"
 
@@ -164,7 +188,7 @@ layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_top = 48.0
-offset_right = 140.0
+offset_right = 60.0
 offset_bottom = -32.0
 grow_vertical = 2
 theme_type_variation = &"ToolPanel"
@@ -173,46 +197,145 @@ theme_type_variation = &"ToolPanel"
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Camera" type="Button" parent="Root/ToolBar/VBox" unique_id=1431784635]
-custom_minimum_size = Vector2(0, 36)
+[node name="Select" type="Button" parent="Root/ToolBar/VBox" unique_id=1431784635]
+custom_minimum_size = Vector2(44, 58)
 layout_mode = 2
+tooltip_text = "Selecionar (V)"
+theme_type_variation = &"ToolButton"
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Câmera (V)"
-icon = ExtResource("10_d34h4")
-alignment = 0
 metadata/tool = 0
 
-[node name="Build" type="Button" parent="Root/ToolBar/VBox" unique_id=1077175829]
-custom_minimum_size = Vector2(0, 36)
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar/VBox/Select" unique_id=1257634592]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/ToolBar/VBox/Select/VBox" unique_id=410402403]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("10_d34h4")
+stretch_mode = 5
+
+[node name="Key" type="Label" parent="Root/ToolBar/VBox/Select/VBox" unique_id=1095996211]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "V"
+horizontal_alignment = 1
+
+[node name="Build" type="Button" parent="Root/ToolBar/VBox" unique_id=1077175829]
+custom_minimum_size = Vector2(44, 58)
+layout_mode = 2
+tooltip_text = "Construir (B)"
+theme_type_variation = &"ToolButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Construir (B)"
-icon = ExtResource("11_xcjvp")
-alignment = 0
 metadata/tool = 1
 
-[node name="Erase" type="Button" parent="Root/ToolBar/VBox" unique_id=2036295813]
-custom_minimum_size = Vector2(0, 36)
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar/VBox/Build" unique_id=1424151429]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/ToolBar/VBox/Build/VBox" unique_id=385557343]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("11_xcjvp")
+stretch_mode = 5
+
+[node name="Key" type="Label" parent="Root/ToolBar/VBox/Build/VBox" unique_id=179332025]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "B"
+horizontal_alignment = 1
+
+[node name="Erase" type="Button" parent="Root/ToolBar/VBox" unique_id=2036295813]
+custom_minimum_size = Vector2(44, 58)
+layout_mode = 2
+tooltip_text = "Apagar (X)"
+theme_type_variation = &"ToolButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Apagar (X)"
-icon = ExtResource("12_ejk8n")
-alignment = 0
 metadata/tool = 2
 
-[node name="Link" type="Button" parent="Root/ToolBar/VBox" unique_id=153186663]
-custom_minimum_size = Vector2(0, 36)
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar/VBox/Erase" unique_id=1245278506]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/ToolBar/VBox/Erase/VBox" unique_id=350173011]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("12_ejk8n")
+stretch_mode = 5
+
+[node name="Key" type="Label" parent="Root/ToolBar/VBox/Erase/VBox" unique_id=1136046418]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "X"
+horizontal_alignment = 1
+
+[node name="Sep" type="HSeparator" parent="Root/ToolBar/VBox" unique_id=539691215]
+layout_mode = 2
+
+[node name="Link" type="Button" parent="Root/ToolBar/VBox" unique_id=153186663]
+custom_minimum_size = Vector2(44, 58)
+layout_mode = 2
+tooltip_text = "Ligar portais (L)"
+theme_type_variation = &"ToolButton"
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Ligar portais (L)"
-icon = ExtResource("13_fbdc7")
-alignment = 0
 metadata/tool = 3
+
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar/VBox/Link" unique_id=582873005]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/ToolBar/VBox/Link/VBox" unique_id=1310999865]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("13_fbdc7")
+stretch_mode = 5
+
+[node name="Key" type="Label" parent="Root/ToolBar/VBox/Link/VBox" unique_id=1609020039]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "L"
+horizontal_alignment = 1
 
 [node name="SidePanel" type="PanelContainer" parent="Root" unique_id=327418003]
 layout_mode = 1
@@ -374,6 +497,98 @@ layout_mode = 2
 text = "Gerar para todas as salas (P)"
 icon = ExtResource("20_iays1")
 metadata/action = &"pathfinding"
+
+[node name="RoomInfo" type="VBoxContainer" parent="Root/SidePanel/VBox" unique_id=1913550402]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Sep" type="HSeparator" parent="Root/SidePanel/VBox/RoomInfo" unique_id=312939215]
+layout_mode = 2
+
+[node name="RoomLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo" unique_id=414869688]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Sala selecionada"
+uppercase = true
+
+[node name="RoomName" type="Label" parent="Root/SidePanel/VBox/RoomInfo" unique_id=769260489]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sala 1"
+
+[node name="Grid" type="GridContainer" parent="Root/SidePanel/VBox/RoomInfo" unique_id=1058784640]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="RoomTilesLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=381157151]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Tiles"
+
+[node name="RoomTiles" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1182836970]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomEnemiesLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1369357945]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Inimigos"
+
+[node name="RoomEnemies" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=661510858]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomCoinsLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1450454966]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Moedas"
+
+[node name="RoomCoins" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1297665185]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomCampfiresLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1251119078]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Fogueiras"
+
+[node name="RoomCampfires" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1605090192]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomFromLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=511415067]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Entrada"
+
+[node name="RoomFrom" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=244051926]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomToLabel" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1487019473]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Saída"
+
+[node name="RoomTo" type="Label" parent="Root/SidePanel/VBox/RoomInfo/Grid" unique_id=1148688297]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoomPath" type="Button" parent="Root/SidePanel/VBox/RoomInfo" unique_id=1324821761]
+layout_mode = 2
+text = "Caminho da sala (O)"
+icon = ExtResource("20_iays1")
+metadata/action = &"room_path"
 
 [node name="Palette" type="PanelContainer" parent="Root" unique_id=704031239]
 layout_mode = 1

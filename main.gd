@@ -48,7 +48,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"select_room", &"run_quantitative_experiment",
 	&"save", &"load",
-	&"tool_camera", &"tool_build", &"tool_erase", &"tool_link",
+	&"tool_select", &"tool_build", &"tool_erase", &"tool_link",
 	&"structure_1", &"structure_2", &"structure_3", &"structure_4",
 	&"structure_5", &"structure_6", &"structure_7",
 ]
@@ -61,7 +61,8 @@ const STRUCTURE_KEYS := {
 
 
 # Modo construção
-var tool := Builder.Tool.NONE
+var tool := Builder.Tool.SELECT
+var selected_room := -1
 var show_links := true
 var auto_heatmap := true
 var chart_open := false
@@ -79,6 +80,7 @@ func _ready():
 	builder.structure_changed.connect(action_menu.set_structure)
 	builder.cell_hovered.connect(_on_cell_hovered)
 	builder.cell_changed.connect(_on_cell_changed)
+	builder.cell_selected.connect(_on_cell_selected)
 	action_menu.set_seed(edit_tools.dungeon_seed)
 	dresser.entity_placed.connect(_on_entity_placed)
 	edit_tools.on_generate_dungeon_pressed()
@@ -89,7 +91,7 @@ func _on_back_button_pressed():
 	toggle_mode()
 
 func show_selector():
-	builder.selector.visible = true
+	builder.selector.visible = tool != Builder.Tool.SELECT
 	builder.selector_container.visible = tool == Builder.Tool.BUILD
 
 func hide_selector():
@@ -176,6 +178,8 @@ func _run_action(action: StringName):
 			UGen.SPAWN = action_menu.get_spawn_mode()
 			edit_tools.on_generate_dungeon_pressed(action_menu.get_selected_generator())
 			action_menu.set_seed(edit_tools.used_seed)
+			selected_room = -1
+			_show_room_info()
 		&"random_seed":
 			action_menu.set_seed(randi())
 		&"toggle_mode":
@@ -205,8 +209,8 @@ func _run_action(action: StringName):
 			builder.save_map()
 		&"load":
 			builder.load_map()
-		&"tool_camera":
-			_set_tool(Builder.Tool.NONE)
+		&"tool_select":
+			_set_tool(Builder.Tool.SELECT)
 		&"tool_build":
 			_set_tool(Builder.Tool.BUILD)
 		&"tool_erase":
@@ -217,6 +221,9 @@ func _run_action(action: StringName):
 		&"structure_5", &"structure_6", &"structure_7":
 			builder.select_structure(STRUCTURE_KEYS[action])
 			_set_tool(Builder.Tool.BUILD)
+		&"room_path":
+			if selected_room != -1:
+				edit_tools.show_room_path(selected_room)
 		&"toggle_auto_heatmap":
 			auto_heatmap = not auto_heatmap
 		&"toggle_portal_links":
@@ -239,8 +246,7 @@ func _on_experiment_state_changed(_running: bool):
 
 func _set_tool(new_tool: Builder.Tool):
 	tool = new_tool
-	if tool != Builder.Tool.NONE:
-		builder.tool = tool
+	builder.tool = tool
 	action_menu.set_tool(tool)
 	_apply_builder_state()
 
@@ -255,9 +261,47 @@ func _on_cell_changed(cell: Vector3i):
 	var room := _room_of(cell)
 	if auto_heatmap and room != -1:
 		edit_tools.recalculate_room_heatmaps(room)
+	if room == selected_room:
+		_show_room_info()
+
+func _on_cell_selected(cell: Vector3i):
+	selected_room = _room_of(cell)
+	_show_room_info()
+
+func _show_room_info():
+	if selected_room == -1:
+		action_menu.hide_room_info()
+		return
+
+	var counts := {}
+	for cell in UGen.rooms[selected_room]:
+		var item: int = gridmap.get_cell_item(cell)
+		counts[item] = counts.get(item, 0) + 1
+
+	var entry = UGen.rooms_elements_pos[selected_room].portal1_pos
+	var exit = UGen.rooms_elements_pos[selected_room].portal2_pos
+
+	var arrives_from := []
+	for from in UGen.portal_links:
+		if UGen.portal_links[from] == entry and _room_of(from) != selected_room:
+			arrives_from.append(_room_of(from) + 1)
+
+	var leads_to := []
+	var destination = UGen.portal_links.get(exit)
+	if destination != null:
+		leads_to.append(_room_of(destination) + 1)
+
+	action_menu.show_room_info(selected_room + 1, {
+		"tiles": UGen.rooms[selected_room].size(),
+		"enemies": counts.get(UGen.NPC_ID, 0),
+		"coins": counts.get(UGen.COIN_ID, 0),
+		"campfires": counts.get(UGen.BANNER_ID, 0),
+		"arrives_from": arrives_from,
+		"leads_to": leads_to,
+	})
 
 func _apply_builder_state():
-	var active := tool != Builder.Tool.NONE and mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
+	var active := mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
 	if active:
 		builder.process_mode = Node.PROCESS_MODE_INHERIT
 		builder.set_process(true)
