@@ -9,6 +9,11 @@ var preview_from = null
 var preview_to := Vector3.ZERO
 
 func _process(_delta):
+	if not visible:
+		return
+	for portal in get_tree().get_nodes_in_group("Portals"):
+		portal.mesh.visible = UGen.portal_links.has(portal.portal_cell)
+
 	material_override.albedo_color = color
 	var lines := ImmediateMesh.new()
 	for from in UGen.portal_links:
