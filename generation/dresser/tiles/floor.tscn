@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://d2yeqg2wtqjbn"]
+
+[ext_resource type="PackedScene" uid="uid://nmnfgndq44wa" path="res://assets/models/dungeon/floor_tile_large.gltf" id="1_vzkb8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v6g1b"]
+size = Vector3(1, 0.125, 1)
+
+[node name="Floor" type="StaticBody3D" unique_id=7141188]
+
+[node name="Model" parent="." unique_id=1657624739 instance=ExtResource("1_vzkb8")]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=596529476]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+shape = SubResource("BoxShape3D_v6g1b")

@@ -1,0 +1,159 @@
+[gd_scene format=3 uid="uid://c8kqi653osk6g"]
+
+[ext_resource type="Script" uid="uid://byte8v8u0wvd2" path="res://ui/action_menu.gd" id="1_mkxff"]
+
+[node name="ActionMenu" type="CanvasLayer" unique_id=556928950]
+script = ExtResource("1_mkxff")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1594627176]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -256.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 56.0
+grow_horizontal = 0
+
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=267735252]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin" unique_id=1559186263]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Build" type="Button" parent="Panel/Margin/VBox" unique_id=163251832]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Construção: desligada"
+metadata/action = &"toggle_build"
+
+[node name="SepBuild" type="HSeparator" parent="Panel/Margin/VBox" unique_id=358411692]
+layout_mode = 2
+
+[node name="GenerateLabel" type="Label" parent="Panel/Margin/VBox" unique_id=1806712172]
+layout_mode = 2
+text = "Gerar dungeon"
+
+[node name="GeneratorSelect" type="OptionButton" parent="Panel/Margin/VBox" unique_id=1832515669]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "Salas geométricas"
+popup/item_0/id = 0
+popup/item_1/text = "Autômato celular"
+popup/item_1/id = 1
+popup/item_2/text = "Particionamento binário (BSP)"
+popup/item_2/id = 2
+
+[node name="Generate" type="Button" parent="Panel/Margin/VBox" unique_id=512733632]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gerar (G)"
+metadata/action = &"generate_dungeon"
+
+[node name="Sep1" type="HSeparator" parent="Panel/Margin/VBox" unique_id=1402654491]
+layout_mode = 2
+
+[node name="HeatmapLabel" type="Label" parent="Panel/Margin/VBox" unique_id=1955103915]
+layout_mode = 2
+text = "Heatmaps"
+
+[node name="HeatmapGrid" type="GridContainer" parent="Panel/Margin/VBox" unique_id=374106722]
+layout_mode = 2
+columns = 2
+
+[node name="Enemies" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=115769860]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Inimigos (1)"
+metadata/action = &"show_enemies_heatmaps"
+
+[node name="Coins" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1337872446]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Moedas (2)"
+metadata/action = &"show_coins_heatmaps"
+
+[node name="Banners" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1493808712]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Estandartes (3)"
+metadata/action = &"show_banners_heatmaps"
+
+[node name="Combined" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1338639195]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Combinado (4)"
+metadata/action = &"show_combined_heatmaps"
+
+[node name="Recharge" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=1678475498]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Recarga (5)"
+metadata/action = &"show_recharges_heatmaps"
+
+[node name="Recalculate" type="Button" parent="Panel/Margin/VBox/HeatmapGrid" unique_id=869423909]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Recalcular (R)"
+metadata/action = &"recalculate_heatmaps"
+
+[node name="Sep2" type="HSeparator" parent="Panel/Margin/VBox" unique_id=61179405]
+layout_mode = 2
+
+[node name="PathLabel" type="Label" parent="Panel/Margin/VBox" unique_id=718543126]
+layout_mode = 2
+text = "Caminhos"
+
+[node name="AllPaths" type="Button" parent="Panel/Margin/VBox" unique_id=1780975578]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gerar para a sala (P)"
+metadata/action = &"pathfinding"
+
+[node name="Sep3" type="HSeparator" parent="Panel/Margin/VBox" unique_id=521599376]
+layout_mode = 2
+
+[node name="MapLabel" type="Label" parent="Panel/Margin/VBox" unique_id=596212412]
+layout_mode = 2
+text = "Mapa"
+
+[node name="MapGrid" type="GridContainer" parent="Panel/Margin/VBox" unique_id=1316165657]
+layout_mode = 2
+columns = 2
+
+[node name="Save" type="Button" parent="Panel/Margin/VBox/MapGrid" unique_id=1302056504]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Salvar (F1)"
+metadata/action = &"save"
+
+[node name="Load" type="Button" parent="Panel/Margin/VBox/MapGrid" unique_id=1894462574]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Carregar (F2)"
+metadata/action = &"load"
+
+[node name="Sep4" type="HSeparator" parent="Panel/Margin/VBox" unique_id=354339097]
+layout_mode = 2
+
+[node name="Experiment" type="Button" parent="Panel/Margin/VBox" unique_id=164188374]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rodar experimento (I)"
+metadata/action = &"run_quantitative_experiment"
+
+[node name="Play" type="Button" parent="Panel/Margin/VBox" unique_id=1249395907]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jogar (Tab)"
+metadata/action = &"toggle_mode"

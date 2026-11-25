@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dfcl4kksas4ys"]
+
+[ext_resource type="PackedScene" uid="uid://crcoe7lxcnh2e" path="res://assets/models/objects/scaffold_frame_small.gltf" id="1_yjzou"]
+
+[node name="Portal" type="Node3D" unique_id=1323396851]
+
+[node name="Model" parent="." unique_id=1921995020 instance=ExtResource("1_yjzou")]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)

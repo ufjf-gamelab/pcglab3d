@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bl4n50j8duvcn"]
+
+[ext_resource type="PackedScene" uid="uid://crcoe7lxcnh2e" path="res://assets/models/objects/scaffold_frame_small.gltf" id="1_4mexn"]
+[ext_resource type="Script" uid="uid://pa0qv2q26asi" path="res://game/objects/portal.gd" id="1_vwu53"]
+[ext_resource type="Shader" uid="uid://b0t1p87mt76va" path="res://game/objects/portal.gdshader" id="4_xypjk"]
+[ext_resource type="Texture2D" uid="uid://dri584ujpb5u8" path="res://assets/textures/portal_noise.jpg" id="5_fud5p"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pp13s"]
+size = Vector3(0.085, 1, 0.085)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4mexn"]
+size = Vector3(0.09257507, 0.91192627, 0.07460213)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fud5p"]
+render_priority = 0
+shader = ExtResource("4_xypjk")
+shader_parameter/noise = ExtResource("5_fud5p")
+shader_parameter/color = Color(0.4509804, 1, 0.3764706, 1)
+shader_parameter/speed = 0.2
+shader_parameter/emission_strength = 5.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_pp13s"]
+material = SubResource("ShaderMaterial_fud5p")
+
+[node name="Portal" type="StaticBody3D" unique_id=1228915405]
+script = ExtResource("1_vwu53")
+
+[node name="Model" parent="." unique_id=247476510 instance=ExtResource("1_4mexn")]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1288287904]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.333, 0.5, 0.333)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1836111143]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.333, 0.5, -0.333)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="." unique_id=761478722]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.333, 0.5, -0.333)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="." unique_id=1183495393]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.333, 0.5, 0.333)
+shape = SubResource("BoxShape3D_pp13s")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=831546663]
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Area3D" unique_id=16633542]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49246314, 0)
+shape = SubResource("BoxShape3D_4mexn")
+
+[node name="PortalMesh" type="MeshInstance3D" parent="." unique_id=1288125721]
+transform = Transform3D(0.56, 0, 0, 0, 0.9, 0, 0, 0, 0.56, 0, 0.45, 0)
+mesh = SubResource("BoxMesh_pp13s")

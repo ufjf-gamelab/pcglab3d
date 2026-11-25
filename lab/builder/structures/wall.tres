@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Structure" format=3 uid="uid://dkj23sxu68lq2"]
+
+[ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://lab/builder/structure.gd" id="1_7nwfy"]
+[ext_resource type="PackedScene" uid="uid://ce4ppgd6qylcw" path="res://lab/builder/scenes/wall.tscn" id="1_cg4b5"]
+
+[resource]
+script = ExtResource("1_7nwfy")
+model = ExtResource("1_cg4b5")
+price = 10
+metadata/_custom_type_script = "uid://b4i7dfy6u3e8w"
