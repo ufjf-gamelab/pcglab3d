@@ -14,6 +14,7 @@ func _ready():
 	fuel = max_fuel
 	# O pivô usa a rotação do modelo do player pra lanterna ficar sempre em pé
 	pivot.yaw_source = player.get_node("Model")
+	pivot.hang()
 
 func _physics_process(delta):
 	if not held or fuel <= 0.0 or player.is_dead():

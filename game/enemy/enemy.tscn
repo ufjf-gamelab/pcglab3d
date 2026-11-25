@@ -11,7 +11,7 @@ height = 0.8041687
 height = 0.38964844
 radius = 2.996582
 
-[node name="Enemy" type="CharacterBody3D" unique_id=114424575]
+[node name="Enemy" type="CharacterBody3D" unique_id=114424575 groups=["Enemies"]]
 collision_layer = 2
 collision_mask = 11
 script = ExtResource("1_c20yv")

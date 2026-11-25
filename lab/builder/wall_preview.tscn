@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dnkjslcy13xfc"]
+
+[ext_resource type="Material" uid="uid://dy2fk0426nlre" path="res://assets/materials/cover_material.tres" id="1_t4m8q"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_w2k7d"]
+material = ExtResource("1_t4m8q")
+size = Vector3(1, 0.97, 1)
+
+[node name="WallPreview" type="Node3D" unique_id=1847263591]
+
+[node name="Block" type="MeshInstance3D" parent="." unique_id=602938175]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.485, 0)
+mesh = SubResource("BoxMesh_w2k7d")

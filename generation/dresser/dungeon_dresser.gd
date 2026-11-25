@@ -1,7 +1,7 @@
 extends Node3D
 class_name DungeonDresser
 
-signal rebuilt
+signal entity_placed(entity: Node3D, cell: Vector3i)
 
 @export var gridmap: GridMap
 @export var cover_border := 2
@@ -13,18 +13,18 @@ signal rebuilt
 @export var crossing_scene: PackedScene
 @export var cover_scene: PackedScene
 
-@export_group("Markers")
+@export_group("Entities")
 @export var coin_scene: PackedScene
 @export var enemy_scene: PackedScene
 @export var portal_scene: PackedScene
-@export var spawn_scene: PackedScene
+@export var player_scene: PackedScene
 @export var campfire_scene: PackedScene
 
-@onready var markers := {
+@onready var entity_scenes := {
 	UGen.COIN_ID: coin_scene,
 	UGen.NPC_ID: enemy_scene,
 	UGen.PORTAL_ID: portal_scene,
-	UGen.PLAYER_SPAWN_ID: spawn_scene,
+	UGen.PLAYER_SPAWN_ID: player_scene,
 	UGen.BANNER_ID: campfire_scene,
 }
 
@@ -32,6 +32,7 @@ var last_signature := 0
 var room_by_cell := {}
 var room_groups: Array[Node3D] = []
 var outside_group: Node3D
+var entities: Array[Node3D] = []
 
 func _ready():
 	global_transform = gridmap.global_transform
@@ -59,7 +60,41 @@ func rebuild():
 			dress_cell(Vector2i(x, y), walkable)
 	for vertex in vertices_around(walkable):
 		dress_vertex(vertex, walkable)
-	rebuilt.emit()
+	place_entities()
+
+func place_entities():
+	entities.clear()
+	for cell in gridmap.get_used_cells():
+		var item := gridmap.get_cell_item(cell)
+		if entity_scenes.has(item):
+			place_entity(entity_scenes[item], Vector2i(cell.x, cell.z))
+
+func place_entity(scene: PackedScene, cell: Vector2i):
+	var group := group_for(cell)
+	if scene == player_scene:
+		group = outside_group
+
+	var entity: Node3D = scene.instantiate()
+	entity.process_mode = Node.PROCESS_MODE_DISABLED
+	entity.position = Vector3(cell.x, 0, cell.y)
+	group.add_child(entity)
+	entities.append(entity)
+	entity_placed.emit(entity, Vector3i(cell.x, 0, cell.y))
+
+func set_entities_active(active: bool):
+	for entity in entities:
+		if not is_instance_valid(entity):
+			continue
+		if active:
+			entity.process_mode = Node.PROCESS_MODE_INHERIT
+		else:
+			entity.process_mode = Node.PROCESS_MODE_DISABLED
+
+func reset_entities():
+	for entity in entities:
+		if is_instance_valid(entity):
+			entity.free()
+	place_entities()
 
 func create_groups():
 	room_by_cell.clear()
@@ -109,10 +144,6 @@ func dress_cell(cell: Vector2i, walkable: Dictionary):
 		return
 
 	place(floor_scene, group, spot, 0)
-
-	var marker: PackedScene = markers.get(gridmap.get_cell_item(Vector3i(cell.x, 0, cell.y)))
-	if marker:
-		place(marker, group, spot, 0)
 
 func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var top_left := walkable.has(vertex)

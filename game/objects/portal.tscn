@@ -22,7 +22,7 @@ shader_parameter/emission_strength = 5.0
 [sub_resource type="BoxMesh" id="BoxMesh_pp13s"]
 material = SubResource("ShaderMaterial_fud5p")
 
-[node name="Portal" type="StaticBody3D" unique_id=1228915405]
+[node name="Portal" type="StaticBody3D" unique_id=1228915405 groups=["Portals"]]
 script = ExtResource("1_vwu53")
 
 [node name="Model" parent="." unique_id=247476510 instance=ExtResource("1_4mexn")]
