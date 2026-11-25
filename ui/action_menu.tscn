@@ -9,6 +9,17 @@
 [ext_resource type="Texture2D" uid="uid://b0hh8atlifluo" path="res://assets/sprites/icons/portal.png" id="7_b7xvr"]
 [ext_resource type="Texture2D" uid="uid://c1ys7wbck68ly" path="res://assets/sprites/icons/spawn.png" id="8_z1vza"]
 [ext_resource type="Texture2D" uid="uid://chf6lo71f5ipc" path="res://assets/sprites/icons/campfire.png" id="9_2used"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/cursor.svg" id="10_d34h4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/plus.svg" id="11_xcjvp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/trash.svg" id="12_ejk8n"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/route.svg" id="13_fbdc7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/play.svg" id="14_0s3zz"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/flask.svg" id="15_81e5u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/dice.svg" id="16_6q0tl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/refresh.svg" id="17_148ga"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/save.svg" id="18_519hg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/folder_open.svg" id="19_au1hp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/map_route.svg" id="20_iays1"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_juzdr"]
 
@@ -44,7 +55,7 @@ theme_override_constants/margin_right = 10
 
 [node name="HBox" type="HBoxContainer" parent="Root/TopBar/Margin" unique_id=2137115399]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="Title" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=722591254]
 layout_mode = 2
@@ -71,12 +82,14 @@ text = "Editar"
 layout_mode = 2
 theme_type_variation = &"SegmentButton"
 text = "Jogar (Tab)"
+icon = ExtResource("14_0s3zz")
 metadata/action = &"toggle_mode"
 
 [node name="Experiment" type="Button" parent="Root/TopBar/Margin/HBox/Modes/HBox" unique_id=1371368787]
 layout_mode = 2
 theme_type_variation = &"SegmentButton"
 text = "Experimento (I)"
+icon = ExtResource("15_81e5u")
 metadata/action = &"run_quantitative_experiment"
 
 [node name="Sep1" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=758727549]
@@ -89,7 +102,7 @@ text = "Gerador"
 
 [node name="GeneratorSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=914293600]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(190, 0)
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 size_flags_vertical = 4
 selected = 0
@@ -109,7 +122,7 @@ text = "Seed"
 
 [node name="Seed" type="LineEdit" parent="Root/TopBar/Margin/HBox" unique_id=868970614]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 0)
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 4
 placeholder_text = "aleatória"
@@ -118,6 +131,7 @@ placeholder_text = "aleatória"
 layout_mode = 2
 size_flags_vertical = 4
 text = "Sortear"
+icon = ExtResource("16_6q0tl")
 metadata/action = &"random_seed"
 
 [node name="Generate" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1658975055]
@@ -136,12 +150,14 @@ mouse_filter = 2
 layout_mode = 2
 size_flags_vertical = 4
 text = "Salvar (F1)"
+icon = ExtResource("18_519hg")
 metadata/action = &"save"
 
 [node name="Load" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1054714481]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Carregar (F2)"
+icon = ExtResource("19_au1hp")
 metadata/action = &"load"
 
 [node name="ToolBar" type="PanelContainer" parent="Root" unique_id=130227908]
@@ -149,7 +165,7 @@ layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_top = 48.0
-offset_right = 112.0
+offset_right = 140.0
 offset_bottom = -32.0
 grow_vertical = 2
 theme_type_variation = &"ToolPanel"
@@ -165,6 +181,8 @@ toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_juzdr")
 text = "Câmera"
+icon = ExtResource("10_d34h4")
+alignment = 0
 metadata/tool = 0
 
 [node name="Build" type="Button" parent="Root/ToolBar/VBox" unique_id=1077175829]
@@ -173,6 +191,8 @@ layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
 text = "Construir"
+icon = ExtResource("11_xcjvp")
+alignment = 0
 metadata/tool = 1
 
 [node name="Erase" type="Button" parent="Root/ToolBar/VBox" unique_id=2036295813]
@@ -181,6 +201,8 @@ layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
 text = "Apagar"
+icon = ExtResource("12_ejk8n")
+alignment = 0
 metadata/tool = 2
 
 [node name="Link" type="Button" parent="Root/ToolBar/VBox" unique_id=153186663]
@@ -189,6 +211,8 @@ layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
 text = "Ligar portais"
+icon = ExtResource("13_fbdc7")
+alignment = 0
 metadata/tool = 3
 
 [node name="SidePanel" type="PanelContainer" parent="Root" unique_id=327418003]
@@ -242,6 +266,7 @@ uppercase = true
 [node name="Recalculate" type="Button" parent="Root/SidePanel/VBox/HeatmapHeader" unique_id=1676701989]
 layout_mode = 2
 text = "Recalcular (R)"
+icon = ExtResource("17_148ga")
 metadata/action = &"recalculate_heatmaps"
 
 [node name="None" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1026196329]
@@ -342,6 +367,7 @@ uppercase = true
 [node name="AllPaths" type="Button" parent="Root/SidePanel/VBox" unique_id=1328461111]
 layout_mode = 2
 text = "Gerar para todas as salas (P)"
+icon = ExtResource("20_iays1")
 metadata/action = &"pathfinding"
 
 [node name="Palette" type="PanelContainer" parent="Root" unique_id=704031239]

@@ -279,6 +279,14 @@ border_width_bottom = 1
 border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
 
 [resource]
+Button/colors/icon_normal_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+Button/colors/icon_hover_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+Button/colors/icon_focus_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
+Button/colors/icon_pressed_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+Button/colors/icon_hover_pressed_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+Button/colors/icon_disabled_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
+Button/constants/h_separation = 8
+Button/constants/icon_max_width = 18
 default_font_size = 13
 Button/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
 Button/colors/font_disabled_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
