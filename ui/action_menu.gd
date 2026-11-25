@@ -27,6 +27,9 @@ func _ready():
 func get_selected_generator() -> int:
 	return %GeneratorSelect.get_selected_id()
 
+func get_spawn_mode() -> int:
+	return %SpawnSelect.get_selected_id()
+
 func get_seed() -> int:
 	return int(%Seed.text)
 

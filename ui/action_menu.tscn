@@ -57,10 +57,6 @@ theme_override_constants/margin_right = 10
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=722591254]
-layout_mode = 2
-text = "PCGLab3D"
-
 [node name="Modes" type="PanelContainer" parent="Root/TopBar/Margin/HBox" unique_id=2016486003]
 layout_mode = 2
 size_flags_vertical = 4
@@ -95,11 +91,6 @@ metadata/action = &"run_quantitative_experiment"
 [node name="Sep1" type="VSeparator" parent="Root/TopBar/Margin/HBox" unique_id=758727549]
 layout_mode = 2
 
-[node name="GeneratorLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=1009990628]
-layout_mode = 2
-theme_type_variation = &"MutedLabel"
-text = "Gerador"
-
 [node name="GeneratorSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=914293600]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 0)
@@ -115,17 +106,25 @@ popup/item_1/id = 1
 popup/item_2/text = "Particionamento binário (BSP)"
 popup/item_2/id = 2
 
-[node name="SeedLabel" type="Label" parent="Root/TopBar/Margin/HBox" unique_id=1238355335]
+[node name="SpawnSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=1633170874]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-theme_type_variation = &"MutedLabel"
-text = "Seed"
+size_flags_vertical = 4
+fit_to_longest_item = false
+selected = 0
+item_count = 2
+popup/item_0/text = "Spawn aleatório"
+popup/item_0/id = 0
+popup/item_1/text = "Spawn inteligente"
+popup/item_1/id = 1
 
 [node name="Seed" type="LineEdit" parent="Root/TopBar/Margin/HBox" unique_id=868970614]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 4
-placeholder_text = "aleatória"
+placeholder_text = "seed aleatória"
 
 [node name="RandomSeed" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=379823433]
 layout_mode = 2
