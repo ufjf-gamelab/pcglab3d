@@ -17,6 +17,7 @@ extends Node3D
 @onready var action_menu: ActionMenu = $ActionMenu
 @onready var edit_tools: EditTools = $EditTools
 @onready var dresser: DungeonDresser = $DungeonDresser
+@onready var portal_links: PortalLinks = $PortalLinks
 
 
 # Total de moedas na dungeon
@@ -258,6 +259,7 @@ func enter_creation_mode():
 	creation_ui.visible = true
 	action_menu.visible = true
 	game_hud.visible = false
+	portal_links.visible = true
 
 func _activate_room_portals(room_index: int):
 	var room = UGen.rooms_elements_pos[room_index]
@@ -304,6 +306,7 @@ func enter_play_mode():
 	creation_ui.visible = false
 	action_menu.visible = false
 	game_hud.visible = true
+	portal_links.visible = false
 	
 	var player = _player()
 	if player:
