@@ -92,21 +92,24 @@ func action_structure_toggle():
 	if Input.is_action_just_pressed("structure_next"):
 		index = wrap(index + 1, 0, structures.size())
 		Audio.play("assets/audio/toggle.ogg", -30)
+		update_structure()
 	
 	if Input.is_action_just_pressed("structure_previous"):
 		index = wrap(index - 1, 0, structures.size())
 		Audio.play("assets/audio/toggle.ogg", -30)
-
-	update_structure()
+		update_structure()
 
 # Update the structure visual in the 'cursor'
 func update_structure():
 	# Clear previous structure preview in selector
 	for n in selector_container.get_children():
-		selector_container.remove_child(n)
+		n.queue_free()
 		
 	# Create new structure preview in selector
 	var _model = structures[index].model.instantiate()
+	_model.process_mode = Node.PROCESS_MODE_DISABLED
+	for group in _model.get_groups():
+		_model.remove_from_group(group)
 	selector_container.add_child(_model)
 	_model.position.y += 0.25
 

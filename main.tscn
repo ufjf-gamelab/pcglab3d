@@ -5,7 +5,6 @@
 [ext_resource type="Environment" uid="uid://jbptgqvstei3" path="res://main_environment.tres" id="1_yndf3"]
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://lab/builder/structure.gd" id="2_eb6dy"]
 [ext_resource type="Resource" uid="uid://dkj23sxu68lq2" path="res://lab/builder/structures/wall.tres" id="3_dp3eg"]
-[ext_resource type="Resource" uid="uid://c60oqn5n05d7b" path="res://lab/builder/structures/floor_barrel.tres" id="3_trceg"]
 [ext_resource type="Resource" uid="uid://ce0ko35wk4p05" path="res://lab/builder/structures/wall_soil.tres" id="4_0ld40"]
 [ext_resource type="Resource" uid="uid://dbww7vvrtfp7m" path="res://lab/builder/structures/floor_coin.tres" id="4_a8y0u"]
 [ext_resource type="Texture2D" uid="uid://cbk07cxgshg26" path="res://assets/sprites/selector.png" id="4_wr1wv"]
@@ -13,10 +12,7 @@
 [ext_resource type="Resource" uid="uid://o8iy6bs4yhj0" path="res://lab/builder/structures/floor_enemy.tres" id="6_a8y0u"]
 [ext_resource type="Resource" uid="uid://bxbkx8rmys28y" path="res://lab/builder/structures/floor_spawn.tres" id="7_jkv2x"]
 [ext_resource type="Script" uid="uid://dec71yx4xpg2c" path="res://lab/view.gd" id="8_yovpv"]
-[ext_resource type="Resource" uid="uid://sldtxyhv0id8" path="res://lab/builder/structures/floor_detail.tres" id="10_gqmmt"]
-[ext_resource type="Resource" uid="uid://caeruhpql1m5n" path="res://lab/builder/structures/floor_trap.tres" id="11_yc10j"]
 [ext_resource type="Resource" uid="uid://bw0w3w1fdc4c8" path="res://lab/builder/structures/floor.tres" id="12_gqmmt"]
-[ext_resource type="Resource" uid="uid://cv05b0880ryqb" path="res://lab/builder/structures/floor_chest.tres" id="13_yc10j"]
 [ext_resource type="Resource" uid="uid://l5v6s0nxs2mi" path="res://lab/builder/structures/floor_banner.tres" id="15_jscy8"]
 [ext_resource type="PackedScene" uid="uid://ukcepkmtkcxw" path="res://ui/chart_plotter.tscn" id="21_2wyq8"]
 [ext_resource type="Texture2D" uid="uid://cdy6l6u51msrw" path="res://assets/sprites/spritesheet_tiles_default.png" id="21_jscy8"]
@@ -87,7 +83,7 @@ environment = SubResource("Environment_og1vs")
 
 [node name="Builder" type="Node3D" parent="." unique_id=1826473606 node_paths=PackedStringArray("selector", "selector_container", "view_camera", "gridmap")]
 script = ExtResource("1_jybm7")
-structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("15_jscy8"), ExtResource("13_yc10j"), ExtResource("3_trceg"), ExtResource("10_gqmmt"), ExtResource("11_yc10j")])
+structures = Array[ExtResource("2_eb6dy")]([ExtResource("3_dp3eg"), ExtResource("4_0ld40"), ExtResource("12_gqmmt"), ExtResource("4_a8y0u"), ExtResource("6_a8y0u"), ExtResource("5_jkv2x"), ExtResource("7_jkv2x"), ExtResource("15_jscy8")])
 selector = NodePath("Selector")
 selector_container = NodePath("Selector/Container")
 view_camera = NodePath("../View/EditCamera")

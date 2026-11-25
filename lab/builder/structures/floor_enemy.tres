@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Structure" format=3 uid="uid://o8iy6bs4yhj0"]
 
 [ext_resource type="Script" uid="uid://b4i7dfy6u3e8w" path="res://lab/builder/structure.gd" id="1_e7vnm"]
-[ext_resource type="PackedScene" uid="uid://dnravtkyqmlsr" path="res://lab/builder/scenes/floor_enemy_marker.tscn" id="1_exlk2"]
+[ext_resource type="PackedScene" uid="uid://spwcbjyxsldx" path="res://game/enemy/enemy.tscn" id="1_exlk2"]
 
 [resource]
 script = ExtResource("1_e7vnm")
