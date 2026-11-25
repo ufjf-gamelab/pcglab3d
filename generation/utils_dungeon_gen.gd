@@ -222,17 +222,14 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		)
 		player_recipe.execute(gridmap, 1, available_spots)
 
-func link_portals(a: Vector3i, b: Vector3i):
-	unlink_portal(a)
-	unlink_portal(b)
-	portal_links[a] = b
-	portal_links[b] = a
-
 func unlink_portal(cell: Vector3i):
-	var partner = portal_links.get(cell)
-	if partner != null:
-		portal_links.erase(partner)
 	portal_links.erase(cell)
+	for from in portal_links.keys():
+		if portal_links[from] == cell:
+			portal_links.erase(from)
+
+func is_portal_linked(cell: Vector3i) -> bool:
+	return portal_links.has(cell) or cell in portal_links.values()
 
 # Posiciona portais em uma sala
 func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3i]) -> Array[Vector3i]:

@@ -85,7 +85,7 @@ func action_link(cell: Vector3i):
 	portal_links.preview_to = selector.position
 	if Input.is_action_just_released("build"):
 		if on_portal and cell != portal_links.preview_from:
-			UGen.link_portals(portal_links.preview_from, cell)
+			UGen.portal_links[portal_links.preview_from] = cell
 		portal_links.preview_from = null
 
 # Demolish (remove) a structure
