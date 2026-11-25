@@ -75,7 +75,7 @@ func _ready():
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
 	action_menu.tool_pressed.connect(_set_tool)
-	action_menu.structure_pressed.connect(builder.select_structure)
+	action_menu.structure_pressed.connect(_on_structure_pressed)
 	builder.structure_changed.connect(action_menu.set_structure)
 	builder.cell_hovered.connect(_on_cell_hovered)
 	builder.cell_changed.connect(_on_cell_changed)
@@ -243,6 +243,10 @@ func _set_tool(new_tool: Builder.Tool):
 		builder.tool = tool
 	action_menu.set_tool(tool)
 	_apply_builder_state()
+
+func _on_structure_pressed(index: int):
+	builder.select_structure(index)
+	_set_tool(Builder.Tool.BUILD)
 
 func _on_cell_hovered(cell: Vector3i):
 	action_menu.set_cell(cell, _room_of(cell))
