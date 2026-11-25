@@ -48,7 +48,16 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"select_room", &"run_quantitative_experiment",
 	&"save", &"load",
+	&"tool_camera", &"tool_build", &"tool_erase", &"tool_link",
+	&"structure_1", &"structure_2", &"structure_3", &"structure_4",
+	&"structure_5", &"structure_6", &"structure_7",
 ]
+
+const STRUCTURE_KEYS := {
+	&"structure_1": UGen.WALL_ID, &"structure_2": UGen.FLOOR_ID, &"structure_3": UGen.COIN_ID,
+	&"structure_4": UGen.NPC_ID, &"structure_5": UGen.PORTAL_ID, &"structure_6": UGen.PLAYER_SPAWN_ID,
+	&"structure_7": UGen.BANNER_ID,
+}
 
 
 # Modo construção
@@ -150,7 +159,7 @@ func _on_player_update_life(curr_life):
 
 func _unhandled_input(event):
 	for action in INPUT_ACTIONS:
-		if event.is_action_pressed(action):
+		if event.is_action_pressed(action, false, true):
 			_run_action(action)
 
 func _run_action(action: StringName):
@@ -193,6 +202,18 @@ func _run_action(action: StringName):
 			builder.save_map()
 		&"load":
 			builder.load_map()
+		&"tool_camera":
+			_set_tool(Builder.Tool.NONE)
+		&"tool_build":
+			_set_tool(Builder.Tool.BUILD)
+		&"tool_erase":
+			_set_tool(Builder.Tool.ERASE)
+		&"tool_link":
+			_set_tool(Builder.Tool.LINK)
+		&"structure_1", &"structure_2", &"structure_3", &"structure_4", \
+		&"structure_5", &"structure_6", &"structure_7":
+			builder.select_structure(STRUCTURE_KEYS[action])
+			_set_tool(Builder.Tool.BUILD)
 		&"toggle_portal_links":
 			show_links = not show_links
 			portal_links.visible = show_links

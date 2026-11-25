@@ -74,11 +74,17 @@ func handle_input(delta):
 	
 	# Zoom in/out
 	
-	if Input.is_action_just_released("zoom_in"):
+	if Input.is_action_just_released("zoom_in") and not Input.is_key_pressed(KEY_SHIFT):
 		zoom = max(min_zoom, zoom - zoom_step)
 		
-	if Input.is_action_just_released("zoom_out"):
+	if Input.is_action_just_released("zoom_out") and not Input.is_key_pressed(KEY_SHIFT):
 		zoom = min(max_zoom, zoom + zoom_step)
+	
+	if Input.is_action_just_pressed("camera_rotate_left"):
+		camera_rotation.y += 45
+	
+	if Input.is_action_just_pressed("camera_rotate_right"):
+		camera_rotation.y -= 45
 	
 	# Back to center
 	

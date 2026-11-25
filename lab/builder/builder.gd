@@ -42,7 +42,6 @@ func _process(delta):
 	
 	# Controls
 	action_rotate() # Rotates selection 90 degrees
-	action_structure_toggle() # Toggles between structures
 	
 	# Map position based on mouse
 	var world_position = plane.intersects_ray(
@@ -117,11 +116,11 @@ func action_rotate():
 		Audio.play("assets/audio/rotate.ogg", -30)
 
 # Toggle between structures to build
-func action_structure_toggle():
-	if Input.is_action_just_pressed("structure_next"):
+func _unhandled_input(event):
+	if event.is_action_pressed("structure_next"):
 		select_structure(next_buildable(1))
 	
-	if Input.is_action_just_pressed("structure_previous"):
+	if event.is_action_pressed("structure_previous"):
 		select_structure(next_buildable(-1))
 
 func select_structure(new_index: int):

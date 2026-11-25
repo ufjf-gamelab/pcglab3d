@@ -102,7 +102,7 @@ text = "Gerador"
 
 [node name="GeneratorSelect" type="OptionButton" parent="Root/TopBar/Margin/HBox" unique_id=914293600]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 0)
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 size_flags_vertical = 4
 selected = 0
@@ -149,14 +149,14 @@ mouse_filter = 2
 [node name="Save" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=674198346]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Salvar (F1)"
+text = "Salvar (Ctrl+S)"
 icon = ExtResource("18_519hg")
 metadata/action = &"save"
 
 [node name="Load" type="Button" parent="Root/TopBar/Margin/HBox" unique_id=1054714481]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Carregar (F2)"
+text = "Carregar (Ctrl+O)"
 icon = ExtResource("19_au1hp")
 metadata/action = &"load"
 
@@ -180,7 +180,7 @@ layout_mode = 2
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Câmera"
+text = "Câmera (V)"
 icon = ExtResource("10_d34h4")
 alignment = 0
 metadata/tool = 0
@@ -190,7 +190,7 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Construir"
+text = "Construir (B)"
 icon = ExtResource("11_xcjvp")
 alignment = 0
 metadata/tool = 1
@@ -200,7 +200,7 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Apagar"
+text = "Apagar (X)"
 icon = ExtResource("12_ejk8n")
 alignment = 0
 metadata/tool = 2
@@ -210,7 +210,7 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_juzdr")
-text = "Ligar portais"
+text = "Ligar portais (L)"
 icon = ExtResource("13_fbdc7")
 alignment = 0
 metadata/tool = 3
@@ -293,7 +293,7 @@ metadata/action = &"show_enemies_heatmaps"
 [node name="Key" type="Label" parent="Root/SidePanel/VBox/Enemies" unique_id=541580072]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "1"
+text = "Alt+1"
 
 [node name="Coins" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1781699512]
 layout_mode = 2
@@ -308,7 +308,7 @@ metadata/action = &"show_coins_heatmaps"
 [node name="Key" type="Label" parent="Root/SidePanel/VBox/Coins" unique_id=1365133055]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "2"
+text = "Alt+2"
 
 [node name="Banners" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=892648344]
 layout_mode = 2
@@ -323,7 +323,7 @@ metadata/action = &"show_banners_heatmaps"
 [node name="Key" type="Label" parent="Root/SidePanel/VBox/Banners" unique_id=469218185]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "3"
+text = "Alt+3"
 
 [node name="Combined" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1433569005]
 layout_mode = 2
@@ -338,7 +338,7 @@ metadata/action = &"show_combined_heatmaps"
 [node name="Key" type="Label" parent="Root/SidePanel/VBox/Combined" unique_id=1678852683]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "4"
+text = "Alt+4"
 
 [node name="Recharge" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=879090998]
 layout_mode = 2
@@ -353,7 +353,7 @@ metadata/action = &"show_recharges_heatmaps"
 [node name="Key" type="Label" parent="Root/SidePanel/VBox/Recharge" unique_id=1731629323]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
-text = "5"
+text = "Alt+5"
 
 [node name="Sep2" type="HSeparator" parent="Root/SidePanel/VBox" unique_id=1947144574]
 layout_mode = 2
@@ -390,7 +390,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="Wall" type="Button" parent="Root/Palette/HBox" unique_id=775149770]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -423,8 +423,14 @@ layout_mode = 2
 text = "Parede"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Wall/VBox" unique_id=1847621587]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "1"
+horizontal_alignment = 1
+
 [node name="Floor" type="Button" parent="Root/Palette/HBox" unique_id=1118049897]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -456,8 +462,14 @@ layout_mode = 2
 text = "Chão"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Floor/VBox" unique_id=1209475832]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "2"
+horizontal_alignment = 1
+
 [node name="Coin" type="Button" parent="Root/Palette/HBox" unique_id=1368324660]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -489,8 +501,14 @@ layout_mode = 2
 text = "Moeda"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Coin/VBox" unique_id=104385331]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "3"
+horizontal_alignment = 1
+
 [node name="Enemy" type="Button" parent="Root/Palette/HBox" unique_id=1479497263]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -522,8 +540,14 @@ layout_mode = 2
 text = "Inimigo"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Enemy/VBox" unique_id=400378338]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "4"
+horizontal_alignment = 1
+
 [node name="Portal" type="Button" parent="Root/Palette/HBox" unique_id=483411619]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -555,8 +579,14 @@ layout_mode = 2
 text = "Portal"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Portal/VBox" unique_id=564109119]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "5"
+horizontal_alignment = 1
+
 [node name="Spawn" type="Button" parent="Root/Palette/HBox" unique_id=1852074987]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -588,8 +618,14 @@ layout_mode = 2
 text = "Spawn"
 horizontal_alignment = 1
 
+[node name="Key" type="Label" parent="Root/Palette/HBox/Spawn/VBox" unique_id=541607408]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "6"
+horizontal_alignment = 1
+
 [node name="Campfire" type="Button" parent="Root/Palette/HBox" unique_id=345459976]
-custom_minimum_size = Vector2(76, 80)
+custom_minimum_size = Vector2(76, 96)
 layout_mode = 2
 theme_type_variation = &"PaletteButton"
 toggle_mode = true
@@ -619,6 +655,12 @@ stretch_mode = 5
 [node name="Name" type="Label" parent="Root/Palette/HBox/Campfire/VBox" unique_id=1015133949]
 layout_mode = 2
 text = "Fogueira"
+horizontal_alignment = 1
+
+[node name="Key" type="Label" parent="Root/Palette/HBox/Campfire/VBox" unique_id=602810650]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "7"
 horizontal_alignment = 1
 
 [node name="StatusBar" type="PanelContainer" parent="Root" unique_id=183608347]
