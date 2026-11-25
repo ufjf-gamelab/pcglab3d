@@ -90,14 +90,20 @@ func action_rotate():
 # Toggle between structures to build
 func action_structure_toggle():
 	if Input.is_action_just_pressed("structure_next"):
-		index = wrap(index + 1, 0, structures.size())
+		index = next_buildable(1)
 		Audio.play("assets/audio/toggle.ogg", -30)
 		update_structure()
 	
 	if Input.is_action_just_pressed("structure_previous"):
-		index = wrap(index - 1, 0, structures.size())
+		index = next_buildable(-1)
 		Audio.play("assets/audio/toggle.ogg", -30)
 		update_structure()
+
+func next_buildable(step: int) -> int:
+	var next = wrap(index + step, 0, structures.size())
+	while not structures[next].buildable:
+		next = wrap(next + step, 0, structures.size())
+	return next
 
 # Update the structure visual in the 'cursor'
 func update_structure():

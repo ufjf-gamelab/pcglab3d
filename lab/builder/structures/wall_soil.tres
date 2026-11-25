@@ -7,4 +7,5 @@
 script = ExtResource("1_socol")
 model = ExtResource("1_86mo4")
 price = 10
+buildable = false
 metadata/_custom_type_script = "uid://b4i7dfy6u3e8w"
