@@ -28,7 +28,11 @@ signal entity_placed(entity: Node3D, cell: Vector3i)
 	UGen.BANNER_ID: campfire_scene,
 }
 
-var last_signature := 0
+var last_items := {}
+var last_area := Rect2i()
+var cell_pieces := {}
+var vertex_pieces := {}
+var entity_at := {}
 var room_by_cell := {}
 var room_groups: Array[Node3D] = []
 var outside_group: Node3D
@@ -38,17 +42,61 @@ func _ready():
 	global_transform = gridmap.global_transform
 
 func _process(_delta):
-	if grid_signature() != last_signature:
+	var items := grid_items()
+	if items == last_items:
+		return
+	if map_area() != last_area:
 		rebuild()
+		return
+	update_cells(changed_cells(items))
+	last_items = items
 
-func grid_signature() -> int:
-	var signature := 0
+func grid_items() -> Dictionary:
+	var items := {}
 	for cell in gridmap.get_used_cells():
-		signature = signature * 31 + hash(cell) + gridmap.get_cell_item(cell)
-	return signature
+		items[Vector2i(cell.x, cell.z)] = gridmap.get_cell_item(cell)
+	return items
+
+func changed_cells(items: Dictionary) -> Array:
+	var changed := []
+	for cell in items:
+		if last_items.get(cell) != items[cell]:
+			changed.append(cell)
+	for cell in last_items:
+		if not items.has(cell):
+			changed.append(cell)
+	return changed
+
+func update_cells(cells: Array):
+	var walkable := walkable_cells()
+	var vertices := {}
+	for cell: Vector2i in cells:
+		free_piece(cell_pieces, cell)
+		dress_cell(cell, walkable)
+		free_piece(entity_at, cell)
+		var item := gridmap.get_cell_item(Vector3i(cell.x, 0, cell.y))
+		if entity_scenes.has(item):
+			place_entity(entity_scenes[item], cell)
+		for offset in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 0)]:
+			vertices[cell + offset] = true
+	for vertex in vertices:
+		free_piece(vertex_pieces, vertex)
+		dress_vertex(vertex, walkable)
+
+func free_piece(pieces: Dictionary, key: Vector2i):
+	if not pieces.has(key):
+		return
+	var piece = pieces[key]
+	pieces.erase(key)
+	if is_instance_valid(piece):
+		entities.erase(piece)
+		piece.free()
 
 func rebuild():
-	last_signature = grid_signature()
+	last_items = grid_items()
+	last_area = map_area()
+	cell_pieces.clear()
+	vertex_pieces.clear()
 	for child in get_children():
 		child.free()
 	create_groups()
@@ -64,6 +112,7 @@ func rebuild():
 
 func place_entities():
 	entities.clear()
+	entity_at.clear()
 	for cell in gridmap.get_used_cells():
 		var item := gridmap.get_cell_item(cell)
 		if entity_scenes.has(item):
@@ -79,6 +128,7 @@ func place_entity(scene: PackedScene, cell: Vector2i):
 	entity.position = Vector3(cell.x, 0, cell.y)
 	group.add_child(entity)
 	entities.append(entity)
+	entity_at[cell] = entity
 	entity_placed.emit(entity, Vector3i(cell.x, 0, cell.y))
 
 func set_entities_active(active: bool):
@@ -140,10 +190,10 @@ func dress_cell(cell: Vector2i, walkable: Dictionary):
 	var spot := Vector3(cell.x, 0, cell.y)
 	var group := group_for(cell)
 	if not walkable.has(cell):
-		place(cover_scene, group, spot, 0)
+		cell_pieces[cell] = place(cover_scene, group, spot, 0)
 		return
 
-	place(floor_scene, group, spot, 0)
+	cell_pieces[cell] = place(floor_scene, group, spot, 0)
 
 func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var top_left := walkable.has(vertex)
@@ -159,13 +209,13 @@ func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var spot := Vector3(vertex.x + 0.5, 0, vertex.y + 0.5)
 	var group := group_for(first_walkable(vertex, walkable))
 	match [north, south, west, east]:
-		[true, true, true, true]: place(crossing_scene, group, spot, 0)
-		[true, true, false, false]: place(wall_scene, group, spot, 270 if top_left else 90)
-		[false, false, true, true]: place(wall_scene, group, spot, 180 if top_left else 0)
-		[false, true, true, false]: place(corner_scene, group, spot, 0)
-		[false, true, false, true]: place(corner_scene, group, spot, 90)
-		[true, false, false, true]: place(corner_scene, group, spot, 180)
-		[true, false, true, false]: place(corner_scene, group, spot, 270)
+		[true, true, true, true]: vertex_pieces[vertex] = place(crossing_scene, group, spot, 0)
+		[true, true, false, false]: vertex_pieces[vertex] = place(wall_scene, group, spot, 270 if top_left else 90)
+		[false, false, true, true]: vertex_pieces[vertex] = place(wall_scene, group, spot, 180 if top_left else 0)
+		[false, true, true, false]: vertex_pieces[vertex] = place(corner_scene, group, spot, 0)
+		[false, true, false, true]: vertex_pieces[vertex] = place(corner_scene, group, spot, 90)
+		[true, false, false, true]: vertex_pieces[vertex] = place(corner_scene, group, spot, 180)
+		[true, false, true, false]: vertex_pieces[vertex] = place(corner_scene, group, spot, 270)
 
 func first_walkable(vertex: Vector2i, walkable: Dictionary) -> Vector2i:
 	for cell in [vertex, vertex + Vector2i(1, 0), vertex + Vector2i(0, 1), vertex + Vector2i(1, 1)]:
@@ -173,8 +223,9 @@ func first_walkable(vertex: Vector2i, walkable: Dictionary) -> Vector2i:
 			return cell
 	return vertex
 
-func place(scene: PackedScene, group: Node3D, spot: Vector3, degrees: float):
+func place(scene: PackedScene, group: Node3D, spot: Vector3, degrees: float) -> Node3D:
 	var piece: Node3D = scene.instantiate()
 	piece.position = spot
 	piece.rotation_degrees.y = degrees
 	group.add_child(piece)
+	return piece
