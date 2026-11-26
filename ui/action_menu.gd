@@ -59,7 +59,7 @@ func show_heatmap_details(action: StringName):
 	var elements := []
 	%ScaleBar.texture = unipolar_scale
 	%ScaleMin.text = "0"
-	%ScaleMax.text = "1,0"
+	%ScaleMax.text = "máx."
 	%Decay.text = decay
 	match action:
 		&"show_enemies_heatmaps":
@@ -70,12 +70,10 @@ func show_heatmap_details(action: StringName):
 			elements = [campfire]
 		&"show_recharges_heatmaps":
 			elements = [portal, campfire]
-			%ScaleMax.text = "máx."
 		&"show_combined_heatmaps":
 			elements = [["Inimigo", -enemy[1], enemy[2]], coin]
 			%ScaleBar.texture = bipolar_scale
-			%ScaleMin.text = "−"
-			%ScaleMax.text = "+"
+			%ScaleMin.text = "mín."
 			%Decay.text = "Soma das influências positivas e negativas"
 		_:
 			%HeatmapDetails.visible = false
@@ -94,11 +92,7 @@ func show_heatmap_details(action: StringName):
 			max_label.text = ("%.1f" % elements[row][1]).replace(".", ",")
 			range_label.text = str(elements[row][2])
 
-	var option_row: Control = find_button_with("action", action).get_parent()
-	var index := option_row.get_index()
-	if %HeatmapDetails.get_index() > index:
-		index += 1
-	%HeatmapDetails.get_parent().move_child(%HeatmapDetails, index)
+	%HeatmapName.text = find_button_with("action", action).text
 	%HeatmapDetails.visible = true
 
 func set_palette_visible(value: bool):
