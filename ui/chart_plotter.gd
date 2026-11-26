@@ -10,6 +10,7 @@ extends Control
 @onready var download_button: Button = %Download
 
 signal close_button_pressed
+signal room_changed(room: int)
 
 var current_seed: int = 0
 
@@ -187,7 +188,9 @@ func _on_next_pressed() -> void:
 		chart_pos += 1
 	
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos])
+	room_changed.emit(rooms[chart_pos])
 
 func _on_previous_pressed() -> void:
 	chart_pos = wrapi(chart_pos - 1, 0, rooms_x_values.size())
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos])
+	room_changed.emit(rooms[chart_pos])

@@ -72,6 +72,7 @@ func _ready():
 	enter_creation_mode()
 	edit_tools.chart_opened.connect(_on_chart_opened)
 	edit_tools.chart_closed.connect(_on_chart_closed)
+	edit_tools.chart_plotter.room_changed.connect(_on_chart_room_changed)
 	edit_tools.experiment_state_changed.connect(_on_experiment_state_changed)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
@@ -236,6 +237,10 @@ func _run_action(action: StringName):
 func _on_chart_opened():
 	chart_open = true
 	_apply_builder_state()
+
+func _on_chart_room_changed(room: int):
+	selected_room = room
+	_show_room_info()
 
 func _on_chart_closed():
 	chart_open = false
