@@ -183,7 +183,7 @@ func _run_action(action: StringName):
 	match action:
 		&"generate_dungeon":
 			edit_tools.dungeon_seed = action_menu.get_seed()
-			UGen.SPAWN = action_menu.get_spawn_mode()
+			UGen.SPAWN = action_menu.get_spawn_mode() as UGen.Spawn
 			edit_tools.on_generate_dungeon_pressed(action_menu.get_selected_generator())
 			action_menu.set_seed(edit_tools.used_seed)
 			selected_room = mini(selected_room, UGen.rooms.size() - 1)
