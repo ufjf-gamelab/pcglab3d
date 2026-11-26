@@ -5,8 +5,6 @@ signal action_pressed(action: StringName)
 signal tool_pressed(tool: int)
 signal structure_pressed(index: int)
 
-@export var unipolar_scale: Texture2D
-@export var bipolar_scale: Texture2D
 @export var palette_raise := 280.0
 
 var palette_offsets: Vector2
@@ -64,41 +62,35 @@ func set_tool(tool: int):
 func set_structure(index: int):
 	press_button_with("structure", index)
 
-func set_heatmap(action: StringName):
-	press_button_with("action", action)
-	show_heatmap_details(action)
+func set_layers(layers: Array):
+	find_button_with("action", &"hide_heatmaps").button_pressed = layers.is_empty()
+	for action in EditTools.LAYER_ACTIONS:
+		find_button_with("action", action).button_pressed = EditTools.LAYER_ACTIONS[action] in layers
+	show_layer_details(layers)
 
-func show_heatmap_details(action: StringName):
-	var enemy := ["Inimigo", UHeat.MAX_VALUE[UHeat.ENEMIES], UHeat.MAX_DISTANCE[UHeat.ENEMIES]]
-	var coin := ["Moeda", UHeat.MAX_VALUE[UHeat.COINS], UHeat.MAX_DISTANCE[UHeat.COINS]]
-	var campfire := ["Fogueira", UHeat.MAX_VALUE[UHeat.BANNERS], UHeat.MAX_DISTANCE[UHeat.BANNERS]]
-	var portal := ["Portal", UHeat.MAX_VALUE[UHeat.ENTRY_PORTALS], UHeat.MAX_DISTANCE[UHeat.ENTRY_PORTALS]]
-	var decay := "Decaimento %s" % UHeat.decay_func_types[UHeat.decay_func_type].to_lower()
+func show_layer_details(layers: Array):
+	if layers.is_empty():
+		%HeatmapDetails.visible = false
+		return
 
+	var bipolar := UHeat.is_bipolar(layers)
+	var details := {
+		UHeat.ENEMIES: ["Inimigo", -UHeat.MAX_VALUE[UHeat.ENEMIES] if bipolar else UHeat.MAX_VALUE[UHeat.ENEMIES], UHeat.MAX_DISTANCE[UHeat.ENEMIES]],
+		UHeat.COINS: ["Moeda", UHeat.MAX_VALUE[UHeat.COINS], UHeat.MAX_DISTANCE[UHeat.COINS]],
+		UHeat.BANNERS: ["Fogueira", UHeat.MAX_VALUE[UHeat.BANNERS], UHeat.MAX_DISTANCE[UHeat.BANNERS]],
+		UHeat.PORTALS: ["Portal", UHeat.MAX_VALUE[UHeat.ENTRY_PORTALS], UHeat.MAX_DISTANCE[UHeat.ENTRY_PORTALS]],
+	}
 	var elements := []
-	%ScaleBar.texture = unipolar_scale
-	%ScaleMin.text = "0"
-	%ScaleMax.text = "máx."
-	%Decay.text = decay
-	match action:
-		&"show_enemies_heatmaps":
-			elements = [enemy]
-		&"show_coins_heatmaps":
-			elements = [coin]
-		&"show_banners_heatmaps":
-			elements = [campfire]
-		&"show_recharges_heatmaps":
-			elements = [portal, campfire]
-		&"show_combined_heatmaps":
-			elements = [["Inimigo", -enemy[1], enemy[2]], coin]
-			%ScaleBar.texture = bipolar_scale
-			%ScaleMin.text = "mín."
-			%Decay.text = "Soma das influências"
-		_:
-			%HeatmapDetails.visible = false
-			return
+	for action in EditTools.LAYER_ACTIONS:
+		var layer: String = EditTools.LAYER_ACTIONS[action]
+		if layer in layers:
+			elements.append(details[layer])
 
-	for row in 3:
+	%ScaleMin.text = "mín." if bipolar else "0"
+	%ScaleMax.text = "máx."
+	%Decay.text = "Soma das influências" if layers.size() > 1 else "Decaimento %s" % UHeat.decay_func_types[UHeat.decay_func_type].to_lower()
+
+	for row in 4:
 		var shown: bool = row < elements.size()
 		var name_label: Label = get_node("%%Element%d" % (row + 1))
 		var max_label: Label = get_node("%%Element%dMax" % (row + 1))
@@ -111,7 +103,6 @@ func show_heatmap_details(action: StringName):
 			max_label.text = ("%.1f" % elements[row][1]).replace(".", ",")
 			range_label.text = str(elements[row][2])
 
-	%HeatmapName.text = find_button_with("action", action).text
 	%HeatmapDetails.visible = true
 
 func set_palette_visible(value: bool):

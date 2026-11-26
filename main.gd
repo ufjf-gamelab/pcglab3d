@@ -46,7 +46,7 @@ var mode = Mode.CREATION
 const INPUT_ACTIONS: Array[StringName] = [
 	&"generate_dungeon", &"toggle_mode",
 	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
-	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
+	&"show_portals_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"toggle_experiment",
 	&"save", &"load",
 	&"tool_select", &"tool_build", &"tool_erase", &"tool_link", &"tool_move",
@@ -169,7 +169,7 @@ func _on_player_update_life(curr_life):
 
 func _unhandled_input(event):
 	for action in INPUT_ACTIONS:
-		if event.is_action_pressed(action, false, true):
+		if event.is_action_pressed(action, false, not edit_tools.LAYER_ACTIONS.has(action)):
 			_run_action(action)
 
 func _run_action(action: StringName):
@@ -192,19 +192,15 @@ func _run_action(action: StringName):
 			action_menu.set_seed(randi())
 		&"toggle_mode":
 			edit_tools.clear_heatmaps()
-			action_menu.set_heatmap(&"hide_heatmaps")
+			action_menu.set_layers([])
 			toggle_mode()
-		&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps", \
-		&"show_recharges_heatmaps", &"show_combined_heatmaps":
-			edit_tools.toggle_heatmap(action)
-			if not UHeat.heatmap_multimesh.visible:
-				action_menu.set_heatmap(&"hide_heatmaps")
-			else:
-				action_menu.set_heatmap(action)
+		&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps", &"show_portals_heatmaps":
+			edit_tools.toggle_layer(action, Input.is_key_pressed(KEY_CTRL))
+			action_menu.set_layers(UHeat.visible_layers)
 			edit_tools.refresh_chart()
 		&"hide_heatmaps":
 			edit_tools.clear_heatmaps()
-			action_menu.set_heatmap(&"hide_heatmaps")
+			action_menu.set_layers([])
 			edit_tools.refresh_chart()
 		&"recalculate_heatmaps":
 			edit_tools.recalculate_heatmaps()
@@ -270,10 +266,9 @@ func _open_experiment_run(run_info: Dictionary):
 	selected_room = -1
 	_show_room_info()
 
-	var heatmap: StringName = edit_tools.HEATMAP_ACTIONS[run_info.heatmap]
 	edit_tools.PATH_TYPE = run_info.path
-	edit_tools.recalculate_heatmaps(heatmap)
-	action_menu.set_heatmap(heatmap)
+	edit_tools.recalculate_heatmaps(run_info.layers)
+	action_menu.set_layers(run_info.layers)
 	edit_tools.on_pathfinding_pressed()
 
 func _set_tool(new_tool: Builder.Tool):

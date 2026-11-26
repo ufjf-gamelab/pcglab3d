@@ -27,24 +27,14 @@ const HEATMAP_NAMES = {
 	UHeat.ENEMIES: "inimigos",
 	UHeat.COINS: "moedas",
 	UHeat.BANNERS: "estandartes",
-	UHeat.COMBINED: "combinado",
-	UHeat.RECHARGES: "recargas"
+	UHeat.PORTALS: "portais",
 }
 
 const HEATMAP_LABELS = {
 	UHeat.ENEMIES: "Inimigos",
 	UHeat.COINS: "Moedas",
 	UHeat.BANNERS: "Fogueiras",
-	UHeat.COMBINED: "Combinado",
-	UHeat.RECHARGES: "Recarga"
-}
-
-const ONLY_POSITIVE_INFLUENCE_VALUES = {
-	UHeat.ENEMIES: true,
-	UHeat.COINS: true,
-	UHeat.BANNERS: true,
-	UHeat.COMBINED: false,
-	UHeat.RECHARGES: true
+	UHeat.PORTALS: "Portais",
 }
 
 func _ready():
@@ -64,10 +54,7 @@ func _ready():
 		button.focus_mode = Control.FOCUS_NONE
 
 func _get_heatmap_name() -> String:
-	for key in UHeat.curr_visible_heatmap.keys():
-		if UHeat.curr_visible_heatmap[key]:
-			return HEATMAP_NAMES[key]
-	return "desconhecido"
+	return "_".join(PackedStringArray(UHeat.visible_layers.map(func(layer): return HEATMAP_NAMES[layer])))
 
 func _on_download_pressed():
 	var heatmap_name = _get_heatmap_name()
@@ -126,10 +113,7 @@ func get_max_abs_from_array(array) -> float:
 	return max_val
 
 func _has_only_positive_influence() -> bool:
-	for key in UHeat.curr_visible_heatmap.keys():
-		if UHeat.curr_visible_heatmap[key]:
-			return ONLY_POSITIVE_INFLUENCE_VALUES[key]
-	return false
+	return not UHeat.is_bipolar(UHeat.visible_layers)
 
 func _chart_y_domain(value: float) -> Vector2:
 	if _has_only_positive_influence():
@@ -144,11 +128,8 @@ func show_chart(x_val, y_val):
 	var domain := _chart_y_domain(nice_max)
 	chart.set_data(x, y, domain.x, domain.y)
 	room_label.text = "Sala %d de %d" % [rooms[chart_pos] + 1, UGen.rooms.size()]
-	heatmap_label.visible = false
-	for key in UHeat.curr_visible_heatmap.keys():
-		if UHeat.curr_visible_heatmap[key]:
-			heatmap_label.text = HEATMAP_LABELS[key]
-			heatmap_label.visible = true
+	heatmap_label.text = " + ".join(PackedStringArray(UHeat.visible_layers.map(func(layer): return HEATMAP_LABELS[layer])))
+	heatmap_label.visible = not UHeat.visible_layers.is_empty()
 	chart.visible = heatmap_label.visible
 	%Empty.visible = not heatmap_label.visible
 	download_button.disabled = not heatmap_label.visible

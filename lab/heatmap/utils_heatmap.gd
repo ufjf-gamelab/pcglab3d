@@ -22,7 +22,7 @@ const BANNERS = "banners"
 const ENTRY_PORTALS = "entry_portals"
 const EXIT_PORTALS = "exit_portals"
 const COMBINED = "combined"
-const RECHARGES = "recharges"
+const PORTALS = "portals"
 const PLAYER = "player"
 
 # Valor máximo de influência dos elementos
@@ -65,13 +65,8 @@ var decay_func_types = {
 }
 
 # Visibilidade dos mapas de calor
-var curr_visible_heatmap = {
-	ENEMIES: false,
-	COINS: false,
-	BANNERS: false,
-	COMBINED: false,
-	RECHARGES: false
-}
+const LAYERS = [ENEMIES, COINS, BANNERS, PORTALS]
+var visible_layers: Array = []
 
 func switch_decay_func(max_value: float, distance: int, max_distance: int) -> float:
 	match decay_func_type:
@@ -170,10 +165,7 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0, bipolar
 	heatmap_multimesh.multimesh = mm
 
 	var mat := ShaderMaterial.new()
-	if bipolar:
-		mat.shader = preload("res://lab/heatmap/heatmap_bipolar.gdshader")
-	else:
-		mat.shader = preload("res://lab/heatmap/heatmap_unipolar.gdshader")
+	mat.shader = preload("res://lab/heatmap/heatmap_unipolar.gdshader")
 	heatmap_multimesh.material_override = mat
 
 	var j := 0
@@ -207,72 +199,38 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0, bipolar
 	
 	heatmap_multimesh.visible = true
 
-func toggle_enemy_heatmaps(gridmap: GridMap):
-	if curr_visible_heatmap[ENEMIES]:
-		heatmap_multimesh.visible = false
-		curr_visible_heatmap[ENEMIES] = false
-	else:
-		deactivate_heatmaps()
-		var enemies_heatmaps = heatmaps[ENEMIES]
-		show_heatmaps(gridmap, enemies_heatmaps)
-		curr_visible_heatmap[ENEMIES] = true
+func layer_maps(layer: String, room: int) -> Array[Dictionary]:
+	if layer == PORTALS:
+		return [heatmaps[ENTRY_PORTALS][room], heatmaps[EXIT_PORTALS][room]]
+	return [heatmaps[layer][room]]
 
-func toggle_coin_heatmaps(gridmap: GridMap):
-	if curr_visible_heatmap[COINS]:
-		heatmap_multimesh.visible = false
-		curr_visible_heatmap[COINS] = false
-	else:
-		deactivate_heatmaps()
-		var coins_heatmaps = heatmaps[COINS]
-		show_heatmaps(gridmap, coins_heatmaps)
-		curr_visible_heatmap[COINS] = true
+func is_bipolar(layers: Array) -> bool:
+	return ENEMIES in layers and layers.size() > 1
 
-func toggle_banner_heatmaps(gridmap: GridMap):
-	if curr_visible_heatmap[BANNERS]:
-		heatmap_multimesh.visible = false
-		curr_visible_heatmap[BANNERS] = false
-	else:
-		deactivate_heatmaps()
-		var banners_heatmaps = heatmaps[BANNERS]
-		show_heatmaps(gridmap, banners_heatmaps)
-		curr_visible_heatmap[BANNERS] = true
+func mixed_heatmap(layers: Array, room: int) -> Dictionary:
+	var maps_to_add: Array[Dictionary] = []
+	var maps_to_subtract: Array[Dictionary] = []
+	for layer in layers:
+		if layer == ENEMIES and is_bipolar(layers):
+			maps_to_subtract.append_array(layer_maps(layer, room))
+		else:
+			maps_to_add.append_array(layer_maps(layer, room))
+	return create_combined_heatmap(maps_to_add, maps_to_subtract)
 
-func toggle_recharge_heatmaps(gridmap: GridMap):
-	if curr_visible_heatmap[RECHARGES]:
-		heatmap_multimesh.visible = false
-		curr_visible_heatmap[RECHARGES] = false
-	else:
-		deactivate_heatmaps()
-		
-		var recharge_heatmaps = []
-		
-		for i in range(heatmaps[BANNERS].size()):
-			recharge_heatmaps.append(
-				UHeat.create_combined_heatmap([heatmaps[ENTRY_PORTALS][i], heatmaps[EXIT_PORTALS][i], heatmaps[BANNERS][i]], [])
-			)
-			
-		UHeat.heatmaps[RECHARGES] = recharge_heatmaps
-		
-		show_heatmaps(gridmap, recharge_heatmaps)
-		curr_visible_heatmap[RECHARGES] = true
-
-func toggle_combined_heatmaps(gridmap: GridMap):
-	if curr_visible_heatmap[COMBINED]:
-		heatmap_multimesh.visible = false
-		curr_visible_heatmap[COMBINED] = false
-	else:
-		deactivate_heatmaps()
-		var combined_heatmaps = heatmaps[COMBINED]
-		show_heatmaps(gridmap, combined_heatmaps, 1, true) 
-		curr_visible_heatmap[COMBINED] = true
+func show_layers(gridmap: GridMap, layers: Array):
+	deactivate_heatmaps()
+	layers = LAYERS.filter(func(layer): return layer in layers)
+	if layers.is_empty():
+		return
+	var maps := []
+	for room in heatmaps[COINS].size():
+		maps.append(mixed_heatmap(layers, room))
+	show_heatmaps(gridmap, maps, 1, is_bipolar(layers))
+	visible_layers = layers
 
 func deactivate_heatmaps():
 	heatmap_multimesh.visible = false
-	curr_visible_heatmap[ENEMIES] = false
-	curr_visible_heatmap[COINS] = false
-	curr_visible_heatmap[BANNERS] = false
-	curr_visible_heatmap[COMBINED] = false
-	curr_visible_heatmap[RECHARGES] = false
+	visible_layers = []
 
 func clear_heatmaps():
 	heatmaps[ENEMIES] = []
@@ -281,7 +239,6 @@ func clear_heatmaps():
 	heatmaps[COMBINED] = []
 	heatmaps[ENTRY_PORTALS] = []
 	heatmaps[EXIT_PORTALS] = []
-	heatmaps[RECHARGES] = []
 
 func recalculate_heatmaps(gridmap: GridMap):
 	deactivate_heatmaps()

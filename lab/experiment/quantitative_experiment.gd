@@ -26,7 +26,7 @@ static func build_runs(config: Dictionary) -> Array[Dictionary]:
 					for path in config.path_types:
 						runs.append({
 							"seed": dungeon_seed, "generator": generator, "size": size,
-							"spawn": spawn, "path": path, "heatmap": config.heatmap,
+							"spawn": spawn, "path": path, "layers": config.layers,
 							"rooms": [], "csv": "", "done": false,
 						})
 	return runs
@@ -76,7 +76,7 @@ func _measure(grid: GridMap, run_info: Dictionary, folder: String):
 
 	var lines := PackedStringArray(["sala,tile,influencia"])
 	for room in UGen.rooms.size():
-		var heatmap := _room_heatmap(run_info.heatmap, room)
+		var heatmap := UHeat.mixed_heatmap(run_info.layers, room)
 		var values := []
 		for cell in _room_path(room, pathfinder, run_info.path):
 			values.append(heatmap.get(Vector3i(cell.x, 0, cell.y), 0.0))
@@ -92,14 +92,6 @@ func _measure(grid: GridMap, run_info: Dictionary, folder: String):
 	var file := FileAccess.open(run_info.csv, FileAccess.WRITE)
 	file.store_string("\n".join(lines) + "\n")
 	run_info.done = true
-
-func _room_heatmap(key: String, room: int) -> Dictionary:
-	if key == UHeat.RECHARGES:
-		var maps: Array[Dictionary] = [
-			UHeat.heatmaps[UHeat.ENTRY_PORTALS][room], UHeat.heatmaps[UHeat.EXIT_PORTALS][room], UHeat.heatmaps[UHeat.BANNERS][room],
-		]
-		return UHeat.create_combined_heatmap(maps)
-	return UHeat.heatmaps[key][room]
 
 func _room_path(room: int, pathfinder, path_type: int) -> Array:
 	var elements = UGen.rooms_elements_pos[room]
@@ -122,7 +114,7 @@ func _save_state() -> Dictionary:
 		"quantity": UGen.rooms_elements_quantity.duplicate(true),
 		"spawn": UGen.SPAWN,
 		"heatmaps": UHeat.heatmaps.duplicate(true),
-		"visible": UHeat.curr_visible_heatmap.duplicate(),
+		"visible": UHeat.visible_layers.duplicate(),
 		"shown": UHeat.heatmap_multimesh.visible,
 	}
 
@@ -135,5 +127,5 @@ func _restore_state(state: Dictionary):
 	UGen.rooms_elements_quantity = state.quantity
 	UGen.SPAWN = state.spawn
 	UHeat.heatmaps = state.heatmaps
-	UHeat.curr_visible_heatmap = state.visible
+	UHeat.visible_layers = state.visible
 	UHeat.heatmap_multimesh.visible = state.shown

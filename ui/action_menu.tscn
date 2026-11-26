@@ -29,24 +29,12 @@ colors = PackedColorArray(0.5, 0.5, 0, 1, 0, 0, 0.6, 1)
 gradient = SubResource("Gradient_g22uf")
 height = 6
 
-[sub_resource type="Gradient" id="Gradient_uk2qq"]
-offsets = PackedFloat32Array(0, 0.5, 1)
-colors = PackedColorArray(1, 0, 0, 1, 0.5, 0.5, 0, 1, 0, 1, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_isas1"]
-gradient = SubResource("Gradient_uk2qq")
-height = 6
-
 [sub_resource type="ButtonGroup" id="ButtonGroup_juzdr"]
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_7r4xw"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_dg1j8"]
 
 [node name="ActionMenu" type="CanvasLayer" unique_id=556928950]
 script = ExtResource("1_mkxff")
-unipolar_scale = SubResource("GradientTexture2D_wuz58")
-bipolar_scale = SubResource("GradientTexture2D_isas1")
 
 [node name="Root" type="Control" parent="." unique_id=1748203915]
 layout_mode = 3
@@ -457,7 +445,6 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 button_pressed = true
-button_group = SubResource("ButtonGroup_7r4xw")
 text = "Nenhum"
 metadata/action = &"hide_heatmaps"
 
@@ -467,7 +454,6 @@ layout_mode = 2
 [node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Enemies" unique_id=223597416]
 layout_mode = 2
 size_flags_horizontal = 3
-button_group = SubResource("ButtonGroup_7r4xw")
 text = "Inimigos"
 metadata/action = &"show_enemies_heatmaps"
 
@@ -482,7 +468,6 @@ layout_mode = 2
 [node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Coins" unique_id=175826944]
 layout_mode = 2
 size_flags_horizontal = 3
-button_group = SubResource("ButtonGroup_7r4xw")
 text = "Moedas"
 metadata/action = &"show_coins_heatmaps"
 
@@ -497,7 +482,6 @@ layout_mode = 2
 [node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Banners" unique_id=1512856794]
 layout_mode = 2
 size_flags_horizontal = 3
-button_group = SubResource("ButtonGroup_7r4xw")
 text = "Fogueiras"
 metadata/action = &"show_banners_heatmaps"
 
@@ -506,35 +490,19 @@ layout_mode = 2
 theme_type_variation = &"MutedLabel"
 text = "Alt+3"
 
-[node name="Combined" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=1433569005]
+[node name="Portals" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=879090998]
 layout_mode = 2
 
-[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Combined" unique_id=563953709]
+[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Portals" unique_id=1314465865]
 layout_mode = 2
 size_flags_horizontal = 3
-button_group = SubResource("ButtonGroup_7r4xw")
-text = "Combinado"
-metadata/action = &"show_combined_heatmaps"
+text = "Portais"
+metadata/action = &"show_portals_heatmaps"
 
-[node name="Key" type="Label" parent="Root/SidePanel/VBox/Combined" unique_id=1678852683]
+[node name="Key" type="Label" parent="Root/SidePanel/VBox/Portals" unique_id=1731629323]
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
 text = "Alt+4"
-
-[node name="Recharge" type="HBoxContainer" parent="Root/SidePanel/VBox" unique_id=879090998]
-layout_mode = 2
-
-[node name="Option" type="CheckBox" parent="Root/SidePanel/VBox/Recharge" unique_id=1314465865]
-layout_mode = 2
-size_flags_horizontal = 3
-button_group = SubResource("ButtonGroup_7r4xw")
-text = "Recarga"
-metadata/action = &"show_recharges_heatmaps"
-
-[node name="Key" type="Label" parent="Root/SidePanel/VBox/Recharge" unique_id=1731629323]
-layout_mode = 2
-theme_type_variation = &"MutedLabel"
-text = "Alt+5"
 
 [node name="Sep2" type="HSeparator" parent="Root/SidePanel/VBox" unique_id=1947144574]
 layout_mode = 2
@@ -662,11 +630,6 @@ theme_type_variation = &"SectionLabel"
 text = "Heatmap"
 uppercase = true
 
-[node name="HeatmapName" type="Label" parent="Root/HeatmapDetails/VBox/Header" unique_id=799272748]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Moedas"
-
 [node name="Scale" type="HBoxContainer" parent="Root/HeatmapDetails/VBox" unique_id=799272745]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -768,6 +731,23 @@ layout_mode = 2
 text = "-"
 
 [node name="Element3Range" type="Label" parent="Root/HeatmapDetails/VBox/Elements" unique_id=1504880943]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element4" type="Label" parent="Root/HeatmapDetails/VBox/Elements" unique_id=1963003177]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+text_overrun_behavior = 3
+
+[node name="Element4Max" type="Label" parent="Root/HeatmapDetails/VBox/Elements" unique_id=1348809199]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element4Range" type="Label" parent="Root/HeatmapDetails/VBox/Elements" unique_id=1504880944]
 unique_name_in_owner = true
 layout_mode = 2
 text = "-"

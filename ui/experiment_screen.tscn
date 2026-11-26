@@ -275,30 +275,36 @@ layout_mode = 2
 button_pressed = true
 text = "Inteligente"
 
-[node name="HeatmapRow" type="HBoxContainer" parent="Root/Config/Grid/Paths/VBox"]
+[node name="Layers" type="VBoxContainer" parent="Root/Config/Grid/Paths/VBox/Options"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
 
-[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox/HeatmapRow"]
+[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox/Options/Layers"]
 layout_mode = 2
+theme_type_variation = &"MutedLabel"
 text = "Heatmap medido"
 
-[node name="Heatmap" type="OptionButton" parent="Root/Config/Grid/Paths/VBox/HeatmapRow"]
+[node name="LayerEnemies" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/Layers"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-selected = 0
-item_count = 5
-popup/item_0/text = "Combinado"
-popup/item_0/id = 0
-popup/item_1/text = "Inimigos"
-popup/item_1/id = 1
-popup/item_2/text = "Moedas"
-popup/item_2/id = 2
-popup/item_3/text = "Fogueiras"
-popup/item_3/id = 3
-popup/item_4/text = "Recarga"
-popup/item_4/id = 4
+button_pressed = true
+text = "Inimigos"
+
+[node name="LayerCoins" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/Layers"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Moedas"
+
+[node name="LayerBanners" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/Layers"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fogueiras"
+
+[node name="LayerPortals" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/Layers"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Portais"
 
 [node name="Output" type="PanelContainer" parent="Root/Config"]
 layout_mode = 2

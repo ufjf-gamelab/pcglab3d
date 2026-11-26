@@ -7,12 +7,11 @@ const PATHFINDER = preload("res://lab/pathfinding/pathfinding.gd")
 
 enum Generator { GEOMETRIC, CELLULAR, BSP }
 
-const HEATMAP_ACTIONS := {
-	UHeat.ENEMIES: &"show_enemies_heatmaps",
-	UHeat.COINS: &"show_coins_heatmaps",
-	UHeat.BANNERS: &"show_banners_heatmaps",
-	UHeat.RECHARGES: &"show_recharges_heatmaps",
-	UHeat.COMBINED: &"show_combined_heatmaps",
+const LAYER_ACTIONS := {
+	&"show_enemies_heatmaps": UHeat.ENEMIES,
+	&"show_coins_heatmaps": UHeat.COINS,
+	&"show_banners_heatmaps": UHeat.BANNERS,
+	&"show_portals_heatmaps": UHeat.PORTALS,
 }
 
 signal chart_opened
@@ -47,28 +46,26 @@ func _ready():
 func clear_heatmaps():
 	UHeat.deactivate_heatmaps()
 
-func toggle_heatmap(action: StringName):
-	match action:
-		&"show_enemies_heatmaps":
-			UHeat.toggle_enemy_heatmaps(gridmap)
-		&"show_coins_heatmaps":
-			UHeat.toggle_coin_heatmaps(gridmap)
-		&"show_banners_heatmaps":
-			UHeat.toggle_banner_heatmaps(gridmap)
-		&"show_recharges_heatmaps":
-			UHeat.toggle_recharge_heatmaps(gridmap)
-		&"show_combined_heatmaps":
-			UHeat.toggle_combined_heatmaps(gridmap)
+func toggle_layer(action: StringName, additive: bool):
+	var layer: String = LAYER_ACTIONS[action]
+	var layers := UHeat.visible_layers.duplicate()
+	if additive:
+		if layer in layers:
+			layers.erase(layer)
+		else:
+			layers.append(layer)
+	else:
+		layers = [] if layers == [layer] else [layer]
+	UHeat.show_layers(gridmap, layers)
 
-func recalculate_heatmaps(action := visible_heatmap_action()):
+func recalculate_heatmaps(layers := UHeat.visible_layers.duplicate()):
 	UGen.update_elements_pos(gridmap)
 	UHeat.recalculate_heatmaps(gridmap)
-	if action != &"":
-		toggle_heatmap(action)
+	UHeat.show_layers(gridmap, layers)
 	refresh_chart()
 
 func recalculate_room_heatmaps(room_index: int):
-	if UHeat.heatmaps[UHeat.COMBINED].size() <= room_index:
+	if UHeat.heatmaps[UHeat.COINS].size() <= room_index:
 		recalculate_heatmaps()
 		return
 	UGen.update_room_elements_pos(gridmap, room_index)
@@ -77,16 +74,7 @@ func recalculate_room_heatmaps(room_index: int):
 	refresh_chart()
 
 func refresh_visible_heatmap():
-	var action := visible_heatmap_action()
-	if action != &"":
-		UHeat.deactivate_heatmaps()
-		toggle_heatmap(action)
-
-func visible_heatmap_action() -> StringName:
-	for key in HEATMAP_ACTIONS:
-		if UHeat.curr_visible_heatmap[key]:
-			return HEATMAP_ACTIONS[key]
-	return &""
+	UHeat.show_layers(gridmap, UHeat.visible_layers.duplicate())
 
 func _handle_seed():
 	# Se seed for 0, gera uma aleatória c.c. usa a definida
@@ -99,7 +87,7 @@ func _handle_seed():
 
 func on_generate_dungeon_pressed(type := Generator.GEOMETRIC, room_size := Vector2i.ZERO):
 	_handle_seed()
-	var action := visible_heatmap_action()
+	var layers := UHeat.visible_layers.duplicate()
 	UHeat.deactivate_heatmaps()
 	UHeat.clear_heatmaps()
 	match type:
@@ -117,7 +105,7 @@ func on_generate_dungeon_pressed(type := Generator.GEOMETRIC, room_size := Vecto
 			generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
 	if chart_plotter.visible:
-		recalculate_heatmaps(action)
+		recalculate_heatmaps(layers)
 
 func rebuild_navigation_mesh():
 	dresser.rebuild()
@@ -199,17 +187,14 @@ func _visualize_paths():
 func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 	var path_cell_influ = []
 	var path_influences = []
-	for key in UHeat.curr_visible_heatmap.keys():
-		if UHeat.curr_visible_heatmap[key]:
-			for cell in path:
-				var cell_3d = Vector3i(cell.x, 0, cell.y)
-				var tuple = [cell_3d, UHeat.heatmaps[key][room_index][cell_3d]]
-				path_cell_influ.append(tuple)
-				path_influences.append(UHeat.heatmaps[key][room_index][cell_3d])
-
-	if path_cell_influ.is_empty():
-		for cell in path:
-			path_cell_influ.append([Vector3i(cell.x, 0, cell.y), 0])
+	var has_layers := not UHeat.visible_layers.is_empty()
+	var heatmap := UHeat.mixed_heatmap(UHeat.visible_layers, room_index) if has_layers else {}
+	for cell in path:
+		var cell_3d = Vector3i(cell.x, 0, cell.y)
+		var value = heatmap.get(cell_3d, 0.0)
+		path_cell_influ.append([cell_3d, value])
+		if has_layers:
+			path_influences.append(value)
 
 	return [path_cell_influ, path_influences]
 

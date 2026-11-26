@@ -7,7 +7,6 @@ signal open_requested(run_info: Dictionary)
 const EXPERIMENT = preload("res://lab/experiment/quantitative_experiment.gd")
 const ROW = preload("res://ui/experiment_row.tscn")
 
-const HEATMAPS = [UHeat.COMBINED, UHeat.ENEMIES, UHeat.COINS, UHeat.BANNERS, UHeat.RECHARGES]
 const GENERATOR_NAMES = ["Salas geométricas", "Autômato celular"]
 const PATH_NAMES = ["direto", "explorador"]
 const SPAWN_NAMES = ["aleatório", "inteligente"]
@@ -67,7 +66,7 @@ func config() -> Dictionary:
 		"sizes": sizes,
 		"path_types": checked([%Straight, %Explorer]),
 		"spawn_modes": checked([%RandomSpawn, %SmartSpawn]),
-		"heatmap": HEATMAPS[%Heatmap.selected],
+		"layers": checked([%LayerEnemies, %LayerCoins, %LayerBanners, %LayerPortals]).map(func(i): return UHeat.LAYERS[i]),
 		"folder": %Folder.text,
 	}
 
@@ -79,10 +78,10 @@ func checked(boxes: Array) -> Array:
 	return values
 
 func _update_run_button():
-	var count: int = int(%SeedCount.value)
-	for boxes in [[%Geometric, %Cellular], [%Small, %Medium, %Large], [%Straight, %Explorer], [%RandomSpawn, %SmartSpawn]]:
-		count *= checked(boxes).size()
-	%Run.disabled = count == 0
+	var empty := false
+	for boxes in [[%Geometric, %Cellular], [%Small, %Medium, %Large], [%Straight, %Explorer], [%RandomSpawn, %SmartSpawn], [%LayerEnemies, %LayerCoins, %LayerBanners, %LayerPortals]]:
+		empty = empty or checked(boxes).is_empty()
+	%Run.disabled = empty
 
 func _on_run_pressed():
 	var settings := config()
@@ -159,5 +158,5 @@ func _show_selected():
 	var top := 1.0
 	for value in values:
 		top = maxf(top, ceilf(absf(value) * 2) / 2)
-	var bottom := -top if run_info.heatmap == UHeat.COMBINED else 0.0
+	var bottom := -top if UHeat.is_bipolar(run_info.layers) else 0.0
 	%RunChart.set_data(range(values.size()), values, bottom, top)
