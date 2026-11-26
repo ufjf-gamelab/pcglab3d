@@ -8,6 +8,8 @@ class_name PortalLinks
 
 var preview_from = null
 var preview_to := Vector3.ZERO
+var moving_from = null
+var moving_to := Vector3.ZERO
 
 func _process(_delta):
 	if not visible:
@@ -20,10 +22,13 @@ func _process(_delta):
 	for from in UGen.portal_links:
 		var to = UGen.portal_links[from]
 		if to != null:
-			draw_arc(lines, Vector3(from), Vector3(to))
+			draw_arc(lines, moved(from), moved(to))
 	if preview_from != null:
 		draw_arc(lines, Vector3(preview_from), preview_to)
 	mesh = lines
+
+func moved(cell: Vector3i) -> Vector3:
+	return moving_to if cell == moving_from else Vector3(cell)
 
 func draw_arc(lines: ImmediateMesh, from: Vector3, to: Vector3):
 	var points: PackedVector3Array = []

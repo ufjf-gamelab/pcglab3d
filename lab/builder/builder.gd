@@ -122,6 +122,8 @@ func action_move(cell: Vector3i):
 		move_started.emit(cell)
 	if moving_from == null:
 		return
+	portal_links.moving_from = moving_from
+	portal_links.moving_to = selector.position
 	if Input.is_action_just_pressed("rotate"):
 		cancel_move()
 		return
@@ -140,6 +142,7 @@ func cancel_move():
 
 func stop_move():
 	moving_from = null
+	portal_links.moving_from = null
 	update_structure()
 	selector_container.visible = false
 
