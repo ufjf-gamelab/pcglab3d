@@ -15,6 +15,7 @@ const ATTEMPTS = 200 # Número de tentativas de geração de salas
 const MAP_SIZE = 40 * SCALE_FACTOR # Tamanho do mapa
 const ROOM_COUNT = 8 # Número de salas
 const BUILD_AREA = Rect2i(-30, -30, 100, 100)
+const ROOM_SIDES: Array[Vector3i] = [Vector3i.RIGHT, Vector3i.LEFT, Vector3i.FORWARD, Vector3i.BACK]
 
 # Fator de escala
 const SCALE_FACTOR = 1
@@ -54,6 +55,29 @@ var room_exit_portals_heatmap = {}
 # Tipo de posicionamento de elementos
 enum Spawn { RANDOM, SMART }
 var SPAWN: Spawn = Spawn.RANDOM
+
+func refresh_rooms(gridmap: GridMap):
+	var claimed := {}
+	for room in rooms:
+		for cell in room:
+			if gridmap.get_cell_item(cell) >= FLOOR_ID:
+				claimed[cell] = true
+
+	for index in rooms.size():
+		var room: Array[Vector3i] = []
+		for cell in rooms[index]:
+			if gridmap.get_cell_item(cell) >= FLOOR_ID:
+				room.append(cell)
+		var queue := room.duplicate()
+		while not queue.is_empty():
+			var cell: Vector3i = queue.pop_front()
+			for side in ROOM_SIDES:
+				var neighbor := cell + side
+				if not claimed.has(neighbor) and gridmap.get_cell_item(neighbor) >= FLOOR_ID:
+					claimed[neighbor] = true
+					room.append(neighbor)
+					queue.append(neighbor)
+		rooms[index] = room
 
 func update_elements_pos(gridmap: GridMap):
 	for i in range(rooms.size()):

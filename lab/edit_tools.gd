@@ -125,7 +125,7 @@ func rebuild_navigation_mesh():
 	var navigation_mesh := NavigationMesh.new()
 	navigation_mesh.sample_partition_type = NavigationMesh.SAMPLE_PARTITION_LAYERS
 	navigation_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
-	navigation_mesh.agent_radius = 0.1
+	navigation_mesh.agent_radius = 0.25
 	navigation_mesh.cell_height = 0.01
 	
 	var source := NavigationMeshSourceGeometryData3D.new()

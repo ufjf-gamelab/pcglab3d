@@ -294,10 +294,14 @@ func _on_cell_hovered(cell: Vector3i):
 	action_menu.set_cell(cell, _room_of(cell))
 
 func _on_cell_changed(cell: Vector3i):
+	var old_room := _room_of(cell)
+	UGen.refresh_rooms(gridmap)
 	var room := _room_of(cell)
-	if auto_heatmap and room != -1:
-		edit_tools.recalculate_room_heatmaps(room)
-	if room == selected_room:
+	if auto_heatmap:
+		for changed_room in {old_room: true, room: true}:
+			if changed_room != -1:
+				edit_tools.recalculate_room_heatmaps(changed_room)
+	if selected_room in [old_room, room]:
 		_show_room_info()
 
 func _on_move_started(cell: Vector3i):

@@ -249,6 +249,10 @@ structure_7={
 
 3d_physics/layer_4="Layer 4"
 
+[navigation]
+
+3d/default_cell_height=0.01
+
 [physics]
 
 common/physics_interpolation=true
