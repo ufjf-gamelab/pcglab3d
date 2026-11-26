@@ -39,6 +39,21 @@ func get_seed() -> int:
 func set_seed(value: int):
 	%Seed.text = str(value)
 
+func set_generator(id: int):
+	%GeneratorSelect.select(%GeneratorSelect.get_item_index(id))
+
+func set_spawn_mode(id: int):
+	%SpawnSelect.select(%SpawnSelect.get_item_index(id))
+
+func set_experiment_open(open: bool):
+	find_button_with("action", &"show_editor").button_pressed = not open
+	find_button_with("action", &"toggle_experiment").button_pressed = open
+
+func set_modes_locked(locked: bool):
+	find_button_with("action", &"show_editor").disabled = locked
+	$Root/TopBar/Margin/HBox/Modes/HBox/Play.disabled = locked
+	find_button_with("action", &"toggle_experiment").disabled = locked
+
 func set_tool(tool: int):
 	press_button_with("tool", tool)
 

@@ -83,7 +83,6 @@ func _save_csv_all(x_values: Array, y_values: Array, filename: String):
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	
 	if file == null:
-		print("Erro ao abrir arquivo: ", FileAccess.get_open_error())
 		return
 	
 	file.store_line("sala,tile,influencia")
@@ -91,7 +90,6 @@ func _save_csv_all(x_values: Array, y_values: Array, filename: String):
 		for j in range(x_values[i].size()):
 			file.store_line("%d,%s,%s" % [i, x_values[i][j], y_values[i][j]])
 	file.close()
-	print("CSV salvo em: ", path)
 
 func _get_global_max(arrays):
 	var global_max_val = -10000

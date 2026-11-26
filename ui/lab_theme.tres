@@ -1,5 +1,38 @@
 [gd_resource type="Theme" format=3 uid="uid://ht66eayqyt1a"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accentoff"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.18431373, 0.23921569, 0.32156864, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accenthover"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.4509804, 0.7137255, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accent"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.30588236, 0.6313726, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip2"]
 content_margin_left = 8.0
 content_margin_top = 2.0
@@ -265,6 +298,48 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progressbg"]
+bg_color = Color(0.11372549, 0.1254902, 0.15686275, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progressfill"]
+bg_color = Color(0.30588236, 0.6313726, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_row"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rowhover"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.16470589, 0.18039216, 0.21568628, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rowselected"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.18431373, 0.23921569, 0.32156864, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_screen"]
+content_margin_left = 28.0
+content_margin_top = 24.0
+content_margin_right = 28.0
+content_margin_bottom = 24.0
+bg_color = Color(0.11372549, 0.1254902, 0.15686275, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rck3h"]
 content_margin_left = 12.0
 content_margin_top = 4.0
@@ -383,6 +458,16 @@ vertical = true
 
 [resource]
 default_font_size = 13
+AccentButton/base_type = &"Button"
+AccentButton/colors/font_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+AccentButton/colors/font_disabled_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
+AccentButton/colors/font_focus_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+AccentButton/colors/font_hover_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+AccentButton/colors/font_pressed_color = Color(0.050980393, 0.101960786, 0.16862746, 1)
+AccentButton/styles/disabled = SubResource("StyleBoxFlat_accentoff")
+AccentButton/styles/hover = SubResource("StyleBoxFlat_accenthover")
+AccentButton/styles/normal = SubResource("StyleBoxFlat_accent")
+AccentButton/styles/pressed = SubResource("StyleBoxFlat_accenthover")
 AccentChip/base_type = &"Label"
 AccentChip/colors/font_color = Color(0.8117647, 0.89411765, 1, 1)
 AccentChip/font_sizes/font_size = 12
@@ -462,6 +547,16 @@ PrimaryButton/colors/font_hover_color = Color(0.11372549, 0.1254902, 0.15686275,
 PrimaryButton/styles/hover = SubResource("StyleBoxFlat_i0gxi")
 PrimaryButton/styles/normal = SubResource("StyleBoxFlat_j3fy3")
 PrimaryButton/styles/pressed = SubResource("StyleBoxFlat_i0gxi")
+ProgressBar/styles/background = SubResource("StyleBoxFlat_progressbg")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_progressfill")
+RowButton/base_type = &"Button"
+RowButton/styles/disabled = SubResource("StyleBoxFlat_row")
+RowButton/styles/hover = SubResource("StyleBoxFlat_rowhover")
+RowButton/styles/hover_pressed = SubResource("StyleBoxFlat_rowselected")
+RowButton/styles/normal = SubResource("StyleBoxFlat_row")
+RowButton/styles/pressed = SubResource("StyleBoxFlat_rowselected")
+ScreenPanel/base_type = &"PanelContainer"
+ScreenPanel/styles/panel = SubResource("StyleBoxFlat_screen")
 SectionLabel/base_type = &"Label"
 SectionLabel/colors/font_color = Color(0.6039216, 0.6392157, 0.69803923, 1)
 SectionLabel/font_sizes/font_size = 11

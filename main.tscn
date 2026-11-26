@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://d1qtixd4ty5d3" path="res://ui/victory_screen.tscn" id="27_2f3dj"]
 [ext_resource type="PackedScene" uid="uid://dovpdhaqw8ym0" path="res://lab/pathfinding/path_visualizer.tscn" id="27_vxglm"]
 [ext_resource type="PackedScene" uid="uid://c8kqi653osk6g" path="res://ui/action_menu.tscn" id="28_2r5j7"]
-[ext_resource type="PackedScene" uid="uid://cbodo1yc1vvob" path="res://ui/experiment_overlay.tscn" id="29_sdk7a"]
+[ext_resource type="PackedScene" path="res://ui/experiment_screen.tscn" id="29_sdk7a"]
 [ext_resource type="Script" uid="uid://p6f8go2m6vcb" path="res://lab/edit_tools.gd" id="30_lfd2k"]
 [ext_resource type="Script" uid="uid://c0t8x4sd0irqo" path="res://generation/dresser/dungeon_dresser.gd" id="31_lljq8"]
 [ext_resource type="PackedScene" uid="uid://d2yeqg2wtqjbn" path="res://generation/dresser/tiles/floor.tscn" id="32_g2w5x"]
@@ -220,17 +220,16 @@ text = "0"
 
 [node name="ActionMenu" parent="." unique_id=212369987 instance=ExtResource("28_2r5j7")]
 
-[node name="ExperimentOverlay" parent="." unique_id=971121760 instance=ExtResource("29_sdk7a")]
+[node name="ExperimentScreen" parent="." unique_id=971121760 node_paths=PackedStringArray("gridmap") instance=ExtResource("29_sdk7a")]
+gridmap = NodePath("../NavigationRegion3D/GridMap")
 
-[node name="EditTools" type="Node" parent="." unique_id=675232316 node_paths=PackedStringArray("gridmap", "nav_region", "dresser", "chart_plotter", "path_visualizer", "view", "experiment_overlay")]
+[node name="EditTools" type="Node" parent="." unique_id=675232316 node_paths=PackedStringArray("gridmap", "nav_region", "dresser", "chart_plotter", "path_visualizer")]
 script = ExtResource("30_lfd2k")
 gridmap = NodePath("../NavigationRegion3D/GridMap")
 nav_region = NodePath("../NavigationRegion3D")
 dresser = NodePath("../DungeonDresser")
 chart_plotter = NodePath("../UI/CreationUI/ChartPlotter")
 path_visualizer = NodePath("../PathVisualizer")
-view = NodePath("../View")
-experiment_overlay = NodePath("../ExperimentOverlay")
 
 [node name="DungeonDresser" type="Node3D" parent="." unique_id=1316712067 node_paths=PackedStringArray("gridmap")]
 script = ExtResource("31_lljq8")

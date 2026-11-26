@@ -19,6 +19,7 @@ extends Node3D
 @onready var dresser: DungeonDresser = $DungeonDresser
 @onready var portal_links: PortalLinks = $PortalLinks
 @onready var path_visualizer := $PathVisualizer
+@onready var experiment_screen: ExperimentScreen = $ExperimentScreen
 
 
 # Total de moedas na dungeon
@@ -46,7 +47,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"generate_dungeon", &"toggle_mode",
 	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
-	&"pathfinding", &"run_quantitative_experiment",
+	&"pathfinding", &"toggle_experiment",
 	&"save", &"load",
 	&"tool_select", &"tool_build", &"tool_erase", &"tool_link", &"tool_move",
 	&"structure_1", &"structure_2", &"structure_3", &"structure_4",
@@ -66,6 +67,7 @@ var selected_room := -1
 var show_links := true
 var auto_heatmap := true
 var chart_open := false
+var experiment_open := false
 
 func _ready():
 	UHeat.heatmap_multimesh = $HeatmapVisualizer/HeatmapMultiMesh
@@ -73,7 +75,8 @@ func _ready():
 	edit_tools.chart_opened.connect(_on_chart_opened)
 	edit_tools.chart_closed.connect(_on_chart_closed)
 	edit_tools.chart_plotter.room_changed.connect(_on_chart_room_changed)
-	edit_tools.experiment_state_changed.connect(_on_experiment_state_changed)
+	experiment_screen.running_changed.connect(action_menu.set_modes_locked)
+	experiment_screen.open_requested.connect(_open_experiment_run)
 	victory_screen.get_node("Content/BackButton").pressed.connect(_on_back_button_pressed)
 	action_menu.action_pressed.connect(_run_action)
 	action_menu.tool_pressed.connect(_set_tool)
@@ -170,7 +173,9 @@ func _unhandled_input(event):
 			_run_action(action)
 
 func _run_action(action: StringName):
-	if edit_tools.experiment_running:
+	if experiment_screen.running:
+		return
+	if experiment_open and action not in [&"toggle_experiment", &"show_editor"]:
 		return
 	if action != &"toggle_mode" and mode != Mode.CREATION:
 		return
@@ -204,10 +209,11 @@ func _run_action(action: StringName):
 		&"recalculate_heatmaps":
 			edit_tools.recalculate_heatmaps()
 		&"pathfinding":
-			print("Calculando caminhos...")
 			edit_tools.on_pathfinding_pressed()
-		&"run_quantitative_experiment":
-			edit_tools.run_experiment()
+		&"toggle_experiment":
+			_set_experiment_open(not experiment_open)
+		&"show_editor":
+			_set_experiment_open(false)
 		&"save":
 			builder.save_map()
 		&"load":
@@ -246,8 +252,29 @@ func _on_chart_closed():
 	view.active = true
 	_apply_builder_state()
 
-func _on_experiment_state_changed(_running: bool):
+func _set_experiment_open(open: bool):
+	experiment_open = open
+	experiment_screen.visible = open
+	action_menu.set_experiment_open(open)
+	view.input_locked = open
 	_apply_builder_state()
+
+func _open_experiment_run(run_info: Dictionary):
+	_set_experiment_open(false)
+	action_menu.set_seed(run_info.seed)
+	action_menu.set_generator(run_info.generator)
+	action_menu.set_spawn_mode(run_info.spawn)
+	edit_tools.dungeon_seed = run_info.seed
+	UGen.SPAWN = run_info.spawn
+	edit_tools.on_generate_dungeon_pressed(run_info.generator, Vector2i(run_info.size.min, run_info.size.max))
+	selected_room = -1
+	_show_room_info()
+
+	var heatmap: StringName = edit_tools.HEATMAP_ACTIONS[run_info.heatmap]
+	edit_tools.PATH_TYPE = run_info.path
+	edit_tools.recalculate_heatmaps(heatmap)
+	action_menu.set_heatmap(heatmap)
+	edit_tools.on_pathfinding_pressed()
 
 func _set_tool(new_tool: Builder.Tool):
 	builder.cancel_move()
@@ -317,7 +344,7 @@ func _show_room_info():
 	})
 
 func _apply_builder_state():
-	var active := mode == Mode.CREATION and not edit_tools.experiment_running
+	var active := mode == Mode.CREATION and not experiment_open
 	action_menu.set_palette_visible(active and not chart_open)
 	if active:
 		builder.process_mode = Node.PROCESS_MODE_INHERIT
@@ -417,7 +444,6 @@ func enter_play_mode():
 	
 	total_coins = get_tree().get_nodes_in_group("Coins").size()
 	
-	print(total_coins)
 	
 	# ativa portal de saída da sala 0
 	_activate_room_portals(0)

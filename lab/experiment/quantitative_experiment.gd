@@ -4,146 +4,136 @@ const PATHFINDER = preload("res://lab/pathfinding/pathfinding.gd")
 const GENERATOR = preload("res://generation/generators/dungeon_generator.gd")
 const CA_GENERATOR = preload("res://generation/generators/ca_dungeon_generator.gd")
 
-const EXPERIMENT_SEED_COUNT = 50
-const EXPERIMENT_HEATMAP_KEY = UHeat.COMBINED
+const CELLULAR = 1
+const EXPLORER = 1
+const GENERATOR_FILE_NAMES = ["geometricas", "celular"]
+const PATH_FILE_NAMES = ["direto", "explorador"]
+const SPAWN_FILE_NAMES = ["aleatorio", "inteligente"]
 
-const EXPERIMENT_PATH_TYPES = [0, 1]  # STRAIGHT=0, EXPLORER=1
-const EXPERIMENT_PATH_TYPE_NAMES = { 0: "direto", 1: "explorador" }
-const EXPERIMENT_SPAWN_MODES = [UGen.Spawn.RANDOM, UGen.Spawn.SMART]
-const EXPERIMENT_SPAWN_MODE_NAMES = {
-	UGen.Spawn.RANDOM: "aleatorio",
-	UGen.Spawn.SMART: "inteligente"
-}
-const ROOM_SIZE_PRESETS = {
-	"pequeno": { "min": 5, "max": 7  },
-	"medio":   { "min": 9, "max": 11 },
-	"grande":  { "min": 13, "max": 15 }
-}
+signal run_finished(index: int)
 
-# Quantas gerações já foram, quantas precisam ser feitas, e a descrição com a seed, preset e tipo de gerador
-signal progress(current: int, total: int, description: String)
-
-var _gridmap: GridMap
 var cancelled := false
 
 func cancel():
 	cancelled = true
 
-var _chart_plotter: Control
+static func build_runs(config: Dictionary) -> Array[Dictionary]:
+	var runs: Array[Dictionary] = []
+	for dungeon_seed in config.seeds:
+		for generator in config.generators:
+			for size in config.sizes:
+				for spawn in config.spawn_modes:
+					for path in config.path_types:
+						runs.append({
+							"seed": dungeon_seed, "generator": generator, "size": size,
+							"spawn": spawn, "path": path, "heatmap": config.heatmap,
+							"rooms": [], "csv": "", "done": false,
+						})
+	return runs
 
-func run(gridmap: GridMap, chart_plotter: Control):
-	_gridmap = gridmap
-	_chart_plotter = chart_plotter
+# Roda num GridMap fora da cena, pra dungeon do editor não mudar
+func run(gridmap: GridMap, runs: Array[Dictionary], folder: String):
+	var grid: GridMap = gridmap.duplicate()
+	var state := _save_state()
+	DirAccess.make_dir_recursive_absolute(folder)
 
-	var seeds: Array[int] = []
-	for i in range(EXPERIMENT_SEED_COUNT):
-		seeds.append(randi())
-
-	# Usa dois geradores por seed
-	var total := ROOM_SIZE_PRESETS.size() * seeds.size() * 2
-	var current := 0
-
-	for preset_name in ROOM_SIZE_PRESETS.keys():
-		var preset = ROOM_SIZE_PRESETS[preset_name]
-
-		for s in seeds:
-			if cancelled:
-				break
-
-			var geo_gen = GENERATOR.new()
-			geo_gen.set_room_size(preset["min"], preset["max"])
-			_run_for_seed(s, "geo_%s" % preset_name, geo_gen, func(): geo_gen.generate_dungeon(_gridmap))
-			current += 1
-			progress.emit(current, total, "Salas geométricas, %s, seed %d" % [preset_name, s])
-			# Precisa dar um frame pra atualizar a interface
+	var index := 0
+	while index < runs.size() and not cancelled:
+		var dungeon := runs[index]
+		_generate(grid, dungeon)
+		while index < runs.size() and _same_dungeon(runs[index], dungeon) and not cancelled:
+			_measure(grid, runs[index], folder)
+			run_finished.emit(index)
+			index += 1
 			await Engine.get_main_loop().process_frame
 
-			var ca_gen = CA_GENERATOR.new()
-			ca_gen.set_room_size(preset["min"], preset["max"])
-			_run_for_seed(s, "ca_%s" % preset_name, ca_gen, func(): ca_gen.generate_dungeon_ca(_gridmap))
-			current += 1
-			progress.emit(current, total, "Autômato celular, %s, seed %d" % [preset_name, s])
-			await Engine.get_main_loop().process_frame
+	_restore_state(state)
+	grid.free()
 
-		if cancelled:
-			break
+func _same_dungeon(a: Dictionary, b: Dictionary) -> bool:
+	return a.seed == b.seed and a.generator == b.generator and a.size == b.size and a.spawn == b.spawn
 
-	UGen.SPAWN = UGen.Spawn.SMART
-	print("\nExperimento cancelado" if cancelled else "\nExperimento concluído")
+func _generate(grid: GridMap, run_info: Dictionary):
+	seed(run_info.seed)
+	UHeat.clear_heatmaps()
+	var generator
+	if run_info.generator == CELLULAR:
+		generator = CA_GENERATOR.new()
+		generator.set_room_size(run_info.size.min, run_info.size.max)
+		generator.generate_dungeon_ca(grid)
+	else:
+		generator = GENERATOR.new()
+		generator.set_room_size(run_info.size.min, run_info.size.max)
+		generator.generate_dungeon(grid)
+	UGen.SPAWN = run_info.spawn
+	generator.spawn_dungeon_elements(grid)
+	UGen.update_elements_pos(grid)
+	UHeat.recalculate_heatmaps(grid)
 
-func _run_for_seed(s: int, generator_name: String, generator_instance, generate_func: Callable):
-	for spawn_mode in EXPERIMENT_SPAWN_MODES:
-		seed(s)
-		UHeat.clear_heatmaps()
-		generate_func.call()
+func _measure(grid: GridMap, run_info: Dictionary, folder: String):
+	var pathfinder = PATHFINDER.new(grid)
+	pathfinder.setup_grid(Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE), Vector2i(int(grid.cell_size.x), int(grid.cell_size.z)))
 
-		UGen.SPAWN = spawn_mode
-		generator_instance.spawn_dungeon_elements(_gridmap)
+	var lines := PackedStringArray(["sala,tile,influencia"])
+	for room in UGen.rooms.size():
+		var heatmap := _room_heatmap(run_info.heatmap, room)
+		var values := []
+		for cell in _room_path(room, pathfinder, run_info.path):
+			values.append(heatmap.get(Vector3i(cell.x, 0, cell.y), 0.0))
+		run_info.rooms.append(values)
+		for tile in values.size():
+			lines.append("%d,%d,%s" % [room, tile, values[tile]])
 
-		_collect_and_save(s, generator_name, spawn_mode)
+	var file_name := "%d_%s_%s_%s_%s.csv" % [
+		run_info.seed, GENERATOR_FILE_NAMES[run_info.generator], run_info.size.file_name,
+		SPAWN_FILE_NAMES[run_info.spawn], PATH_FILE_NAMES[run_info.path],
+	]
+	run_info.csv = folder.path_join(file_name)
+	var file := FileAccess.open(run_info.csv, FileAccess.WRITE)
+	file.store_string("\n".join(lines) + "\n")
+	run_info.done = true
 
-func _collect_and_save(s: int, generator_name: String, spawn_mode: int):
-	var pathfinder = _init_pathfinder()
-	var spawn_name = EXPERIMENT_SPAWN_MODE_NAMES[spawn_mode]
+func _room_heatmap(key: String, room: int) -> Dictionary:
+	if key == UHeat.RECHARGES:
+		var maps: Array[Dictionary] = [
+			UHeat.heatmaps[UHeat.ENTRY_PORTALS][room], UHeat.heatmaps[UHeat.EXIT_PORTALS][room], UHeat.heatmaps[UHeat.BANNERS][room],
+		]
+		return UHeat.create_combined_heatmap(maps)
+	return UHeat.heatmaps[key][room]
 
-	for path_type in EXPERIMENT_PATH_TYPES:
-		var path_name = EXPERIMENT_PATH_TYPE_NAMES[path_type]
-		var x_values = []
-		var y_values = []
+func _room_path(room: int, pathfinder, path_type: int) -> Array:
+	var elements = UGen.rooms_elements_pos[room]
+	var entry := Vector2i(elements.portal1_pos.x, elements.portal1_pos.z)
+	var exit := Vector2i(elements.portal2_pos.x, elements.portal2_pos.z)
+	if path_type == EXPLORER:
+		var coins: Array[Vector2i] = []
+		for coin in elements.coin_pos:
+			coins.append(Vector2i(coin.x, coin.z))
+		return pathfinder.find_explorer_path(entry, coins, exit)
+	return pathfinder.find_path(entry, exit)
 
-		for room_index in range(UGen.rooms.size()):
-			var path = _get_room_path(room_index, pathfinder, path_type)
-			if path.is_empty():
-				continue
+func _save_state() -> Dictionary:
+	return {
+		"rooms": UGen.rooms.duplicate(true),
+		"elements": UGen.rooms_elements_pos.duplicate(true),
+		"links": UGen.portal_links.duplicate(true),
+		"first": UGen.firstPortal,
+		"last": UGen.lastPortal,
+		"quantity": UGen.rooms_elements_quantity.duplicate(true),
+		"spawn": UGen.SPAWN,
+		"heatmaps": UHeat.heatmaps.duplicate(true),
+		"visible": UHeat.curr_visible_heatmap.duplicate(),
+		"shown": UHeat.heatmap_multimesh.visible,
+	}
 
-			var influ = _get_path_influences(room_index, path)
-			if influ[1].is_empty():
-				continue
-
-			x_values.append(range(influ[1].size()))
-			y_values.append(influ[1])
-
-		if x_values.is_empty():
-			continue
-
-		_chart_plotter.current_seed = s
-		var filename = "%s_%s_%s_influ_moedas_inimigos" % [generator_name, spawn_name, path_name]
-		_chart_plotter._save_csv_all(x_values, y_values, filename)
-
-func _init_pathfinder():
-	var pathfinder = PATHFINDER.new(_gridmap)
-	var cell_size_2d = Vector2i(int(_gridmap.cell_size.x), int(_gridmap.cell_size.z))
-	var map_region = Vector2i(UGen.MAP_SIZE, UGen.MAP_SIZE)
-	pathfinder.setup_grid(map_region, cell_size_2d)
-	return pathfinder
-
-func _get_room_path(room_index: int, pathfinder, path_type: int) -> Array:
-	var elem_pos = UGen.rooms_elements_pos[room_index]
-	var portal1_pos_2d = Vector2i(elem_pos.portal1_pos.x, elem_pos.portal1_pos.z)
-	var portal2_pos_2d = Vector2i(elem_pos.portal2_pos.x, elem_pos.portal2_pos.z)
-
-	match path_type:
-		0:  # STRAIGHT
-			return pathfinder.find_path(portal1_pos_2d, portal2_pos_2d)
-		1:  # EXPLORER
-			var room_coins_pos: Array[Vector2i] = []
-			for coin_pos in elem_pos.coin_pos:
-				room_coins_pos.append(Vector2i(coin_pos.x, coin_pos.z))
-			return pathfinder.find_explorer_path(portal1_pos_2d, room_coins_pos, portal2_pos_2d)
-
-	return []
-
-func _get_path_influences(room_index: int, path: Array) -> Array:
-	var path_cell_influ = []
-	var path_influences = []
-
-	for cell in path:
-		var cell_3d = Vector3i(cell.x, 0, cell.y)
-		var value = UHeat.heatmaps[EXPERIMENT_HEATMAP_KEY][room_index].get(cell_3d, 0.0)
-		path_cell_influ.append([cell_3d, value])
-		path_influences.append(value)
-
-	return [path_cell_influ, path_influences]
-
-func _apply_room_size_preset(gen, preset: Dictionary):
-	gen.set_room_size(preset["min"], preset["max"])
+func _restore_state(state: Dictionary):
+	UGen.rooms = state.rooms
+	UGen.rooms_elements_pos = state.elements
+	UGen.portal_links = state.links
+	UGen.firstPortal = state.first
+	UGen.lastPortal = state.last
+	UGen.rooms_elements_quantity = state.quantity
+	UGen.SPAWN = state.spawn
+	UHeat.heatmaps = state.heatmaps
+	UHeat.curr_visible_heatmap = state.visible
+	UHeat.heatmap_multimesh.visible = state.shown

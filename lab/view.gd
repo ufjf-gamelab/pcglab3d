@@ -15,6 +15,7 @@ var active := true
 @export var max_zoom := 200.0
 @export var zoom_step := 10.0
 @export var move_speed := 40.0
+@export var screen_offset := 110.0
 
 # Bloqueia só o controle do jogador
 var input_locked := false
@@ -49,6 +50,7 @@ func _process(delta):
 	# Smoothly update zoom
 	
 	camera.position = camera.position.lerp(Vector3(0, 0, zoom), delta * 8)
+	camera.h_offset = camera.position.z * tan(deg_to_rad(camera.fov / 2)) * screen_offset * 2 / get_viewport().get_visible_rect().size.y
 	
 	handle_input(delta)
 

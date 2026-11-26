@@ -11,7 +11,6 @@ var rect_rooms := [] # Array[Array[Rect2i]]
 
 # Gera N salas da dungeon
 func generate_dungeon(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_count: int = UGen.ROOM_COUNT):
-	print("Gerando Dungeon...")
 	UGen.portal_links = {}
 	
 	# Limpa lista de salas
@@ -58,10 +57,6 @@ func generate_dungeon(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_coun
 		else:
 			attempts += 1
 			
-	if rooms_created < room_count:
-		print("Aviso: ", rooms_created, " salas foram criadas em ", UGen.ATTEMPTS, " tentativas.")
-	else:
-		print("Todas as ", room_count, " salas foram criadas.")
 
 	# Cria paredes 'internas'
 	UGen.add_room_walls(gridmap, map_size)

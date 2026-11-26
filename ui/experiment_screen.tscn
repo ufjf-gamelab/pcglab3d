@@ -1,0 +1,557 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/experiment_screen.gd" id="1_screen"]
+[ext_resource type="Theme" uid="uid://ht66eayqyt1a" path="res://ui/lab_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://dqguiolne3obl" path="res://ui/line_chart.gd" id="3_chart"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_rows"]
+
+
+[node name="ExperimentScreen" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1_screen")
+rows_group = SubResource("ButtonGroup_rows")
+
+[node name="Root" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+theme_type_variation = &"ScreenPanel"
+
+[node name="Config" type="VBoxContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Root/Config"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Experimento quantitativo"
+
+[node name="Grid" type="GridContainer" parent="Root/Config"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
+
+[node name="Seeds" type="PanelContainer" parent="Root/Config/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Config/Grid/Seeds"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Seeds/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Seeds"
+uppercase = true
+
+[node name="Fields" type="GridContainer" parent="Root/Config/Grid/Seeds/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="CountLabel" type="Label" parent="Root/Config/Grid/Seeds/VBox/Fields"]
+layout_mode = 2
+text = "Quantidade"
+
+[node name="SeedCount" type="SpinBox" parent="Root/Config/Grid/Seeds/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+min_value = 1.0
+max_value = 100000.0
+value = 50.0
+
+[node name="FirstLabel" type="Label" parent="Root/Config/Grid/Seeds/VBox/Fields"]
+layout_mode = 2
+text = "Seed inicial"
+
+[node name="FirstSeed" type="LineEdit" parent="Root/Config/Grid/Seeds/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+placeholder_text = "aleatória"
+
+[node name="Generators" type="PanelContainer" parent="Root/Config/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Config/Grid/Generators"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Generators/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Geradores"
+uppercase = true
+
+[node name="Geometric" type="CheckBox" parent="Root/Config/Grid/Generators/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Salas geométricas"
+
+[node name="Cellular" type="CheckBox" parent="Root/Config/Grid/Generators/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Autômato celular"
+
+[node name="Sizes" type="PanelContainer" parent="Root/Config/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Config/Grid/Sizes"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Sizes/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Tamanho das salas"
+uppercase = true
+
+[node name="Fields" type="GridContainer" parent="Root/Config/Grid/Sizes/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="PresetLabel" type="Label" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"MutedLabel"
+text = "Preset"
+
+[node name="MinLabel" type="Label" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Mín."
+
+[node name="MaxLabel" type="Label" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Máx."
+
+[node name="Small" type="CheckBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+text = "Pequeno"
+
+[node name="SmallMin" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 5.0
+
+[node name="SmallMax" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 7.0
+
+[node name="Medium" type="CheckBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+text = "Médio"
+
+[node name="MediumMin" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 9.0
+
+[node name="MediumMax" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 11.0
+
+[node name="Large" type="CheckBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+button_pressed = true
+text = "Grande"
+
+[node name="LargeMin" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 13.0
+
+[node name="LargeMax" type="SpinBox" parent="Root/Config/Grid/Sizes/VBox/Fields"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+min_value = 3.0
+max_value = 40.0
+value = 15.0
+
+[node name="Paths" type="PanelContainer" parent="Root/Config/Grid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Config/Grid/Paths"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Caminho e spawn"
+uppercase = true
+
+[node name="Options" type="HBoxContainer" parent="Root/Config/Grid/Paths/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="PathTypes" type="VBoxContainer" parent="Root/Config/Grid/Paths/VBox/Options"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox/Options/PathTypes"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Tipo de caminho"
+
+[node name="Straight" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/PathTypes"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Direto"
+
+[node name="Explorer" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/PathTypes"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Explorador"
+
+[node name="SpawnModes" type="VBoxContainer" parent="Root/Config/Grid/Paths/VBox/Options"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox/Options/SpawnModes"]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Spawn dos elementos"
+
+[node name="RandomSpawn" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/SpawnModes"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Aleatório"
+
+[node name="SmartSpawn" type="CheckBox" parent="Root/Config/Grid/Paths/VBox/Options/SpawnModes"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Inteligente"
+
+[node name="HeatmapRow" type="HBoxContainer" parent="Root/Config/Grid/Paths/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Root/Config/Grid/Paths/VBox/HeatmapRow"]
+layout_mode = 2
+text = "Heatmap medido"
+
+[node name="Heatmap" type="OptionButton" parent="Root/Config/Grid/Paths/VBox/HeatmapRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+selected = 0
+item_count = 5
+popup/item_0/text = "Combinado"
+popup/item_0/id = 0
+popup/item_1/text = "Inimigos"
+popup/item_1/id = 1
+popup/item_2/text = "Moedas"
+popup/item_2/id = 2
+popup/item_3/text = "Fogueiras"
+popup/item_3/id = 3
+popup/item_4/text = "Recarga"
+popup/item_4/id = 4
+
+[node name="Output" type="PanelContainer" parent="Root/Config"]
+layout_mode = 2
+theme_type_variation = &"DetailsPanel"
+
+[node name="HBox" type="HBoxContainer" parent="Root/Config/Output"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Root/Config/Output/HBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Saída"
+uppercase = true
+
+[node name="Folder" type="LineEdit" parent="Root/Config/Output/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OpenFolder" type="Button" parent="Root/Config/Output/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Abrir pasta"
+
+[node name="Spacer" type="Control" parent="Root/Config"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Footer" type="HBoxContainer" parent="Root/Config"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 12
+
+[node name="Run" type="Button" parent="Root/Config/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(240, 36)
+theme_type_variation = &"AccentButton"
+text = "Rodar experimento"
+
+[node name="Results" type="HBoxContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 16
+
+[node name="Left" type="VBoxContainer" parent="Root/Results"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="Progress" type="PanelContainer" parent="Root/Results/Left"]
+layout_mode = 2
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Results/Left/Progress"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Top" type="HBoxContainer" parent="Root/Results/Left/Progress/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ProgressTitle" type="Label" parent="Root/Results/Left/Progress/VBox/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Rodando experimento quantitativo"
+
+[node name="Counter" type="Label" parent="Root/Results/Left/Progress/VBox/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "0 / 0"
+
+[node name="Progress" type="ProgressBar" parent="Root/Results/Left/Progress/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="Bottom" type="HBoxContainer" parent="Root/Results/Left/Progress/VBox"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 12
+
+[node name="Cancel" type="Button" parent="Root/Results/Left/Progress/VBox/Bottom"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancelar"
+
+[node name="Runs" type="PanelContainer" parent="Root/Results/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Results/Left/Runs"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Root/Results/Left/Runs/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Execuções"
+uppercase = true
+
+[node name="Header" type="HBoxContainer" parent="Root/Results/Left/Runs/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Indent" type="Control" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+
+[node name="Seed" type="Label" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Seed"
+
+[node name="Generator" type="Label" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Gerador"
+
+[node name="Size" type="Label" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Salas"
+
+[node name="Path" type="Label" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Caminho"
+
+[node name="Spawn" type="Label" parent="Root/Results/Left/Runs/VBox/Header"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Spawn"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/Results/Left/Runs/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="Root/Results/Left/Runs/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Right" type="VBoxContainer" parent="Root/Results"]
+layout_mode = 2
+custom_minimum_size = Vector2(340, 0)
+theme_override_constants/separation = 16
+
+[node name="Selected" type="PanelContainer" parent="Root/Results/Right"]
+layout_mode = 2
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Results/Right/Selected"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Results/Right/Selected/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Execução selecionada"
+uppercase = true
+
+[node name="Rooms" type="HBoxContainer" parent="Root/Results/Right/Selected/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RunRoom" type="Label" parent="Root/Results/Right/Selected/VBox/Rooms"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"AccentChip"
+text = "Sala 1 de 1"
+
+[node name="PreviousRoom" type="Button" parent="Root/Results/Right/Selected/VBox/Rooms"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sala anterior"
+
+[node name="NextRoom" type="Button" parent="Root/Results/Right/Selected/VBox/Rooms"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Próxima sala"
+
+[node name="ChartArea" type="PanelContainer" parent="Root/Results/Right/Selected/VBox"]
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+theme_type_variation = &"ChartArea"
+
+[node name="RunChart" type="Control" parent="Root/Results/Right/Selected/VBox/ChartArea"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("3_chart")
+
+[node name="RunEmpty" type="Label" parent="Root/Results/Right/Selected/VBox/ChartArea"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Nenhuma execução selecionada"
+
+[node name="Buttons" type="HBoxContainer" parent="Root/Results/Right/Selected/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OpenEditor" type="Button" parent="Root/Results/Right/Selected/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Abrir no editor"
+
+[node name="OpenCsv" type="Button" parent="Root/Results/Right/Selected/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Abrir CSV"
+
+[node name="OutputInfo" type="PanelContainer" parent="Root/Results/Right"]
+layout_mode = 2
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/Results/Right/OutputInfo"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Root/Results/Right/OutputInfo/VBox"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "Saída"
+uppercase = true
+
+[node name="OutputFolder" type="Label" parent="Root/Results/Right/OutputInfo/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="OpenOutput" type="Button" parent="Root/Results/Right/OutputInfo/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Abrir pasta"

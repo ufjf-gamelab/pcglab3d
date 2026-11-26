@@ -78,7 +78,6 @@ func switch_decay_func(max_value: float, distance: int, max_distance: int) -> fl
 		"linear":
 			return max(0.0, max_value * (1.0 - float(distance) / float(max_distance)))
 		_:
-			print("Nenhuma função de decaimento válida!")
 			return 0.0
 
 func create_same_element_type_combined_heatmap(type_heatmaps):

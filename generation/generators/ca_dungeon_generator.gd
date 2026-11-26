@@ -21,7 +21,6 @@ const BASE_2D_DIRECTIONS := [
 ]
 
 func generate_dungeon_ca(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_count: int = UGen.ROOM_COUNT):
-	print("Gerando Dungeon...")
 	UGen.portal_links = {}
 	
 	# Limpa as salas existentes e seus elementos
@@ -52,7 +51,6 @@ func generate_dungeon_ca(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_c
 		
 		var regions = get_room_regions(room_tiles)
 		if len(regions) > 1:
-			print("Sala particionada detectada")
 			regions.sort_custom(func(a,b): return a.size() > b.size())
 			var main_region = regions[0]
 			if CONNECT_SMALL_REGIONS:
@@ -77,7 +75,6 @@ func generate_dungeon_ca(gridmap: GridMap, map_size: int = UGen.MAP_SIZE, room_c
 		else:
 			attempts += 1
 
-	print("Salas criadas: ", rooms_created)
 	
 	# Cria paredes 'internas'
 	UGen.add_room_walls(gridmap, map_size)

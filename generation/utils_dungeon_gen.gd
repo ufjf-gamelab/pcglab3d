@@ -143,7 +143,6 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 	
 	var room_portals = _handle_room_portals_spawn(gridmap, available_spots)
 	if room_portals.size() == 0:
-		print("Posicionamento de elementos não pôde continuar devido à falta de espaços livres.")
 		return
 	# Captura o heatmap do portal de entrada recém criado
 	room_entry_portals_heatmap = UHeat.heatmaps[UHeat.ENTRY_PORTALS].back()
@@ -296,7 +295,6 @@ func _handle_room_portals_spawn(gridmap: GridMap, available_spots: Array[Vector3
 		
 		return [portal1_pos, portal2_pos]
 	else:
-		print("Sem dois espaços livres para posicionar os portais.")
 		return []
 
 # Calcula a quantidade de elementos em cada sala
@@ -306,9 +304,3 @@ func _calculate_elements_quantity(room_index: int, tile_count: int):
 		UHeat.COINS:   max(1, tile_count / rate_element_tiles[UHeat.COINS]),
 		UHeat.BANNERS: max(1, tile_count / rate_element_tiles[UHeat.BANNERS])
 	}
-	#print("Sala %d | Tiles: %d | Inimigos: %d | Moedas: %d | Estandartes: %d" % [
-		#room_index, tile_count,
-		#rooms_elements_quantity[room_index][UHeat.ENEMIES],
-		#rooms_elements_quantity[room_index][UHeat.COINS],
-		#rooms_elements_quantity[room_index][UHeat.BANNERS]
-	#])

@@ -4,21 +4,25 @@ class_name EditTools
 const CA_GENERATOR = preload("res://generation/generators/ca_dungeon_generator.gd")
 const GENERATOR = preload("res://generation/generators/dungeon_generator.gd")
 const PATHFINDER = preload("res://lab/pathfinding/pathfinding.gd")
-const EXPERIMENT = preload("res://lab/experiment/quantitative_experiment.gd")
 
 enum Generator { GEOMETRIC, CELLULAR, BSP }
 
+const HEATMAP_ACTIONS := {
+	UHeat.ENEMIES: &"show_enemies_heatmaps",
+	UHeat.COINS: &"show_coins_heatmaps",
+	UHeat.BANNERS: &"show_banners_heatmaps",
+	UHeat.RECHARGES: &"show_recharges_heatmaps",
+	UHeat.COMBINED: &"show_combined_heatmaps",
+}
+
 signal chart_opened
 signal chart_closed
-signal experiment_state_changed(running: bool)
 
 @export var gridmap: GridMap
 @export var nav_region: NavigationRegion3D
 @export var dresser: DungeonDresser
 @export var chart_plotter: Control
 @export var path_visualizer: Node3D
-@export var view: Node3D
-@export var experiment_overlay: ExperimentOverlay
 
 # Seed predefinida
 @export var dungeon_seed: int = 1464125454
@@ -35,12 +39,7 @@ var player_walked_paths: Array = [] # Array[Array[Vector3i]]
 
 # Tipo de caminho
 enum Pathfing {STRAIGHT, EXPLORER, FREE}
-const PATH_TYPE: Pathfing = Pathfing.EXPLORER
-
-# Se tá tendo o experimento, pra bloquear
-var experiment_running := false
-
-var _experiment = null
+var PATH_TYPE: Pathfing = Pathfing.EXPLORER
 
 func _ready():
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
@@ -84,16 +83,9 @@ func refresh_visible_heatmap():
 		toggle_heatmap(action)
 
 func visible_heatmap_action() -> StringName:
-	var actions := {
-		UHeat.ENEMIES: &"show_enemies_heatmaps",
-		UHeat.COINS: &"show_coins_heatmaps",
-		UHeat.BANNERS: &"show_banners_heatmaps",
-		UHeat.RECHARGES: &"show_recharges_heatmaps",
-		UHeat.COMBINED: &"show_combined_heatmaps",
-	}
-	for key in actions:
+	for key in HEATMAP_ACTIONS:
 		if UHeat.curr_visible_heatmap[key]:
-			return actions[key]
+			return HEATMAP_ACTIONS[key]
 	return &""
 
 func _handle_seed():
@@ -104,9 +96,8 @@ func _handle_seed():
 		used_seed = dungeon_seed
 		
 	seed(used_seed)
-	print("\nSeed usada: ", used_seed)
 
-func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
+func on_generate_dungeon_pressed(type := Generator.GEOMETRIC, room_size := Vector2i.ZERO):
 	_handle_seed()
 	var action := visible_heatmap_action()
 	UHeat.deactivate_heatmaps()
@@ -114,10 +105,14 @@ func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 	match type:
 		Generator.CELLULAR:
 			var ca_generator = CA_GENERATOR.new()
+			if room_size != Vector2i.ZERO:
+				ca_generator.set_room_size(room_size.x, room_size.y)
 			ca_generator.generate_dungeon_ca(gridmap)
 			ca_generator.spawn_dungeon_elements(gridmap)
 		Generator.GEOMETRIC, Generator.BSP:
 			var generator = GENERATOR.new()
+			if room_size != Vector2i.ZERO:
+				generator.set_room_size(room_size.x, room_size.y)
 			generator.generate_dungeon(gridmap)
 			generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
@@ -153,7 +148,6 @@ func _handle_chart(influences, rooms):
 
 func on_pathfinding_pressed():
 	if PATH_TYPE == Pathfing.FREE and player_walked_paths.is_empty():
-		print("Nenhum caminho livre registrado. Jogue primeiro.")
 		return
 		
 	var pathfinder = _pathfinder_init()
@@ -263,25 +257,3 @@ func split_walked_path_by_room(all_tiles: Array[Vector3i]):
 				room_path.append(tile)
 		player_walked_paths.append(room_path)
 
-func run_experiment():
-	experiment_running = true
-	experiment_state_changed.emit(true)
-
-	view.go_home()
-	view.input_locked = true
-
-	_experiment = EXPERIMENT.new()
-	_experiment.progress.connect(experiment_overlay.update_progress)
-	experiment_overlay.cancel_pressed.connect(_experiment.cancel)
-	experiment_overlay.start()
-
-	await _experiment.run(gridmap, chart_plotter)
-
-	experiment_overlay.cancel_pressed.disconnect(_experiment.cancel)
-	var output_folder = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/pcglab3d"
-	experiment_overlay.finish(_experiment.cancelled, output_folder)
-	_experiment = null
-
-	experiment_running = false
-	view.input_locked = false
-	experiment_state_changed.emit(false)

@@ -207,7 +207,6 @@ func update_structure(structure_index := index):
 
 # Saving/load
 func save_map():
-	print("Saving map...")
 	
 	map.structures.clear()
 	for cell in gridmap.get_used_cells():
@@ -220,7 +219,6 @@ func save_map():
 	ResourceSaver.save(map, "user://map.res")
 
 func load_map():
-	print("Loading map...")
 	
 	gridmap.clear()
 	
