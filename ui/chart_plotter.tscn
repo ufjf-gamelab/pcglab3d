@@ -2,47 +2,87 @@
 
 [ext_resource type="Script" uid="uid://crdkn21g67wi2" path="res://ui/chart_plotter.gd" id="1_11apu"]
 [ext_resource type="Script" uid="uid://dqguiolne3obl" path="res://ui/line_chart.gd" id="2_2g1me"]
+[ext_resource type="Theme" uid="uid://ht66eayqyt1a" path="res://ui/lab_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/close.svg" id="4_close"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_sep"]
+color = Color(0.23137255, 0.25490198, 0.3019608, 1)
+grow_begin = -5.0
+grow_end = -5.0
+vertical = true
 
 [node name="ChartPlotter" type="PanelContainer" unique_id=1805408256]
+theme = ExtResource("3_theme")
+theme_type_variation = &"ChartDock"
 script = ExtResource("1_11apu")
 
-[node name="Margin" type="MarginContainer" parent="." unique_id=1863225668]
+[node name="VBox" type="VBoxContainer" parent="." unique_id=614949646]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/separation = 10
 
-[node name="VBox" type="VBoxContainer" parent="Margin" unique_id=614949646]
+[node name="Header" type="HBoxContainer" parent="VBox" unique_id=1275921643]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="Margin/VBox" unique_id=1576122946]
-unique_name_in_owner = true
+[node name="Title" type="Label" parent="VBox/Header" unique_id=1576122946]
 layout_mode = 2
 text = "Influência ao longo do caminho"
 
-[node name="LineChart" type="Control" parent="Margin/VBox" unique_id=798685568]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(600, 300)
-layout_mode = 2
-script = ExtResource("2_2g1me")
-
-[node name="Buttons" type="HBoxContainer" parent="Margin/VBox" unique_id=1275921643]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Close" type="Button" parent="Margin/VBox/Buttons" unique_id=428709692]
+[node name="Room" type="Label" parent="VBox/Header" unique_id=1576122947]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Fechar"
+theme_type_variation = &"AccentChip"
+text = "Sala 1"
 
-[node name="Next" type="Button" parent="Margin/VBox/Buttons" unique_id=113114585]
+[node name="Heatmap" type="Label" parent="VBox/Header" unique_id=1576122948]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Próximo gráfico"
+theme_type_variation = &"Chip"
+text = "Moedas"
 
-[node name="Download" type="Button" parent="Margin/VBox/Buttons" unique_id=495355301]
+[node name="Seed" type="Label" parent="VBox/Header" unique_id=1576122949]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+theme_override_font_sizes/font_size = 12
+text = "seed 0"
+
+[node name="Spacer" type="Control" parent="VBox/Header" unique_id=1576122950]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Previous" type="Button" parent="VBox/Header" unique_id=113114586]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sala anterior"
+
+[node name="Next" type="Button" parent="VBox/Header" unique_id=113114585]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Próxima sala"
+
+[node name="Sep" type="VSeparator" parent="VBox/Header" unique_id=113114587]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_sep")
+
+[node name="Download" type="Button" parent="VBox/Header" unique_id=495355301]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Baixar CSV"
+
+[node name="Close" type="Button" parent="VBox/Header" unique_id=428709692]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Fechar"
+icon = ExtResource("4_close")
+flat = true
+
+[node name="ChartArea" type="PanelContainer" parent="VBox" unique_id=1863225668]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"ChartArea"
+
+[node name="LineChart" type="Control" parent="VBox/ChartArea" unique_id=798685568]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("2_2g1me")

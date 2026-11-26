@@ -101,6 +101,9 @@ func show_heatmap_details(action: StringName):
 	%HeatmapDetails.get_parent().move_child(%HeatmapDetails, index)
 	%HeatmapDetails.visible = true
 
+func set_palette_visible(value: bool):
+	$Root/Palette.visible = value
+
 func set_cell(cell: Vector3i, room: int):
 	%Cell.text = "(%d, %d)" % [cell.x, cell.z]
 	%Room.text = "fora das salas" if room == -1 else str(room + 1)

@@ -208,65 +208,40 @@ func show_heatmaps(gridmap: GridMap, element_heatmaps, cell_size := 1.0, bipolar
 	
 	heatmap_multimesh.visible = true
 
-func toggle_enemy_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func toggle_enemy_heatmaps(gridmap: GridMap):
 	if curr_visible_heatmap[ENEMIES]:
 		heatmap_multimesh.visible = false
 		curr_visible_heatmap[ENEMIES] = false
-		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
 		var enemies_heatmaps = heatmaps[ENEMIES]
 		show_heatmaps(gridmap, enemies_heatmaps)
 		curr_visible_heatmap[ENEMIES] = true
-		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência de Inimigos", 
-			{
-				"Influência Máxima de um Inimigo": MAX_VALUE[ENEMIES],
-				"Alcance Máximo da Influência de um Inimigo": MAX_DISTANCE[ENEMIES]
-			}
-		)
 
-func toggle_coin_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func toggle_coin_heatmaps(gridmap: GridMap):
 	if curr_visible_heatmap[COINS]:
 		heatmap_multimesh.visible = false
 		curr_visible_heatmap[COINS] = false
-		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
 		var coins_heatmaps = heatmaps[COINS]
 		show_heatmaps(gridmap, coins_heatmaps)
 		curr_visible_heatmap[COINS] = true
-		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência de Moedas", 
-			{
-				"Influência Máxima de uma Moeda": MAX_VALUE[COINS],
-				"Alcance Máximo da Influência de uma Moeda": MAX_DISTANCE[COINS]
-			}
-		)
 
-func toggle_banner_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func toggle_banner_heatmaps(gridmap: GridMap):
 	if curr_visible_heatmap[BANNERS]:
 		heatmap_multimesh.visible = false
 		curr_visible_heatmap[BANNERS] = false
-		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
 		var banners_heatmaps = heatmaps[BANNERS]
 		show_heatmaps(gridmap, banners_heatmaps)
 		curr_visible_heatmap[BANNERS] = true
-		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência de Estandartes", 
-			{
-				"Influência Máxima de um Estandarte": MAX_VALUE[BANNERS],
-				"Alcance Máximo da Influência de um Estandarte": MAX_DISTANCE[BANNERS]
-			}
-		)
 
-func toggle_recharge_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func toggle_recharge_heatmaps(gridmap: GridMap):
 	if curr_visible_heatmap[RECHARGES]:
 		heatmap_multimesh.visible = false
 		curr_visible_heatmap[RECHARGES] = false
-		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
 		
@@ -281,39 +256,16 @@ func toggle_recharge_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel)
 		
 		show_heatmaps(gridmap, recharge_heatmaps)
 		curr_visible_heatmap[RECHARGES] = true
-		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência de Recargas de Energia",
-			{
-				"Influência Máxima do Portal de Entrada": MAX_VALUE[ENTRY_PORTALS],
-				"Alcance Máximo da Influência do Portal de Entrada": MAX_DISTANCE[ENTRY_PORTALS],
-				
-				"Influência Máxima do Portal de Saída": MAX_VALUE[EXIT_PORTALS],
-				"Alcance Máximo da Influência do Portal de Saída": MAX_DISTANCE[EXIT_PORTALS],
-				
-				"Influência Máxima de um Estandarte": MAX_VALUE[BANNERS],
-				"Alcance Máximo da Influência de um Estandarte": MAX_DISTANCE[BANNERS]
-			}
-		)
 
-func toggle_combined_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func toggle_combined_heatmaps(gridmap: GridMap):
 	if curr_visible_heatmap[COMBINED]:
 		heatmap_multimesh.visible = false
 		curr_visible_heatmap[COMBINED] = false
-		heatmap_panel.clear()
 	else:
 		deactivate_heatmaps()
 		var combined_heatmaps = heatmaps[COMBINED]
 		show_heatmaps(gridmap, combined_heatmaps, 1, true) 
 		curr_visible_heatmap[COMBINED] = true
-		heatmap_panel.show_heatmap_info(
-			"Mapas de Influência Combinados", 
-			{
-				"Influência Máxima de um Inimigo": -MAX_VALUE[ENEMIES],
-				"Alcance Máximo da Influência de um Inimigo": MAX_DISTANCE[BANNERS],
-				"Influência Máxima de uma Moeda": MAX_VALUE[COINS],
-				"Alcance Máximo da Influência de uma Moeda": MAX_DISTANCE[BANNERS]
-			}
-		)
 
 func deactivate_heatmaps():
 	heatmap_multimesh.visible = false
@@ -332,10 +284,9 @@ func clear_heatmaps():
 	heatmaps[EXIT_PORTALS] = []
 	heatmaps[RECHARGES] = []
 
-func recalculate_heatmaps(gridmap: GridMap, heatmap_panel: HeatmapInfoPanel):
+func recalculate_heatmaps(gridmap: GridMap):
 	deactivate_heatmaps()
 	clear_heatmaps()
-	heatmap_panel.clear()
 	
 	for i in range(UGen.rooms.size()):
 		var room := room_heatmaps(gridmap, i)

@@ -314,6 +314,7 @@ func _show_room_info():
 
 func _apply_builder_state():
 	var active := mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
+	action_menu.set_palette_visible(active)
 	if active:
 		builder.process_mode = Node.PROCESS_MODE_INHERIT
 		builder.set_process(true)

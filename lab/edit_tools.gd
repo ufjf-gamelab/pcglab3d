@@ -15,7 +15,6 @@ signal experiment_state_changed(running: bool)
 @export var gridmap: GridMap
 @export var nav_region: NavigationRegion3D
 @export var dresser: DungeonDresser
-@export var heatmap_panel: HeatmapInfoPanel
 @export var chart_plotter: Control
 @export var path_visualizer: Node3D
 @export var edit_camera: Camera3D
@@ -49,30 +48,29 @@ var _experiment = null
 
 func _ready():
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
-	chart_plotter.next_button_pressed.connect(_on_chart_next_button_pressed)
+	chart_plotter.room_changed.connect(_on_chart_room_changed)
 	plane = Plane(Vector3.UP, Vector3.ZERO)
 
 func clear_heatmaps():
 	UHeat.deactivate_heatmaps()
-	heatmap_panel.clear()
 
 func toggle_heatmap(action: StringName):
 	match action:
 		&"show_enemies_heatmaps":
-			UHeat.toggle_enemy_heatmaps(gridmap, heatmap_panel)
+			UHeat.toggle_enemy_heatmaps(gridmap)
 		&"show_coins_heatmaps":
-			UHeat.toggle_coin_heatmaps(gridmap, heatmap_panel)
+			UHeat.toggle_coin_heatmaps(gridmap)
 		&"show_banners_heatmaps":
-			UHeat.toggle_banner_heatmaps(gridmap, heatmap_panel)
+			UHeat.toggle_banner_heatmaps(gridmap)
 		&"show_recharges_heatmaps":
-			UHeat.toggle_recharge_heatmaps(gridmap, heatmap_panel)
+			UHeat.toggle_recharge_heatmaps(gridmap)
 		&"show_combined_heatmaps":
-			UHeat.toggle_combined_heatmaps(gridmap, heatmap_panel)
+			UHeat.toggle_combined_heatmaps(gridmap)
 
 func recalculate_heatmaps():
 	var action := visible_heatmap_action()
 	UGen.update_elements_pos(gridmap)
-	UHeat.recalculate_heatmaps(gridmap, heatmap_panel)
+	UHeat.recalculate_heatmaps(gridmap)
 	if action != &"":
 		toggle_heatmap(action)
 
@@ -117,7 +115,6 @@ func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 	_handle_seed()
 	UHeat.deactivate_heatmaps()
 	UHeat.clear_heatmaps()
-	heatmap_panel.clear()
 	match type:
 		Generator.CELLULAR:
 			var ca_generator = CA_GENERATOR.new()
@@ -226,7 +223,7 @@ func show_room_path(i: int):
 	
 	path_visualizer.draw_path(path_3d)
 
-func _on_chart_next_button_pressed(curr_room_chart):
+func _on_chart_room_changed(curr_room_chart):
 	_visualize_path_by_room_index(curr_room_chart)
 
 func _on_chart_close_button_pressed():

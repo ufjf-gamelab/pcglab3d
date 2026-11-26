@@ -1,13 +1,16 @@
 extends Control
 
 @onready var chart: LineChart = %LineChart
-@onready var title_label: Label = %Title
+@onready var room_label: Label = %Room
+@onready var heatmap_label: Label = %Heatmap
+@onready var seed_label: Label = %Seed
 @onready var close_button: Button = %Close
+@onready var previous_button: Button = %Previous
 @onready var next_button: Button = %Next
 @onready var download_button: Button = %Download
 
 signal close_button_pressed
-signal next_button_pressed(chart_pos)
+signal room_changed(chart_pos)
 
 var current_seed: int = 0
 
@@ -28,6 +31,14 @@ const HEATMAP_NAMES = {
 	UHeat.RECHARGES: "recargas"
 }
 
+const HEATMAP_LABELS = {
+	UHeat.ENEMIES: "Inimigos",
+	UHeat.COINS: "Moedas",
+	UHeat.BANNERS: "Fogueiras",
+	UHeat.COMBINED: "Combinado",
+	UHeat.RECHARGES: "Recarga"
+}
+
 const ONLY_POSITIVE_INFLUENCE_VALUES = {
 	UHeat.ENEMIES: true,
 	UHeat.COINS: true,
@@ -46,9 +57,10 @@ func _ready():
 	visible = false
 	
 	close_button.pressed.connect(_on_close_pressed)
+	previous_button.pressed.connect(_on_previous_pressed)
 	next_button.pressed.connect(_on_next_pressed)
 	download_button.pressed.connect(_on_download_pressed)
-	for button in [close_button, next_button, download_button]:
+	for button in [close_button, previous_button, next_button, download_button]:
 		button.focus_mode = Control.FOCUS_NONE
 
 func _get_heatmap_name() -> String:
@@ -157,6 +169,7 @@ func show_chart(x_val, y_val, external_call: bool):
 	
 	if external_call:
 		_togle_chart()
+		previous_button.visible = false
 		next_button.visible = false
 		
 		var max_y := get_max_abs_from_array(y)
@@ -167,9 +180,13 @@ func show_chart(x_val, y_val, external_call: bool):
 	var domain := _chart_y_domain(nice_max)
 	chart.set_data(x, y, domain.x, domain.y)
 	if rooms_x_values.is_empty():
-		title_label.text = "Influência ao longo do caminho da sala %d" % (current_room_index + 1)
+		room_label.text = "Sala %d" % (current_room_index + 1)
 	else:
-		title_label.text = "Influência ao longo do caminho da sala %d de %d" % [chart_pos + 1, rooms_x_values.size()]
+		room_label.text = "Sala %d de %d" % [chart_pos + 1, rooms_x_values.size()]
+	for key in UHeat.curr_visible_heatmap.keys():
+		if UHeat.curr_visible_heatmap[key]:
+			heatmap_label.text = HEATMAP_LABELS[key]
+	seed_label.text = "seed %d" % current_seed
 
 func _get_nice_max(value: float) -> float:
 	if value <= 0:
@@ -188,8 +205,8 @@ func _get_nice_max(value: float) -> float:
 		return 10.0 * magnitude
 
 func _on_close_pressed() -> void:
-	if next_button.visible == false:
-		next_button.visible = true
+	previous_button.visible = true
+	next_button.visible = true
 	_togle_chart()
 	chart_pos = 0
 	rooms_x_values = []
@@ -205,4 +222,9 @@ func _on_next_pressed() -> void:
 		chart_pos += 1
 	
 	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos], false)
-	next_button_pressed.emit(chart_pos)
+	room_changed.emit(chart_pos)
+
+func _on_previous_pressed() -> void:
+	chart_pos = wrapi(chart_pos - 1, 0, rooms_x_values.size())
+	show_chart(rooms_x_values[chart_pos], rooms_y_values[chart_pos], false)
+	room_changed.emit(chart_pos)

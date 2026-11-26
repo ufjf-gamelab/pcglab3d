@@ -329,6 +329,53 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dock1"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.14901961, 0.16470589, 0.2, 1)
+border_width_top = 1
+border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_area1"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.11372549, 0.1254902, 0.15686275, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23137255, 0.25490198, 0.3019608, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip1"]
+content_margin_left = 8.0
+content_margin_top = 2.0
+content_margin_right = 8.0
+content_margin_bottom = 2.0
+bg_color = Color(0.18431373, 0.20392157, 0.24705882, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chip2"]
+content_margin_left = 8.0
+content_margin_top = 2.0
+content_margin_right = 8.0
+content_margin_bottom = 2.0
+bg_color = Color(0.18431373, 0.23921569, 0.32156864, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [resource]
 default_font_size = 13
 Button/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
@@ -424,3 +471,14 @@ VSeparator/constants/separation = 13
 VSeparator/styles/separator = SubResource("StyleBoxLine_s51nr")
 DetailsPanel/base_type = &"PanelContainer"
 DetailsPanel/styles/panel = SubResource("StyleBoxFlat_mvc2f")
+ChartDock/base_type = &"PanelContainer"
+ChartDock/styles/panel = SubResource("StyleBoxFlat_dock1")
+ChartArea/base_type = &"PanelContainer"
+ChartArea/styles/panel = SubResource("StyleBoxFlat_area1")
+Chip/base_type = &"Label"
+Chip/font_sizes/font_size = 12
+Chip/styles/normal = SubResource("StyleBoxFlat_chip1")
+AccentChip/base_type = &"Label"
+AccentChip/colors/font_color = Color(0.8117647, 0.89411765, 1, 1)
+AccentChip/font_sizes/font_size = 12
+AccentChip/styles/normal = SubResource("StyleBoxFlat_chip2")
