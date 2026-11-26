@@ -74,7 +74,7 @@ func show_heatmap_details(action: StringName):
 			elements = [["Inimigo", -enemy[1], enemy[2]], coin]
 			%ScaleBar.texture = bipolar_scale
 			%ScaleMin.text = "mín."
-			%Decay.text = "Soma das influências positivas e negativas"
+			%Decay.text = "Soma das influências"
 		_:
 			%HeatmapDetails.visible = false
 			return
