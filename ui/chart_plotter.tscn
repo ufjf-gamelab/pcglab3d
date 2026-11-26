@@ -86,3 +86,12 @@ theme_type_variation = &"ChartArea"
 unique_name_in_owner = true
 layout_mode = 2
 script = ExtResource("2_2g1me")
+
+[node name="Empty" type="Label" parent="VBox/ChartArea" unique_id=798685569]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Escolha um heatmap para ver a influência ao longo do caminho"
+horizontal_alignment = 1
+vertical_alignment = 1

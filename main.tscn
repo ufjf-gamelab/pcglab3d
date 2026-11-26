@@ -222,14 +222,13 @@ text = "0"
 
 [node name="ExperimentOverlay" parent="." unique_id=971121760 instance=ExtResource("29_sdk7a")]
 
-[node name="EditTools" type="Node" parent="." unique_id=675232316 node_paths=PackedStringArray("gridmap", "nav_region", "dresser", "chart_plotter", "path_visualizer", "edit_camera", "view", "experiment_overlay")]
+[node name="EditTools" type="Node" parent="." unique_id=675232316 node_paths=PackedStringArray("gridmap", "nav_region", "dresser", "chart_plotter", "path_visualizer", "view", "experiment_overlay")]
 script = ExtResource("30_lfd2k")
 gridmap = NodePath("../NavigationRegion3D/GridMap")
 nav_region = NodePath("../NavigationRegion3D")
 dresser = NodePath("../DungeonDresser")
 chart_plotter = NodePath("../UI/CreationUI/ChartPlotter")
 path_visualizer = NodePath("../PathVisualizer")
-edit_camera = NodePath("../View/EditCamera")
 view = NodePath("../View")
 experiment_overlay = NodePath("../ExperimentOverlay")
 

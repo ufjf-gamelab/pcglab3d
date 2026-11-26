@@ -25,20 +25,19 @@ func _tile_to_world_center(tile: Vector3i) -> Vector3:
 
 	return world_pos + Vector3.UP * arrow_height_offset
 
-func draw_path(tile_path: Array[Vector3i]):
+func draw_paths(tile_paths: Array):
 	clear_path()
 
-	if tile_path.size() < 2:
-		return
+	for tile_path in tile_paths:
+		last_arrow_tip_offset = 0
+		for i in range(tile_path.size() - 1):
+			var from_tile = tile_path[i]
+			var to_tile = tile_path[i + 1]
 
-	for i in range(tile_path.size() - 1):
-		var from_tile = tile_path[i]
-		var to_tile = tile_path[i + 1]
+			var from_pos = _tile_to_world_center(from_tile)
+			var to_pos = _tile_to_world_center(to_tile)
 
-		var from_pos = _tile_to_world_center(from_tile)
-		var to_pos = _tile_to_world_center(to_tile)
-
-		_create_arrow(from_pos, to_pos, to_tile)
+			_create_arrow(from_pos, to_pos, to_tile)
 
 func _create_arrow(from: Vector3, to: Vector3, int_to: Vector3i):
 	# Se o tile de inicio for igual a final, para a função

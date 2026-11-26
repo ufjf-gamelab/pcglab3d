@@ -663,7 +663,7 @@ uppercase = true
 
 [node name="AllPaths" type="Button" parent="Root/SidePanel/VBox" unique_id=1328461111]
 layout_mode = 2
-text = "Gerar para todas as salas (P)"
+text = "Gerar caminhos (P)"
 icon = ExtResource("20_iays1")
 metadata/action = &"pathfinding"
 
@@ -752,12 +752,6 @@ text = "Saída"
 unique_name_in_owner = true
 layout_mode = 2
 text = "-"
-
-[node name="RoomPath" type="Button" parent="Root/SidePanel/VBox/RoomInfo" unique_id=1324821761]
-layout_mode = 2
-text = "Caminho da sala (O)"
-icon = ExtResource("20_iays1")
-metadata/action = &"room_path"
 
 [node name="Palette" type="PanelContainer" parent="Root" unique_id=704031239]
 layout_mode = 1

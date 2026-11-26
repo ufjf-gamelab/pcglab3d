@@ -46,7 +46,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"generate_dungeon", &"toggle_mode",
 	&"show_enemies_heatmaps", &"show_coins_heatmaps", &"show_banners_heatmaps",
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
-	&"pathfinding", &"select_room", &"run_quantitative_experiment",
+	&"pathfinding", &"run_quantitative_experiment",
 	&"save", &"load",
 	&"tool_select", &"tool_build", &"tool_erase", &"tool_link", &"tool_move",
 	&"structure_1", &"structure_2", &"structure_3", &"structure_4",
@@ -195,17 +195,16 @@ func _run_action(action: StringName):
 				action_menu.set_heatmap(&"hide_heatmaps")
 			else:
 				action_menu.set_heatmap(action)
+			edit_tools.refresh_chart()
 		&"hide_heatmaps":
 			edit_tools.clear_heatmaps()
 			action_menu.set_heatmap(&"hide_heatmaps")
+			edit_tools.refresh_chart()
 		&"recalculate_heatmaps":
 			edit_tools.recalculate_heatmaps()
 		&"pathfinding":
 			print("Calculando caminhos...")
 			edit_tools.on_pathfinding_pressed()
-		&"select_room":
-			print("Calculando caminho...")
-			edit_tools.on_select_room_path()
 		&"run_quantitative_experiment":
 			edit_tools.run_experiment()
 		&"save":
@@ -226,9 +225,6 @@ func _run_action(action: StringName):
 		&"structure_5", &"structure_6", &"structure_7":
 			builder.select_structure(STRUCTURE_KEYS[action])
 			_set_tool(Builder.Tool.BUILD)
-		&"room_path":
-			if selected_room != -1:
-				edit_tools.show_room_path(selected_room)
 		&"toggle_auto_heatmap":
 			auto_heatmap = not auto_heatmap
 		&"toggle_portal_links":
@@ -279,6 +275,7 @@ func _on_move_canceled(cell: Vector3i):
 func _on_cell_selected(cell: Vector3i):
 	selected_room = _room_of(cell)
 	_show_room_info()
+	edit_tools.show_room_chart(selected_room)
 
 func _show_room_info():
 	if selected_room == -1:
@@ -313,8 +310,8 @@ func _show_room_info():
 	})
 
 func _apply_builder_state():
-	var active := mode == Mode.CREATION and not edit_tools.experiment_running and not chart_open
-	action_menu.set_palette_visible(active)
+	var active := mode == Mode.CREATION and not edit_tools.experiment_running
+	action_menu.set_palette_visible(active and not chart_open)
 	if active:
 		builder.process_mode = Node.PROCESS_MODE_INHERIT
 		builder.set_process(true)

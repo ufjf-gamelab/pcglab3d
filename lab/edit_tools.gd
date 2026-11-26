@@ -17,7 +17,6 @@ signal experiment_state_changed(running: bool)
 @export var dresser: DungeonDresser
 @export var chart_plotter: Control
 @export var path_visualizer: Node3D
-@export var edit_camera: Camera3D
 @export var view: Node3D
 @export var experiment_overlay: ExperimentOverlay
 
@@ -30,9 +29,6 @@ var used_seed: int = 0
 var paths = []
 # Valores de influência do tipo atual exibido ao longo dos caminhos
 var paths_influences = []
-
-# Used for raycasting mouse (aproveitado do builder)
-var plane: Plane
 
 # Caminho percorrido pelo jogador
 var player_walked_paths: Array = [] # Array[Array[Vector3i]]
@@ -48,8 +44,6 @@ var _experiment = null
 
 func _ready():
 	chart_plotter.close_button_pressed.connect(_on_chart_close_button_pressed)
-	chart_plotter.room_changed.connect(_on_chart_room_changed)
-	plane = Plane(Vector3.UP, Vector3.ZERO)
 
 func clear_heatmaps():
 	UHeat.deactivate_heatmaps()
@@ -143,7 +137,7 @@ func rebuild_navigation_mesh():
 
 	nav_region.navigation_mesh = navigation_mesh
 
-func _handle_chart(influences):
+func _handle_chart(influences, rooms):
 	chart_opened.emit()
 	
 	var x = []
@@ -151,7 +145,7 @@ func _handle_chart(influences):
 		x.append(range(influence.size()))
 		
 	chart_plotter.current_seed = used_seed
-	chart_plotter.show_charts(x, influences)
+	chart_plotter.show_charts(x, influences, rooms)
 
 func on_pathfinding_pressed():
 	if PATH_TYPE == Pathfing.FREE and player_walked_paths.is_empty():
@@ -163,6 +157,7 @@ func on_pathfinding_pressed():
 	paths = []
 	paths_influences = []
 	var influences = []
+	var rooms = []
 	
 	for i in range((UGen.rooms).size()):
 		var path = _get_room_path(i, pathfinder)
@@ -171,74 +166,37 @@ func on_pathfinding_pressed():
 			continue
 		
 		paths.append(path)
+		rooms.append(i)
 		
 		var influ = _get_path_influences(i, path)
-		if influ[1] == []:
-			print("Nenhum tipo de mapa de influência selecionado.")
-			return
 		paths_influences.append(influ[0])
 		influences.append(influ[1])
 	
-	_handle_chart(influences)
-	_visualize_path_by_room_index(0)
+	_handle_chart(influences, rooms)
+	_visualize_paths()
 
-func on_select_room_path():
-	# Map position based on mouse
-	var world_position = plane.intersects_ray(
-		edit_camera.project_ray_origin(get_viewport().get_mouse_position()),
-		edit_camera.project_ray_normal(get_viewport().get_mouse_position()))
+func refresh_chart():
+	if chart_plotter.visible:
+		on_pathfinding_pressed()
 
-	# GridMap position based on mouse
-	var gridmap_position = Vector3(round(world_position.x), 0, round(world_position.z))
-	
-	for i in range((UGen.rooms).size()):
-		var room = UGen.rooms[i]
-		if gridmap_position in room:
-			show_room_path(i)
-
-func show_room_path(i: int):
-	var pathfinder = _pathfinder_init()
-	var path = _get_room_path(i, pathfinder)
-	
-	if path == []:
-		print("Jogador não passou por essa sala!")
-		return
-	
-	var influ = _get_path_influences(i, path)
-	
-	if influ[1] == []:
-		print("Nenhum tipo de mapa de influência selecionado.")
-		return
-	
-	chart_opened.emit()
-	
-	chart_plotter.current_seed = used_seed
-	chart_plotter.current_room_index = i
-	chart_plotter.show_chart(range(influ[1].size()), influ[1], true)
-	
-	var path_3d: Array[Vector3i] = []
-
-	for tuple in influ[0]:
-		path_3d.append(tuple[0])
-	
-	path_visualizer.draw_path(path_3d)
-
-func _on_chart_room_changed(curr_room_chart):
-	_visualize_path_by_room_index(curr_room_chart)
+func show_room_chart(room: int):
+	if chart_plotter.visible:
+		chart_plotter.show_room(room)
 
 func _on_chart_close_button_pressed():
 	path_visualizer.clear_path()
 	chart_closed.emit()
 
-func _visualize_path_by_room_index(room_index):
-	var path_3d: Array[Vector3i] = []
+func _visualize_paths():
+	var paths_3d := []
 	
-	var room_tuples = paths_influences[room_index]
+	for room_tuples in paths_influences:
+		var path_3d: Array[Vector3i] = []
+		for tuple in room_tuples:
+			path_3d.append(tuple[0])
+		paths_3d.append(path_3d)
 	
-	for tuple in room_tuples:
-		path_3d.append(tuple[0])
-	
-	path_visualizer.draw_path(path_3d)
+	path_visualizer.draw_paths(paths_3d)
 
 func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 	var path_cell_influ = []
@@ -250,6 +208,10 @@ func _get_path_influences(room_index, path): # [ [ [Vector3i, int] ], [int] ]
 				var tuple = [cell_3d, UHeat.heatmaps[key][room_index][cell_3d]]
 				path_cell_influ.append(tuple)
 				path_influences.append(UHeat.heatmaps[key][room_index][cell_3d])
+
+	if path_cell_influ.is_empty():
+		for cell in path:
+			path_cell_influ.append([Vector3i(cell.x, 0, cell.y), 0])
 
 	return [path_cell_influ, path_influences]
 
