@@ -103,6 +103,7 @@ func _get_global_max(arrays):
 func show_charts(x_values, y_values, room_indexes):
 	visible = true
 	rooms = room_indexes
+	chart_pos = mini(chart_pos, rooms.size() - 1)
 	rooms_x_values = x_values
 	rooms_y_values = y_values
 	

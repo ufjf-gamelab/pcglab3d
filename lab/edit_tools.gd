@@ -61,8 +61,7 @@ func toggle_heatmap(action: StringName):
 		&"show_combined_heatmaps":
 			UHeat.toggle_combined_heatmaps(gridmap)
 
-func recalculate_heatmaps():
-	var action := visible_heatmap_action()
+func recalculate_heatmaps(action := visible_heatmap_action()):
 	UGen.update_elements_pos(gridmap)
 	UHeat.recalculate_heatmaps(gridmap)
 	if action != &"":
@@ -109,6 +108,7 @@ func _handle_seed():
 
 func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 	_handle_seed()
+	var action := visible_heatmap_action()
 	UHeat.deactivate_heatmaps()
 	UHeat.clear_heatmaps()
 	match type:
@@ -121,6 +121,8 @@ func on_generate_dungeon_pressed(type := Generator.GEOMETRIC):
 			generator.generate_dungeon(gridmap)
 			generator.spawn_dungeon_elements(gridmap)
 	rebuild_navigation_mesh()
+	if chart_plotter.visible:
+		recalculate_heatmaps(action)
 
 func rebuild_navigation_mesh():
 	dresser.rebuild()
