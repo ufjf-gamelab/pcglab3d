@@ -7,8 +7,12 @@ signal structure_pressed(index: int)
 
 @export var unipolar_scale: Texture2D
 @export var bipolar_scale: Texture2D
+@export var palette_raise := 280.0
+
+var palette_offsets: Vector2
 
 func _ready():
+	palette_offsets = Vector2($Root/Palette.offset_top, $Root/Palette.offset_bottom)
 	# Isso daqui serve pra impedir que o usuário construe atrás da UI
 	for panel in $Root.get_children():
 		panel.add_to_group("blocking_ui")
@@ -112,6 +116,11 @@ func show_heatmap_details(action: StringName):
 
 func set_palette_visible(value: bool):
 	$Root/Palette.visible = value
+
+func set_palette_raised(raised: bool):
+	var shift := palette_raise if raised else 0.0
+	$Root/Palette.offset_top = palette_offsets.x - shift
+	$Root/Palette.offset_bottom = palette_offsets.y - shift
 
 func set_cell(cell: Vector3i, room: int):
 	%Cell.text = "(%d, %d)" % [cell.x, cell.z]
