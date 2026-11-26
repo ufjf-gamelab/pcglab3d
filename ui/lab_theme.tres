@@ -318,6 +318,17 @@ grow_begin = -10.0
 grow_end = -10.0
 vertical = true
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mvc2f"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18431373, 0.23921569, 0.32156864, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [resource]
 default_font_size = 13
 Button/colors/font_color = Color(0.8745098, 0.8901961, 0.91764706, 1)
@@ -411,3 +422,5 @@ TopBar/base_type = &"PanelContainer"
 TopBar/styles/panel = SubResource("StyleBoxFlat_34j8e")
 VSeparator/constants/separation = 13
 VSeparator/styles/separator = SubResource("StyleBoxLine_s51nr")
+DetailsPanel/base_type = &"PanelContainer"
+DetailsPanel/styles/panel = SubResource("StyleBoxFlat_mvc2f")

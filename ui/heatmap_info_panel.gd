@@ -10,7 +10,6 @@ func _ready():
 func show_heatmap_info(title: String, influences: Dictionary):
 	title_label.text = title
 	subtitle_label.text = format_influences(influences, title)
-	visible = true
 
 func clear():
 	visible = false

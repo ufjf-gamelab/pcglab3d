@@ -28,8 +28,25 @@
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_dg1j8"]
 
+[sub_resource type="Gradient" id="Gradient_g22uf"]
+colors = PackedColorArray(0.5, 0.5, 0, 1, 0, 0, 0.6, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_wuz58"]
+gradient = SubResource("Gradient_g22uf")
+height = 6
+
+[sub_resource type="Gradient" id="Gradient_uk2qq"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 0, 0, 1, 0.5, 0.5, 0, 1, 0, 1, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_isas1"]
+gradient = SubResource("Gradient_uk2qq")
+height = 6
+
 [node name="ActionMenu" type="CanvasLayer" unique_id=556928950]
 script = ExtResource("1_mkxff")
+unipolar_scale = SubResource("GradientTexture2D_wuz58")
+bipolar_scale = SubResource("GradientTexture2D_isas1")
 
 [node name="Root" type="Control" parent="." unique_id=1748203915]
 layout_mode = 3
@@ -517,6 +534,123 @@ metadata/action = &"show_recharges_heatmaps"
 layout_mode = 2
 theme_type_variation = &"MutedLabel"
 text = "Alt+5"
+
+[node name="HeatmapDetails" type="PanelContainer" parent="Root/SidePanel/VBox" unique_id=2014497647]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"DetailsPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Root/SidePanel/VBox/HeatmapDetails" unique_id=1898633707]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Scale" type="HBoxContainer" parent="Root/SidePanel/VBox/HeatmapDetails/VBox" unique_id=799272745]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScaleMin" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Scale" unique_id=1871590638]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "0"
+
+[node name="ScaleBar" type="TextureRect" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Scale" unique_id=1556262879]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+texture = SubResource("GradientTexture2D_wuz58")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="ScaleMax" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Scale" unique_id=899149528]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "1,0"
+
+[node name="Decay" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox" unique_id=1652462058]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_type_variation = &"MutedLabel"
+text = "Decaimento linear"
+
+[node name="Elements" type="GridContainer" parent="Root/SidePanel/VBox/HeatmapDetails/VBox" unique_id=1913685998]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="Header" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1703744219]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"MutedLabel"
+text = ""
+
+[node name="HeaderMax" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1047904407]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Máx."
+
+[node name="HeaderRange" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=608770553]
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text = "Alcance"
+
+[node name="Element1" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=584610164]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+text_overrun_behavior = 3
+
+[node name="Element1Max" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1510147443]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element1Range" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1779475365]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element2" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1940421659]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+text_overrun_behavior = 3
+
+[node name="Element2Max" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1709766993]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element2Range" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=613834406]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element3" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1963003176]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "-"
+text_overrun_behavior = 3
+
+[node name="Element3Max" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1348809198]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="Element3Range" type="Label" parent="Root/SidePanel/VBox/HeatmapDetails/VBox/Elements" unique_id=1504880943]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
 
 [node name="Sep2" type="HSeparator" parent="Root/SidePanel/VBox" unique_id=1947144574]
 layout_mode = 2

@@ -197,6 +197,7 @@ func _run_action(action: StringName):
 				action_menu.set_heatmap(action)
 		&"hide_heatmaps":
 			edit_tools.clear_heatmaps()
+			action_menu.set_heatmap(&"hide_heatmaps")
 		&"recalculate_heatmaps":
 			edit_tools.recalculate_heatmaps()
 		&"pathfinding":

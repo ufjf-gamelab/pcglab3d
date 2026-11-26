@@ -5,6 +5,9 @@ signal action_pressed(action: StringName)
 signal tool_pressed(tool: int)
 signal structure_pressed(index: int)
 
+@export var unipolar_scale: Texture2D
+@export var bipolar_scale: Texture2D
+
 func _ready():
 	# Isso daqui serve pra impedir que o usuário construe atrás da UI
 	for panel in $Root.get_children():
@@ -44,6 +47,59 @@ func set_structure(index: int):
 
 func set_heatmap(action: StringName):
 	press_button_with("action", action)
+	show_heatmap_details(action)
+
+func show_heatmap_details(action: StringName):
+	var enemy := ["Inimigo", UHeat.MAX_VALUE[UHeat.ENEMIES], UHeat.MAX_DISTANCE[UHeat.ENEMIES]]
+	var coin := ["Moeda", UHeat.MAX_VALUE[UHeat.COINS], UHeat.MAX_DISTANCE[UHeat.COINS]]
+	var campfire := ["Fogueira", UHeat.MAX_VALUE[UHeat.BANNERS], UHeat.MAX_DISTANCE[UHeat.BANNERS]]
+	var portal := ["Portal", UHeat.MAX_VALUE[UHeat.ENTRY_PORTALS], UHeat.MAX_DISTANCE[UHeat.ENTRY_PORTALS]]
+	var decay := "Decaimento %s" % UHeat.decay_func_types[UHeat.decay_func_type].to_lower()
+
+	var elements := []
+	%ScaleBar.texture = unipolar_scale
+	%ScaleMin.text = "0"
+	%ScaleMax.text = "1,0"
+	%Decay.text = decay
+	match action:
+		&"show_enemies_heatmaps":
+			elements = [enemy]
+		&"show_coins_heatmaps":
+			elements = [coin]
+		&"show_banners_heatmaps":
+			elements = [campfire]
+		&"show_recharges_heatmaps":
+			elements = [portal, campfire]
+			%ScaleMax.text = "máx."
+		&"show_combined_heatmaps":
+			elements = [["Inimigo", -enemy[1], enemy[2]], coin]
+			%ScaleBar.texture = bipolar_scale
+			%ScaleMin.text = "−"
+			%ScaleMax.text = "+"
+			%Decay.text = "Soma das influências positivas e negativas"
+		_:
+			%HeatmapDetails.visible = false
+			return
+
+	for row in 3:
+		var shown: bool = row < elements.size()
+		var name_label: Label = get_node("%%Element%d" % (row + 1))
+		var max_label: Label = get_node("%%Element%dMax" % (row + 1))
+		var range_label: Label = get_node("%%Element%dRange" % (row + 1))
+		name_label.visible = shown
+		max_label.visible = shown
+		range_label.visible = shown
+		if shown:
+			name_label.text = elements[row][0]
+			max_label.text = ("%.1f" % elements[row][1]).replace(".", ",")
+			range_label.text = str(elements[row][2])
+
+	var option_row: Control = find_button_with("action", action).get_parent()
+	var index := option_row.get_index()
+	if %HeatmapDetails.get_index() > index:
+		index += 1
+	%HeatmapDetails.get_parent().move_child(%HeatmapDetails, index)
+	%HeatmapDetails.visible = true
 
 func set_cell(cell: Vector3i, room: int):
 	%Cell.text = "(%d, %d)" % [cell.x, cell.z]
@@ -68,6 +124,12 @@ func room_list(rooms: Array) -> String:
 	return ", ".join(rooms.map(func(room): return "Sala %d" % room))
 
 func press_button_with(meta: StringName, value):
+	var button := find_button_with(meta, value)
+	if button:
+		button.button_pressed = true
+
+func find_button_with(meta: StringName, value) -> BaseButton:
 	for button: BaseButton in find_children("*", "BaseButton", true, false):
 		if button.toggle_mode and button.has_meta(meta) and button.get_meta(meta) == value:
-			button.button_pressed = true
+			return button
+	return null
