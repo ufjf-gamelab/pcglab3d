@@ -67,6 +67,7 @@ func recalculate_heatmaps():
 	UHeat.recalculate_heatmaps(gridmap)
 	if action != &"":
 		toggle_heatmap(action)
+	refresh_chart()
 
 func recalculate_room_heatmaps(room_index: int):
 	if UHeat.heatmaps[UHeat.COMBINED].size() <= room_index:
@@ -75,6 +76,7 @@ func recalculate_room_heatmaps(room_index: int):
 	UGen.update_room_elements_pos(gridmap, room_index)
 	UHeat.recalculate_room_heatmaps(gridmap, room_index)
 	refresh_visible_heatmap()
+	refresh_chart()
 
 func refresh_visible_heatmap():
 	var action := visible_heatmap_action()
