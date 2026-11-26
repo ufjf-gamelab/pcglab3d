@@ -186,7 +186,7 @@ func _run_action(action: StringName):
 			UGen.SPAWN = action_menu.get_spawn_mode()
 			edit_tools.on_generate_dungeon_pressed(action_menu.get_selected_generator())
 			action_menu.set_seed(edit_tools.used_seed)
-			selected_room = -1
+			selected_room = mini(selected_room, UGen.rooms.size() - 1)
 			_show_room_info()
 		&"random_seed":
 			action_menu.set_seed(randi())
