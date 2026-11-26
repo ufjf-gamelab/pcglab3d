@@ -226,6 +226,19 @@ func spawn_room_elements(gridmap: GridMap, available_spots: Array[Vector3i], roo
 		)
 		player_recipe.execute(gridmap, 1, available_spots)
 
+func move_portal(from: Vector3i, to: Vector3i):
+	if portal_links.has(from):
+		portal_links[to] = portal_links[from]
+		portal_links.erase(from)
+	for key in portal_links:
+		if portal_links[key] == from:
+			portal_links[key] = to
+	for room in rooms_elements_pos:
+		if room.portal1_pos == from:
+			room.portal1_pos = to
+		if room.portal2_pos == from:
+			room.portal2_pos = to
+
 func unlink_portal(cell: Vector3i):
 	portal_links.erase(cell)
 	for from in portal_links.keys():

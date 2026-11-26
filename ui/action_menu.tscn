@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" uid="uid://cyi3vb6sguiac" path="res://assets/sprites/ui/save.svg" id="18_519hg"]
 [ext_resource type="Texture2D" uid="uid://cpi0in2ld8oas" path="res://assets/sprites/ui/folder_open.svg" id="19_au1hp"]
 [ext_resource type="Texture2D" uid="uid://bhdaocje6e0oi" path="res://assets/sprites/ui/map_route.svg" id="20_iays1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/move.svg" id="21_djd3n"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_juzdr"]
 
@@ -298,6 +299,40 @@ stretch_mode = 5
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "X"
+horizontal_alignment = 1
+
+[node name="Move" type="Button" parent="Root/ToolBar/VBox" unique_id=107821644]
+custom_minimum_size = Vector2(44, 58)
+layout_mode = 2
+tooltip_text = "Mover (M)"
+theme_type_variation = &"ToolButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_juzdr")
+metadata/tool = 4
+
+[node name="VBox" type="VBoxContainer" parent="Root/ToolBar/VBox/Move" unique_id=1158423011]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Root/ToolBar/VBox/Move/VBox" unique_id=1630711431]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("21_djd3n")
+stretch_mode = 5
+
+[node name="Key" type="Label" parent="Root/ToolBar/VBox/Move/VBox" unique_id=1151475860]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "M"
 horizontal_alignment = 1
 
 [node name="Sep" type="HSeparator" parent="Root/ToolBar/VBox" unique_id=539691215]

@@ -126,6 +126,11 @@ func place_entity(scene: PackedScene, cell: Vector2i):
 	entity_at[cell] = entity
 	entity_placed.emit(entity, Vector3i(cell.x, 0, cell.y))
 
+func set_entity_visible(cell: Vector3i, value: bool):
+	var entity = entity_at.get(Vector2i(cell.x, cell.z))
+	if is_instance_valid(entity):
+		entity.visible = value
+
 func set_entities_active(active: bool):
 	for entity in entities:
 		if not is_instance_valid(entity):

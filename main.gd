@@ -48,7 +48,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"show_recharges_heatmaps", &"show_combined_heatmaps", &"recalculate_heatmaps",
 	&"pathfinding", &"select_room", &"run_quantitative_experiment",
 	&"save", &"load",
-	&"tool_select", &"tool_build", &"tool_erase", &"tool_link",
+	&"tool_select", &"tool_build", &"tool_erase", &"tool_link", &"tool_move",
 	&"structure_1", &"structure_2", &"structure_3", &"structure_4",
 	&"structure_5", &"structure_6", &"structure_7",
 ]
@@ -81,6 +81,8 @@ func _ready():
 	builder.cell_hovered.connect(_on_cell_hovered)
 	builder.cell_changed.connect(_on_cell_changed)
 	builder.cell_selected.connect(_on_cell_selected)
+	builder.move_started.connect(_on_move_started)
+	builder.move_canceled.connect(_on_move_canceled)
 	action_menu.set_seed(edit_tools.dungeon_seed)
 	dresser.entity_placed.connect(_on_entity_placed)
 	edit_tools.on_generate_dungeon_pressed()
@@ -217,6 +219,8 @@ func _run_action(action: StringName):
 			_set_tool(Builder.Tool.ERASE)
 		&"tool_link":
 			_set_tool(Builder.Tool.LINK)
+		&"tool_move":
+			_set_tool(Builder.Tool.MOVE)
 		&"structure_1", &"structure_2", &"structure_3", &"structure_4", \
 		&"structure_5", &"structure_6", &"structure_7":
 			builder.select_structure(STRUCTURE_KEYS[action])
@@ -245,6 +249,7 @@ func _on_experiment_state_changed(_running: bool):
 	_apply_builder_state()
 
 func _set_tool(new_tool: Builder.Tool):
+	builder.cancel_move()
 	tool = new_tool
 	builder.tool = tool
 	action_menu.set_tool(tool)
@@ -263,6 +268,12 @@ func _on_cell_changed(cell: Vector3i):
 		edit_tools.recalculate_room_heatmaps(room)
 	if room == selected_room:
 		_show_room_info()
+
+func _on_move_started(cell: Vector3i):
+	dresser.set_entity_visible(cell, false)
+
+func _on_move_canceled(cell: Vector3i):
+	dresser.set_entity_visible(cell, true)
 
 func _on_cell_selected(cell: Vector3i):
 	selected_room = _room_of(cell)

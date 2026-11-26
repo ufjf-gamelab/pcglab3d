@@ -5,8 +5,10 @@ signal structure_changed(index: int)
 signal cell_hovered(cell: Vector3i)
 signal cell_changed(cell: Vector3i)
 signal cell_selected(cell: Vector3i)
+signal move_started(cell: Vector3i)
+signal move_canceled(cell: Vector3i)
 
-enum Tool { SELECT, BUILD, ERASE, LINK }
+enum Tool { SELECT, BUILD, ERASE, LINK, MOVE }
 
 @export var structures: Array[Structure] = []
 
@@ -14,6 +16,7 @@ var map:DataMap
 
 var index:int = 0 # Index of structure being built
 var tool := Tool.SELECT
+var moving_from = null
 
 @export var selector:Node3D # The 'cursor'
 @export var selector_container:Node3D # Node that holds a preview of the structure
@@ -65,6 +68,8 @@ func _process(delta):
 			action_demolish(gridmap_position)
 		Tool.LINK:
 			action_link(Vector3i(gridmap_position))
+		Tool.MOVE:
+			action_move(Vector3i(gridmap_position))
 
 # Retrieve the mesh from a PackedScene, used for dynamically creating a MeshLibrary
 func get_mesh(packed_scene):
@@ -108,6 +113,47 @@ func action_select(gridmap_position):
 	if Input.is_action_just_pressed("build") and not _mouse_over_ui():
 		cell_selected.emit(Vector3i(gridmap_position))
 
+func action_move(cell: Vector3i):
+	var item: int = gridmap.get_cell_item(cell)
+	if Input.is_action_just_pressed("build") and is_movable(item) and not _mouse_over_ui():
+		moving_from = cell
+		update_structure(item)
+		selector_container.visible = true
+		move_started.emit(cell)
+	if moving_from == null:
+		return
+	if Input.is_action_just_pressed("rotate"):
+		cancel_move()
+		return
+	if Input.is_action_just_released("build"):
+		if item == UGen.FLOOR_ID:
+			move_piece(moving_from, cell)
+			stop_move()
+		else:
+			cancel_move()
+
+func cancel_move():
+	if moving_from == null:
+		return
+	move_canceled.emit(moving_from)
+	stop_move()
+
+func stop_move():
+	moving_from = null
+	update_structure()
+	selector_container.visible = false
+
+func move_piece(from: Vector3i, to: Vector3i):
+	gridmap.set_cell_item(to, gridmap.get_cell_item(from), gridmap.get_cell_item_orientation(from))
+	gridmap.set_cell_item(from, UGen.FLOOR_ID)
+	UGen.move_portal(from, to)
+	cell_changed.emit(from)
+	cell_changed.emit(to)
+	Audio.play("assets/audio/placement_a.ogg, assets/audio/placement_b.ogg, assets/audio/placement_c.ogg, assets/audio/placement_d.ogg", -20)
+
+func is_movable(item: int) -> bool:
+	return item in [UGen.COIN_ID, UGen.NPC_ID, UGen.PORTAL_ID, UGen.PLAYER_SPAWN_ID, UGen.BANNER_ID]
+
 # Demolish (remove) a structure
 func action_demolish(gridmap_position):
 	if Input.is_action_pressed("build") and not _mouse_over_ui():
@@ -146,13 +192,13 @@ func next_buildable(step: int) -> int:
 	return next
 
 # Update the structure visual in the 'cursor'
-func update_structure():
+func update_structure(structure_index := index):
 	# Clear previous structure preview in selector
 	for n in selector_container.get_children():
 		n.queue_free()
 		
 	# Create new structure preview in selector
-	var _model = structures[index].model.instantiate()
+	var _model = structures[structure_index].model.instantiate()
 	_model.process_mode = Node.PROCESS_MODE_DISABLED
 	for group in _model.get_groups():
 		_model.remove_from_group(group)
