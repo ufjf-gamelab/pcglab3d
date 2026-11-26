@@ -101,7 +101,7 @@ texture = ExtResource("4_wr1wv")
 [node name="View" type="Node3D" parent="." unique_id=1192072978]
 transform = Transform3D(0.707107, -0.40558, 0.579228, 0, 0.819152, 0.573576, -0.707107, -0.40558, 0.579228, 0, 0, 0)
 script = ExtResource("8_yovpv")
-home_rotation = Vector3(-65, 0, 0)
+home_rotation = Vector3(-35.264, 45, 0)
 
 [node name="EditCamera" type="Camera3D" parent="View" unique_id=1633495106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)

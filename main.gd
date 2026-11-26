@@ -78,7 +78,7 @@ func _ready():
 	action_menu.action_pressed.connect(_run_action)
 	action_menu.tool_pressed.connect(_set_tool)
 	action_menu.structure_pressed.connect(_on_structure_pressed)
-	builder.structure_changed.connect(action_menu.set_structure)
+	builder.structure_changed.connect(_on_structure_changed)
 	builder.cell_hovered.connect(_on_cell_hovered)
 	builder.cell_changed.connect(_on_cell_changed)
 	builder.cell_selected.connect(_on_cell_selected)
@@ -225,7 +225,6 @@ func _run_action(action: StringName):
 		&"structure_1", &"structure_2", &"structure_3", &"structure_4", \
 		&"structure_5", &"structure_6", &"structure_7":
 			builder.select_structure(STRUCTURE_KEYS[action])
-			_set_tool(Builder.Tool.BUILD)
 		&"toggle_auto_heatmap":
 			auto_heatmap = not auto_heatmap
 		&"toggle_portal_links":
@@ -259,6 +258,9 @@ func _set_tool(new_tool: Builder.Tool):
 
 func _on_structure_pressed(index: int):
 	builder.select_structure(index)
+
+func _on_structure_changed(index: int):
+	action_menu.set_structure(index)
 	_set_tool(Builder.Tool.BUILD)
 
 func _on_cell_hovered(cell: Vector3i):
