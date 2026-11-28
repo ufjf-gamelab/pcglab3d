@@ -4,7 +4,6 @@ class_name DungeonDresser
 signal entity_placed(entity: Node3D, cell: Vector3i)
 
 @export var gridmap: GridMap
-@export var cover_border := 5
 
 @export_group("Terrain")
 @export var floor_scene: PackedScene
@@ -37,6 +36,12 @@ var room_groups: Array[Node3D] = []
 var outside_group: Node3D
 var entities: Array[Node3D] = []
 
+const NEIGHBORS: Array[Vector2i] = [
+	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
+	Vector2i(-1, 0), Vector2i(1, 0),
+	Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1),
+]
+
 func _ready():
 	global_transform = gridmap.global_transform
 
@@ -66,9 +71,15 @@ func changed_cells(items: Dictionary) -> Array:
 func update_cells(cells: Array):
 	var walkable := walkable_cells()
 	var vertices := {}
+	var dressed := {}
 	for cell: Vector2i in cells:
+		dressed[cell] = true
+		for offset in NEIGHBORS:
+			dressed[cell + offset] = true
+	for cell: Vector2i in dressed:
 		free_piece(cell_pieces, cell)
 		dress_cell(cell, walkable)
+	for cell: Vector2i in cells:
 		free_piece(entity_at, cell)
 		var item := gridmap.get_cell_item(Vector3i(cell.x, 0, cell.y))
 		if entity_scenes.has(item):
@@ -97,10 +108,12 @@ func rebuild():
 	create_groups()
 
 	var walkable := walkable_cells()
-	var area := UGen.BUILD_AREA.grow(cover_border)
-	for x in range(area.position.x, area.end.x):
-		for y in range(area.position.y, area.end.y):
-			dress_cell(Vector2i(x, y), walkable)
+	var dressed := walkable.duplicate()
+	for cell: Vector2i in walkable:
+		for offset in NEIGHBORS:
+			dressed[cell + offset] = true
+	for cell: Vector2i in dressed:
+		dress_cell(cell, walkable)
 	for vertex in vertices_around(walkable):
 		dress_vertex(vertex, walkable)
 	place_entities()
@@ -184,10 +197,17 @@ func dress_cell(cell: Vector2i, walkable: Dictionary):
 	var spot := Vector3(cell.x, 0, cell.y)
 	var group := group_for(cell)
 	if not walkable.has(cell):
-		cell_pieces[cell] = place(cover_scene, group, spot, 0)
+		if touches_walkable(cell, walkable):
+			cell_pieces[cell] = place(cover_scene, group, spot, 0)
 		return
 
 	cell_pieces[cell] = place(floor_scene, group, spot, 0)
+
+func touches_walkable(cell: Vector2i, walkable: Dictionary) -> bool:
+	for offset in NEIGHBORS:
+		if walkable.has(cell + offset):
+			return true
+	return false
 
 func dress_vertex(vertex: Vector2i, walkable: Dictionary):
 	var top_left := walkable.has(vertex)

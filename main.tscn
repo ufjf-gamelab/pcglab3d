@@ -235,7 +235,6 @@ path_visualizer = NodePath("../PathVisualizer")
 [node name="DungeonDresser" type="Node3D" parent="." unique_id=1316712067 node_paths=PackedStringArray("gridmap")]
 script = ExtResource("31_lljq8")
 gridmap = NodePath("../NavigationRegion3D/GridMap")
-cover_border = 5
 floor_scene = ExtResource("32_g2w5x")
 wall_scene = ExtResource("33_vuujp")
 corner_scene = ExtResource("34_1230q")
